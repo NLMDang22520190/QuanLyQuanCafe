@@ -1,0 +1,6 @@
+@QuanLyQuanCafe.Server_HostAddress = http://localhost:5178
+
+GET {{QuanLyQuanCafe.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

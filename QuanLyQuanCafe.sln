@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35209.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuanLyQuanCafe.Server", "QuanLyQuanCafe.Server\QuanLyQuanCafe.Server.csproj", "{AC793FB4-44AB-48AF-90A7-51C9074BDCF7}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "quanlyquancafe.client", "quanlyquancafe.client\quanlyquancafe.client.esproj", "{19A52E90-1F9F-469A-8B96-56E9EC9DC56D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AC793FB4-44AB-48AF-90A7-51C9074BDCF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC793FB4-44AB-48AF-90A7-51C9074BDCF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC793FB4-44AB-48AF-90A7-51C9074BDCF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC793FB4-44AB-48AF-90A7-51C9074BDCF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19A52E90-1F9F-469A-8B96-56E9EC9DC56D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19A52E90-1F9F-469A-8B96-56E9EC9DC56D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19A52E90-1F9F-469A-8B96-56E9EC9DC56D}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{19A52E90-1F9F-469A-8B96-56E9EC9DC56D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19A52E90-1F9F-469A-8B96-56E9EC9DC56D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19A52E90-1F9F-469A-8B96-56E9EC9DC56D}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C8378269-E88B-438C-8E64-9DBE3A537F28}
+	EndGlobalSection
+EndGlobal
