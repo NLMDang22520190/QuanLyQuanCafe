@@ -1,5 +1,6 @@
 import React from "react";
 import MenuItemTypeDisplay from "../../../components/Users/MenuItemTypeDisplay/MenuItemTypeDisplay";
+import MenuItemDisplay from "../../../components/Users/MenuItemDisplay/MenuItemDisplay";
 
 const Menu = () => {
   const categories = [
@@ -99,8 +100,8 @@ const Menu = () => {
     },
   ];
   return (
-    <div className="container px-8 mx-auto">
-      <h1 className="flex justify-center  items-center gap-3 text-3xl font-bold text-center my-12">
+    <div className="container px-8 py-16 mx-auto">
+      <h1 className="flex justify-center items-center gap-3 text-3xl font-bold text-center mb-12">
         <div className="rounded-full bg-primary-50 border-black p-4 font-semibold transition-all duration-300 hover:translate-x-[-4px] hover:translate-y-[-4px] hover:rounded-full hover:shadow-[4px_4px_0px_black] active:translate-x-[0px] active:translate-y-[0px] active:rounded-2xl active:shadow-none">
           <svg
             className="text-primary-700"
@@ -130,28 +131,10 @@ const Menu = () => {
           <MenuItemTypeDisplay key={index} category={category} />
         ))}
       </div>
-      <div className="grid grid-cols-3 gap-4">
+
+      <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {products.map((product, index) => (
-          <div
-            key={index}
-            className="border rounded-lg p-4 bg-white shadow-md relative"
-          >
-            {product.bestSeller && (
-              <div className="absolute top-0 left-0 bg-red-500 text-white text-xs px-2 py-1">
-                BEST SELLER
-              </div>
-            )}
-            <img
-              src={product.image}
-              alt={product.alt}
-              className="w-full h-40 object-cover mb-4"
-            />
-            <h2 className="text-lg font-semibold mb-2">{product.name}</h2>
-            <p className="text-orange-500 font-bold mb-2">{product.price}</p>
-            <button className="absolute bottom-4 right-4 bg-orange-500 text-white rounded-full p-2">
-              <i className="fas fa-plus"></i>
-            </button>
-          </div>
+          <MenuItemDisplay key={index} product={product} />
         ))}
       </div>
     </div>

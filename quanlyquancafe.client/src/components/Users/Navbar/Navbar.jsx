@@ -9,11 +9,11 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center">
             <img src={logo} className="h-16"></img>
-            <span className="text-2xl text-primary-500 font-bold">
+            <span className="invisible md:visible w-0 md:w-full text-2xl text-primary-500 font-bold">
               Rise And Drink
             </span>
           </Link>
-          <div className="ml-8 space-x-4">
+          <div className="ml-4 md:ml-8 space-x-4">
             <Link
               to="/Menu"
               className="text-lg font-medium text-primary-400 hover:underline hover:underline-offset-8"
@@ -22,7 +22,7 @@ const Navbar = () => {
             </Link>
             <Link
               to="/"
-              className="text-lg text-primary-400 hover:underline hover:underline-offset-8"
+              className="text-lg whitespace-nowrap text-primary-400 hover:underline hover:underline-offset-8"
             >
               Theo dõi đơn hàng
             </Link>
