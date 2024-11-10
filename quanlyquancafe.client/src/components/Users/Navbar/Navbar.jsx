@@ -7,7 +7,7 @@ const Navbar = () => {
     <nav className="bg-primary-50 opacity-90 shadow-md">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         <div className="flex items-center justify-between">
-          <Link className="flex items-center">
+          <Link to="/" className="flex items-center">
             <img src={logo} className="h-16"></img>
             <span className="text-2xl text-primary-500 font-bold">
               Rise And Drink
@@ -15,7 +15,7 @@ const Navbar = () => {
           </Link>
           <div className="ml-8 space-x-4">
             <Link
-              to="/"
+              to="/Menu"
               className="text-lg font-medium text-primary-400 hover:underline hover:underline-offset-8"
             >
               Menu
