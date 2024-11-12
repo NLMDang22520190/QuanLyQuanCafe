@@ -1,8 +1,13 @@
 import React from "react";
 import MenuItemTypeDisplay from "../../../components/Users/MenuItemTypeDisplay/MenuItemTypeDisplay";
 import MenuItemDisplay from "../../../components/Users/MenuItemDisplay/MenuItemDisplay";
+import ProductModal from "../../../components/Users/ProductModal/ProductModal";
+import { useState } from "react";
 
 const Menu = () => {
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   const categories = [
     {
       name: "Món Mới Phải Thử",
@@ -99,10 +104,17 @@ const Menu = () => {
       bestSeller: true,
     },
   ];
+
+  const handleProductClick = (product) => {
+    console.log(product);
+    setSelectedProduct(product);
+    setOpenModal(true);
+  };
+
   return (
     <div className="container px-8 py-16 mx-auto">
       <h1 className="flex justify-center items-center gap-3 text-3xl font-bold text-center mb-12">
-        <div className="rounded-full bg-primary-50 border-black p-4 font-semibold transition-all duration-300 hover:translate-x-[-4px] hover:translate-y-[-4px] hover:rounded-full hover:shadow-[4px_4px_0px_black] active:translate-x-[0px] active:translate-y-[0px] active:rounded-2xl active:shadow-none">
+        <div className="p-4 rounded-full font-semibold border-black bg-primary-50 text-white w-fit transition-all shadow-[3px_3px_0px_black] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px]">
           <svg
             className="text-primary-700"
             viewBox="0 0 24 24"
@@ -131,12 +143,21 @@ const Menu = () => {
           <MenuItemTypeDisplay key={index} category={category} />
         ))}
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {products.map((product, index) => (
-          <MenuItemDisplay key={index} product={product} />
+          <MenuItemDisplay
+            key={index}
+            product={product}
+            onClick={() => handleProductClick(product)}
+          />
         ))}
       </div>
+      {/* Sử dụng ProductModal */}
+      <ProductModal
+        product={selectedProduct}
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+      />
     </div>
   );
 };

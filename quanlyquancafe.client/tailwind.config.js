@@ -2,13 +2,15 @@
 import fluid, { extract, screens } from 'fluid-tailwind'
 
 const withMT = require("@material-tailwind/react/utils/withMT");
- 
+const flowbite = require("flowbite-react/tailwind");
+
 module.exports = withMT({
 
   content: {
     files: [
       "./index.html",
       "./src/**/*.{js,ts,jsx,tsx}",
+      flowbite.content(),
     ],
     extract
   } ,
@@ -35,7 +37,7 @@ module.exports = withMT({
     
   },
   plugins: [
-    fluid
+    fluid, flowbite.plugin(),
   ],
 });
 

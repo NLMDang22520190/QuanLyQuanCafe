@@ -1,8 +1,11 @@
 import React from "react";
 
-const MenuItemDisplay = ({ product }) => {
+const MenuItemDisplay = ({ product, onClick }) => {
   return (
-    <button className="flex md:flex-col border rounded-lg p-4 overflow-hidden bg-white shadow-2xl relative">
+    <button
+      onClick={onClick}
+      className="flex md:flex-col border rounded-lg p-4 overflow-hidden bg-white shadow-2xl relative"
+    >
       {product.bestSeller && (
         <div className="absolute -rotate-45 top-5 text-center w-32 -left-8 bg-red-500 text-white text-xs px-2 py-1">
           BEST SELLER
@@ -21,7 +24,7 @@ const MenuItemDisplay = ({ product }) => {
             {product.price}
           </p>
           <div className="flex items-center justify-center">
-            <button className="p-2 rounded-full font-medium bg-primary-200 text-white w-fit transition-all shadow-[3px_3px_0px_black] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px]">
+            <div className="rounded-full bg-primary-200 text-white p-2 font-medium transition-all duration-300 hover:translate-x-[-4px] hover:translate-y-[-4px] hover:rounded-full hover:shadow-[4px_4px_0px_black] active:translate-x-[0px] active:translate-y-[0px] active:rounded-2xl active:shadow-none ">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -34,7 +37,7 @@ const MenuItemDisplay = ({ product }) => {
                   clipRule="evenodd"
                 />
               </svg>
-            </button>
+            </div>
           </div>
         </div>
       </div>
