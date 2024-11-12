@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal } from "flowbite-react";
+import { Modal, Radio, Button } from "flowbite-react";
 
 const ProductModal = ({ product, open, onClose }) => {
   const [modalSize, setModalSize] = useState("sm");
@@ -49,21 +49,21 @@ const ProductModal = ({ product, open, onClose }) => {
       <Modal.Header className=" items-center bg-primary-50">
         Thêm món vào giỏ
       </Modal.Header>
-      <Modal.Body className="p-4">
-        <div className="">
+      <Modal.Body className="p-0">
+        <div className="flex flex-col">
           <img
             src={product.image}
             alt={product.alt}
-            className="w-full object-cover mb-4 rounded-2xl"
+            className="w-full object-cover rounded-3xl p-4"
           />
-          <span className="font-semibold text-base">{product.name}</span>
-          <p className="text-gray-600 text-sm mt-2">
+          <span className="font-semibold text-base px-4">{product.name}</span>
+          <p className="text-gray-600 text-sm mt-2 px-4">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores
             aliquam numquam voluptatem, iste exercitationem, vitae ullam earum
             adipisci velit maxime quae dolorem ipsam animi. Sunt ducimus
             assumenda officiis error rerum.
           </p>
-          <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center justify-between mt-4 px-4">
             <span className="text-base my-2">65.000đ</span>
             <div className="flex items-center gap-2">
               <button
@@ -114,7 +114,7 @@ const ProductModal = ({ product, open, onClose }) => {
             </div>
           </div>
 
-          <div class="w-full mt-4">
+          <div class="w-full mt-4 px-4">
             <div class="relative">
               <input
                 type="text"
@@ -140,10 +140,64 @@ const ProductModal = ({ product, open, onClose }) => {
               </svg>
             </div>
           </div>
+
+          <div className="h-12 bg-gray-200 items-center flex my-4">
+            <span className="text-justify text-sm text-gray-800 pl-4">
+              Chọn size (Bắt buộc)
+            </span>
+          </div>
+
+          <div className="flex px-4 justify-between">
+            <div className="flex items-center">
+              <Radio
+                name="size"
+                id="size-small"
+                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200 "
+              />
+              <label htmlFor="size-small" className="flex-1 text-gray-700">
+                Nhỏ
+                <span className="inline-block w-full">+ 0đ</span>
+              </label>
+            </div>
+            <div className="flex items-center ">
+              <Radio
+                name="size"
+                id="size-medium"
+                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200 "
+              />
+              <label htmlFor="size-medium" className="flex-1 text-gray-700">
+                Vừa
+                <span className="inline-block w-full">+ 4.000đ</span>
+              </label>
+            </div>
+            <div className="flex items-center ">
+              <input
+                type="radio"
+                name="size"
+                id="size-large"
+                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200 "
+              />
+              <label htmlFor="size-large" className="flex-1 text-gray-700">
+                Lớn
+                <span className="inline-block w-full">+ 10.000đ</span>
+              </label>
+            </div>
+          </div>
+          <div className="h-12 bg-gray-200 items-center flex my-4">
+            <span className="text-justify text-sm text-gray-800 pl-4">
+              Chọn topping (Tuỳ chọn)
+            </span>
+          </div>
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <button onClick={onClose}>Đóng</button>
+        <Button
+          className="rounded-xl w-full text-white"
+          gradientDuoTone="redToYellow "
+          onClick={onClose}
+        >
+          Thêm vào giỏ hàng
+        </Button>
       </Modal.Footer>
     </Modal>
   );
