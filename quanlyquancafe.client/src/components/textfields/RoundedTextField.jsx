@@ -1,11 +1,15 @@
 import { useState } from "react"
 
 
-export const RoundedTextField = ({ initialValue = "",prefixIcon = null, placeholder = "", width = "300px", height = "30px", textColor="text-white"}) => {
+export const RoundedTextField = ({initialValue = "",prefixIcon = null, placeholder = "", width = "300px", height = "30px", textColor="text-white", onValueChange}) => {
     const [value, setValue] = useState(initialValue)
 
     const handleChange = (e) => {
-        setValue(e.target.value); 
+        const newValue = e.target.value;
+        setValue(newValue);
+        if (onValueChange) {
+            onValueChange(newValue); 
+        } 
       };
 
     return (

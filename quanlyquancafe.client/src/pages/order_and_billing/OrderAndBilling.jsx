@@ -1,9 +1,12 @@
+import { useNavigate } from "react-router-dom";
 import { RoundedButton } from "../../components/buttons/RoundedButton"
 import { TableLayout } from "../../components/tables/TableLayout"
 import { RoundedTextField } from "../../components/textfields/RoundedTextField"
 import { TableDetailType } from "../../constant/TableDetailType";
 
 export const OrderAndBilling = () => {
+    const navigate = useNavigate();
+
     const sampleData = [
         {
             id: "ORD001",
@@ -121,7 +124,7 @@ export const OrderAndBilling = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
                     </svg>
                     } height="40px" label="Export Order Report" />
-                    <RoundedButton prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <RoundedButton onClick={() => navigate("/orderAndBilling/create")} prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
                     }

@@ -44,7 +44,7 @@ const ScheduleIcon = () => (
 );
 
 const menuItems = [
-    { label: 'Dashboard', icon: <DashboardIcon />, path: '/' },
+    { label: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
     { label: 'Employees', icon: <OrderAndBillingIcon />, path: '/orderAndBilling' },
     { label: 'Customers', icon: <TablesIcon />, path: '/customers' },
     { label: 'Products', icon: <MenuIcon />, path: '/' },
