@@ -40,8 +40,8 @@ export const TableLayout = ({ columns = [], data = [] }) => {
                     <thead className="bg-amber-500 text-black font-normal sticky top-0 z-10">
                         <tr>
                             {columns.map((column, colIndex) => (
-                                <th key={colIndex} 
-                                className={`px-4 py-2 ${column.type === TableDetailType.Badge ? "text-center" : "text-left"} ${(colIndex === 0) && "rounded-s-md"} ${(colIndex === columns.length - 1) && "rounded-e-md"} `}>
+                                <th key={colIndex}
+                                    className={`px-4 py-2 ${column.type === TableDetailType.Badge ? "text-center" : "text-left"} ${(colIndex === 0) && "rounded-s-md"} ${(colIndex === columns.length - 1) && "rounded-e-md"} `}>
                                     {column.header}
                                 </th>
                             ))}
@@ -54,7 +54,7 @@ export const TableLayout = ({ columns = [], data = [] }) => {
                                     column.type === TableDetailType.Badge ? (
                                         <td key={`col-${index}-${colIndex}`} className="flex px-4 py-4 justify-center ">
                                             <StatusBadge label={row[column.key]} status={row[column.key]} />
-                                            
+
                                         </td>
                                     ) : column.type === TableDetailType.TextField ? (
                                         <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-center">
@@ -74,7 +74,7 @@ export const TableLayout = ({ columns = [], data = [] }) => {
                                         </td>
                                     ) : (
                                         <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-start">
-                                        <p>{row[column.key]}</p>
+                                            <p>{row[column.key]}</p>
                                         </td>
                                     )
 
@@ -106,6 +106,16 @@ export const TableLayout = ({ columns = [], data = [] }) => {
 
 
                 <div className="flex justify-center items-center space-x-2">
+                    {currentPage != 1 && <button
+
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        className="px-1 py-1 rounded bg-transparent border-gray-800 border-2 text-white"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                        </svg>
+
+                    </button>}
                     {Array.from({ length: totalPages }, (_, i) => (
                         <button
                             key={i + 1}
@@ -115,6 +125,16 @@ export const TableLayout = ({ columns = [], data = [] }) => {
                             {i + 1}
                         </button>
                     ))}
+
+                    {currentPage  != totalPages && <button
+
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        className="px-1 py-1 rounded bg-transparent border-gray-800 border-2 text-white"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </button>}
                 </div>
             </div>
 
