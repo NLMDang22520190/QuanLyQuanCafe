@@ -1,0 +1,51 @@
+/* PaymentMethod.css */
+.payment-method {
+    padding: 20px;
+  }
+  
+  .payment-method h3 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 15px;
+  }
+  
+  .payment-options label {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #333;
+    cursor: pointer;
+  }
+  
+  .payment-options .payment-icon {
+    width: 30px; /* Điều chỉnh kích thước của icon */
+    height: auto; /* Giữ tỉ lệ của icon */
+    margin-right: 10px;
+  }
+  
+  .payment-options input {
+    margin-right: 10px;
+  }
+  
+  .terms {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #666;
+    margin-top: 15px;
+  }
+  
+  .terms input {
+    margin-right: 10px;
+  }
+  
+  .terms a {
+    color: #ff7f00;
+    text-decoration: none;
+  }
+  
+  .terms a:hover {
+    text-decoration: underline;
+  }
+  

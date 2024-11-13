@@ -1,0 +1,13 @@
+.terms-and-conditions {
+    font-size: 14px;
+  }
+  
+  .terms-and-conditions a {
+    color: #ff7f00;
+    text-decoration: underline;
+  }
+  
+  .terms-and-conditions input[type="checkbox"] {
+    margin-right: 8px;
+  }
+  

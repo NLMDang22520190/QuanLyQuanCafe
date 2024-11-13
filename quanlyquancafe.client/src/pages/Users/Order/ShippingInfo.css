@@ -1,0 +1,54 @@
+.shipping-info {
+    padding: 20px;
+  }
+  
+  .order-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .order-content h3 {
+    font-size: 18px;
+    color: #333;
+    margin: 0;
+  }
+  
+  .change-address {
+    padding: 5px 10px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .address-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .address-icon {
+    font-size: 24px;
+    margin-right: 10px;
+  }
+  
+  .address-details {
+    flex: 1;
+  }
+  
+  .address-title {
+    font-weight: bold;
+    color: #ff7f00;
+  }
+  
+  .recipient-info input {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  

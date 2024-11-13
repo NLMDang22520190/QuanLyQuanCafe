@@ -28,7 +28,10 @@ const Navbar = () => {
             </Link>
           </div>
         </div>
-        <Link class="flex group items-center justify-center p-2 bg-white hover:bg-primary-500 rounded-full">
+        <Link
+          to="/order-confirmation"
+          class="flex group items-center justify-center p-2 bg-white hover:bg-primary-500 rounded-full"
+        >
           <div class="relative scale-75">
             <svg
               xmlns="http://www.w3.org/2000/svg"

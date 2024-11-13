@@ -1,0 +1,73 @@
+/* src/components/PromoModal/PromoModal.css */
+.promo-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .promo-modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    width: 400px;
+    text-align: center;
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .modal-header h3 {
+    font-size: 18px;
+    margin: 0;
+  }
+  
+  .close-modal {
+    font-size: 30px;
+    color: #ff7f00;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .close-modal:hover {
+    color: #e66f00;
+  }
+  
+  .modal-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .promo-input {
+    padding: 8px;
+    width: 74%;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .apply-promo {
+    padding: 8px 12px;
+    background-color: #ff7f00;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+  
+  .apply-promo:hover {
+    background-color: #e66f00;
+  }
+  
