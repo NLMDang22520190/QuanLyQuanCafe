@@ -6,12 +6,14 @@ import { CreateOrder } from "./pages/order_and_billing/CreateOrder";
 import { OrderPayment } from "./pages/order_and_billing/OrderPayment";
 import {ManagerDashboard} from "./pages/dashboard/ManagerDashboard"
 import { MenuPage } from "./pages/menu/MenuPage";
+import { Profile } from "./pages/personalization/profile";
 
 const AllRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Home/>} />
       <Route path="/dashboard" element={<ManagerDashboard/>} />
+      <Route path="/profile" element={<Profile/>} />
       <Route path='/orderAndBilling' >
       <Route path="" element={<OrderAndBilling/>}/>
         <Route path="create" element={<CreateOrder/>}/>

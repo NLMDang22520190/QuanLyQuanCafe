@@ -10,6 +10,7 @@ export const RoundedComboBox = ({
     textColor = "text-white",
     onValueChange,
     style = "rounded-md",
+    label,
 }) => {
     const [value, setValue] = useState(initialValue);
 
@@ -22,10 +23,13 @@ export const RoundedComboBox = ({
     };
 
     return (
-        <div
+        <div className="flex flex-col">
+            {label && <p className={`text-${textColor}`}>{label}</p>}
+            <div
             className={`flex items-center pr-4 border border-amber-500 overflow-hidden bg-transparent ${textColor}  ${style}`}
             style={{ width, height }}
         >
+            
             {prefixIcon && <span className="pl-2">{prefixIcon}</span>}
             <select
                 value={value}
@@ -44,5 +48,7 @@ export const RoundedComboBox = ({
                 ))}
             </select>
         </div>
+        </div>
+       
     );
 };

@@ -1,8 +1,16 @@
+import { useNavigate } from "react-router-dom"
 import Avatar from "../components/avatar/Avatar"
 import { CircleButton } from "../components/buttons/CircleButton"
 import { FullRoundedTextField } from "../components/textfields/FullRoundedTextField"
 
 export const AppHeader = () => {
+    const navigate = useNavigate();
+
+    const navigateProfile = () => {
+        console.log("navigate")
+        navigate('/profile')
+    }
+
     return <div className="flex bg-gray-900 h-16 items-center justify-end gap-x-4 px-4 py-10 text-amber-500">
         <FullRoundedTextField 
         placeholder="Search something..."
@@ -19,6 +27,6 @@ export const AppHeader = () => {
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
         </svg>
         } />
-        <Avatar/>
+        <Avatar onClick={() => navigateProfile()}/>
     </div>
 }

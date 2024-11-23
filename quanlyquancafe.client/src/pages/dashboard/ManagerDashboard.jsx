@@ -115,7 +115,7 @@ export const ManagerDashboard = () => {
                                 } />
                             </div>
                         </div>
-                        <LineChart data={sampleLineData} values />
+                        <LineChart data={sampleLineData} values  />
                     </div>
 
                 </div>
@@ -125,15 +125,16 @@ export const ManagerDashboard = () => {
                     <div className="flex flex-col gap-y-2 bg-gray-500/30 rounded-[20px] p-6 shadow-lg">
                         <p className="font-semibold text-xl">Popularity</p>
 
-                        <OverviewTableLayoutWithTab tabs={[{name: "Most sold dish"}, {name: "Least sold dish"}]} columns={columnData} data={sampleData} />
+                        <OverviewTableLayoutWithTab tabs={[{ name: "Most sold dish" }, { name: "Least sold dish" }]} columns={columnData} data={sampleData} />
                     </div>
                     <div className="flex flex-col gap-y-2 bg-gray-500/30 rounded-[20px] p-6 shadow-lg">
                         <p className="font-semibold text-xl">Order & Billing Status</p>
-                        <OverviewTableLayoutWithTab tabs={[{name: "Pending"}, {name: "Billed"}]} columns={columnData} data={sampleData} />
+                        <OverviewTableLayoutWithTab tabs={[{ name: "Pending" }, { name: "Billed" }]} columns={columnData} data={sampleData} />
                     </div>
                     <div className="flex flex-col gap-y-2 bg-gray-500/30 rounded-[20px] p-6 shadow-lg">
                         <p className="font-semibold text-xl">Inverntory Status</p>
-                        <OverviewTableLayoutWithTab tabs={[{name: "In stock"}, {name: "Out stock"}]} columns={columnData} data={sampleData} />                    </div>
+                        <OverviewTableLayoutWithTab tabs={[{ name: "In stock" }, { name: "Out stock" }]} columns={columnData} data={sampleData} />
+                    </div>
                 </div>
             </div>
 
