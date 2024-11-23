@@ -1,7 +1,7 @@
 import { Status } from "../../constant/Status";
 
 
-export const StatusBadge = ({label = "", status = ""}) => {
+export const StatusBadge = ({label = "", status = "",}) => {
     let badgeStyle, textColor;
 
     switch (status) {

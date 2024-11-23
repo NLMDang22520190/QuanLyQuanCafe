@@ -8,7 +8,8 @@ export const RoundedComboBox = ({
     width = "300px",
     height = "30px",
     textColor = "text-white",
-    onValueChange
+    onValueChange,
+    style = "",
 }) => {
     const [value, setValue] = useState(initialValue);
 
@@ -22,14 +23,14 @@ export const RoundedComboBox = ({
 
     return (
         <div
-            className={`flex items-center border border-amber-500 rounded-sm overflow-hidden bg-transparent ${textColor}`}
+            className={`flex items-center pr-4 border border-amber-500 overflow-hidden bg-transparent ${textColor}  ${style}`}
             style={{ width, height }}
         >
             {prefixIcon && <span className="pl-2">{prefixIcon}</span>}
             <select
                 value={value}
                 onChange={handleChange}
-                className={`flex-1 px-4 py-2 bg-transparent border-0 border-transparent focus:outline-none ${prefixIcon ? "" : "pl-4"}`}
+                className={`flex-1 py-2 bg-transparent border-0 border-transparent focus:outline-none ${prefixIcon ? "" : "pl-4"}`}
             >
                 {placeholder && (
                     <option value="" disabled>

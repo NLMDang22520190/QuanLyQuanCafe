@@ -140,7 +140,7 @@ export const OrderPayment = () => {
 
             <div className="flex max-h-[calc(100vh-180px)]  min-h-[calc(100vh-180px)] w-full gap-x-4">
                 <div className="bg-gray-800/60 w-2/3 rounded-lg flex gap-x-8 p-4">
-                    <div className="flex flex-col justify-between w-full">
+                    <div className="flex flex-col justify-between w-full py-14">
                         <div className="flex flex-col items-center" >
                             
                             <QRCode value={qrData} size={300} />
