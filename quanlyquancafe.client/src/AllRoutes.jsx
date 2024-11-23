@@ -5,6 +5,7 @@ import { OrderAndBilling } from "./pages/order_and_billing/OrderAndBilling";
 import { CreateOrder } from "./pages/order_and_billing/CreateOrder";
 import { OrderPayment } from "./pages/order_and_billing/OrderPayment";
 import {ManagerDashboard} from "./pages/dashboard/ManagerDashboard"
+import { MenuPage } from "./pages/menu/MenuPage";
 
 const AllRoutes = () => {
   return (
@@ -16,7 +17,10 @@ const AllRoutes = () => {
         <Route path="create" element={<CreateOrder/>}/>
         <Route path="payment" element={<OrderPayment/>}/>
       </Route>
-      
+      <Route path='/menu' >
+      <Route path="" element={<MenuPage/>}/>
+        
+      </Route>
     </Routes>
   );
 };
