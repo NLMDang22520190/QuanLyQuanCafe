@@ -8,6 +8,7 @@ import { RoundedComboBox } from "../../components/combobox/RoundedComboBox";
 import { useNavigate } from "react-router-dom";
 
 export const CreateOrder = () => {
+    const [loading, setLoading] = useState(true);  
     const [currentTab, setCurrentTab] = useState(0);
     const navigate = useNavigate();
     const [diningOption, setDiningOption] = useState(DiningOption.DineIn);
@@ -176,7 +177,7 @@ export const CreateOrder = () => {
     return (
         <div className="flex flex-col gap-y-4 overflow-hidden h-full">
             <div className="flex justify-between items-center">
-                <h2 className="text-amber-500 font-medium text-3xl">Order & Billing</h2>
+                <h2 className="text-amber-500 font-medium text-3xl">Create New Order</h2>
                 <div className="flex gap-x-2">
 
 

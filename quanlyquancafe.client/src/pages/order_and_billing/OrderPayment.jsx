@@ -143,7 +143,7 @@ export const OrderPayment = () => {
                     <div className="flex flex-col justify-between w-full py-14">
                         <div className="flex flex-col items-center" >
                             
-                            <QRCode value={qrData} size={300} />
+                            <QRCode value={qrData} size={200} />
                             <p>Scan this code to initiate payment.</p>
                         </div>
 
