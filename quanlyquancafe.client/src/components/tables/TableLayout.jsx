@@ -4,7 +4,7 @@ import { RoundedTextField } from "../textfields/RoundedTextField";
 import { CheckBox } from '../checkboxes/CheckBox';
 import { StatusBadge } from "../badges/StatusBadge";
 import { useEffect, useState } from "react";
-import { CircleButton } from '../buttons/CircleButton'
+import {CircleButton} from "../buttons/CircleButton";
 import { RoundedComboBox } from "../combobox/RoundedComboBox";
 import { CheckSlider } from "../checkboxes/CheckSlider";
 

@@ -1,6 +1,7 @@
 import { useState } from "react"
-import { CircleButton } from "../buttons/CircleButton"
+import {CircleButton} from "../buttons/CircleButton"
 import { RoundedTextField } from "../textfields/RoundedTextField"
+import QuantityField from "../input_fields/QuantityField";
 
 export const SelectedOrderProductCard = ({ key, imageUrl, name, price, inStock = 0 }) => {
     const [quantity, setQuantity] = useState(1);
@@ -12,26 +13,8 @@ export const SelectedOrderProductCard = ({ key, imageUrl, name, price, inStock =
                 <p className="font-semibold">{name}</p>
                 <p>{price}</p>
             </div>
-            <div className="flex flex-col justify-end items-end">
-                <div className="flex">
-                <CircleButton 
-                onClick={() => setQuantity(quantity-1)} 
-                style="bg-amber-500 rounded-full p-1 w-8 h-8 hover:bg-amber-600 text-white" 
-                icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
-              </svg>              
-                } />
-                <RoundedTextField onValueChange={(value) => setQuantity(value)} 
-                width="40px"/>
-                <CircleButton 
-                onClick={() => setQuantity(quantity+1)} 
-                style="bg-amber-500 rounded-full p-1 w-8 h-8 hover:bg-amber-600 text-white" 
-                icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                } />
-                </div>
-               
+            <div className="flex flex-col justify-end items-end w-1/3">  
+                <QuantityField max={inStock} min={1} onChange={(quantity) => setQuantity(quantity)}/>
             </div>
         </div>
     )
