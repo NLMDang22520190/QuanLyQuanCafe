@@ -5,12 +5,18 @@ import { OrderAndBilling } from "./pages/order_and_billing/OrderAndBilling";
 import { CreateOrder } from "./pages/order_and_billing/CreateOrder";
 import { OrderPayment } from "./pages/order_and_billing/OrderPayment";
 import {ManagerDashboard} from "./pages/dashboard/ManagerDashboard"
-
+import Schedule from "./pages/schedule/Schedule"
+import StaffSchedule from "./pages/schedule/StaffSchedule";
+import UserPage from "./pages/user/UserPage";
 const AllRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Home/>} />
       <Route path="/dashboard" element={<ManagerDashboard/>} />
+      <Route path="/schedule" element={<Schedule/>} />
+      <Route path="/staff-schedule" element={<StaffSchedule/>} />
+      <Route path="/user" element={<UserPage/>} />
+
       <Route path='/orderAndBilling' >
       <Route path="" element={<OrderAndBilling/>}/>
         <Route path="create" element={<CreateOrder/>}/>

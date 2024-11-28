@@ -1,0 +1,8 @@
+
+.ant-table-thead > tr > th {
+    background-color: #ffc107 !important; /* Màu primary */
+    color: #000000 !important; /* Màu chữ trắng */
+  }
+.e-toolbar-items.e-tbar-pos{
+    background-color: #000000!important;
+}
