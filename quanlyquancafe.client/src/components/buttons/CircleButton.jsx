@@ -1,7 +1,10 @@
-export const CircleButton = ({icon = null}) => {
+export const CircleButton = ({icon = null, style = "", onClick = () => {}}) => {
     return (
-        <div>
+        <div className={`${style} text-amber-500`}>
+            <button onClick={onClick}>
             {icon}
+            </button>
+            
         </div>
     )
 }

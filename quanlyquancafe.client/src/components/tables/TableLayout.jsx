@@ -5,11 +5,13 @@ import { CheckBox } from '../checkboxes/CheckBox';
 import { StatusBadge } from "../badges/StatusBadge";
 import { useEffect, useState } from "react";
 import { CircleButton } from '../buttons/CircleButton'
+import { RoundedComboBox } from "../combobox/RoundedComboBox";
+import { CheckSlider } from "../checkboxes/CheckSlider";
 
-export const TableLayout = ({ columns = [], data = [] }) => {
+export const TableLayout = ({ columns = [], data = [], pageLayout = true }) => {
 
     const [currentPage, setCurrentPage] = useState(1)
-    const [rowsPerPage, setRowsPerPage] = useState(15)
+    const [rowsPerPage, setRowsPerPage] = useState(pageLayout ? 15 : data.length)
 
     const totalPages = Math.ceil(data.length / rowsPerPage);
     const currentData = data.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
@@ -72,11 +74,23 @@ export const TableLayout = ({ columns = [], data = [] }) => {
 
                                             } />
                                         </td>
-                                    ) : (
-                                        <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-start">
-                                            <p>{row[column.key]}</p>
+                                    ) : column.type === TableDetailType.TextField ? (
+                                        <RoundedTextField width="100%" initialValue={row[column.key]} />
+                                    ) : column.type === TableDetailType.ComboBox ? (
+                                        <td key={`col-${index}-${colIndex}`} className="px-1 py-4 justify-items-center">
+                                            <RoundedComboBox width="100%" initialValue={row[column.key]} options={column.options || []} />
                                         </td>
-                                    )
+                                    ) : column.type === TableDetailType.CheckSlider ? (
+                                        <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-center">
+                                            <CheckSlider initialValue={row[column.key]} />
+                                        </td>
+                                    ) 
+                                    :
+                                        (
+                                            <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-start">
+                                                <p>{row[column.key]}</p>
+                                            </td>
+                                        )
 
                                 ))}
                             </tr>
@@ -86,7 +100,7 @@ export const TableLayout = ({ columns = [], data = [] }) => {
 
             </div>
 
-            <div className="flex flex-col">
+            {pageLayout && (<div className="flex flex-col">
 
                 <div className="flex justify-end px-4 mt-2">
                     <div className="flex items-center space-x-2">
@@ -126,7 +140,7 @@ export const TableLayout = ({ columns = [], data = [] }) => {
                         </button>
                     ))}
 
-                    {currentPage  != totalPages && <button
+                    {currentPage != totalPages && <button
 
                         onClick={() => handlePageChange(currentPage + 1)}
                         className="px-1 py-1 rounded bg-transparent border-gray-800 border-2 text-white"
@@ -136,7 +150,9 @@ export const TableLayout = ({ columns = [], data = [] }) => {
                         </svg>
                     </button>}
                 </div>
-            </div>
+            </div>)}
+
+
 
         </div>
     );
