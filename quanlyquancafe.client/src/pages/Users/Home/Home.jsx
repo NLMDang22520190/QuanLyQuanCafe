@@ -5,6 +5,7 @@ import HowItWorkSection from "../../../components/Users/Home/HowItWorkSection/Ho
 import TestimonialSection from "../../../components/Users/Home/TestimonialSection/TestimonialSection";
 import FeatureProductsSection from "../../../components/Users/Home/FeatureProductsSection/FeatureProductsSection";
 import HeroCarouselSection from "../../../components/Users/Home/HeroCarouselSection/HeroCarouselSection";
+import FooterSection from "../../../components/Users/Home/FooterSection/FooterSection";
 
 const Home = () => {
   return (
@@ -16,6 +17,7 @@ const Home = () => {
         <FeatureProductsSection />
         <TestimonialSection />
       </main>
+      <FooterSection />
     </div>
   );
 };
