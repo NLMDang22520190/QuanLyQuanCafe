@@ -22,7 +22,7 @@ const TestimonialSection = () => {
             nâng tầm thói quen mỗi ngày của bạn.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <button className="transition-all duration-300 ease-out hover:bg-primary-600 hover:shadow-lg hover:-translate-y-0.5 bg-black text-white px-8 py-3 rounded-lg font-medium">
+            <button className="transition-all duration-300 ease-out hover:bg-primary-600 hover:shadow-lg hover:-translate-y-0.5 bg-primary-600 text-white px-8 py-3 rounded-lg font-medium">
               Đặt hàng
             </button>
             <button className="transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-0.5 bg-white text-primary-800 px-8 py-3 rounded-lg font-medium border border-primary-200">
