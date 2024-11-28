@@ -193,7 +193,7 @@ const ProductModal = ({ product, open, onClose }) => {
       <Modal.Footer>
         <Button
           className="rounded-xl w-full text-white"
-          gradientDuoTone="redToYellow "
+          gradientDuoTone="redToYellow"
           onClick={onClose}
         >
           Thêm vào giỏ hàng
