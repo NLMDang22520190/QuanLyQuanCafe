@@ -15,6 +15,7 @@ import { Profile } from "./pages/personalization/profile";
 import { InventoryControlPage } from "./pages/Inventory/InventoryControlPage";
 
 import  TableManagementPage  from "./pages/table_management/TableManagementPage";
+import { AddMaterials } from "./pages/Inventory/AddMaterials";
 
 const AllRoutes = () => {
   return (
@@ -30,10 +31,14 @@ const AllRoutes = () => {
       </Route>
       <Route path='/orderAndBilling' element={<OrderAndBilling/>}/>
       <Route path='/menu' >
-      <Route path="" element={<MenuPage/>}/>
-        
+      <Route path="" element={<MenuPage/>}/>      
       </Route>
-      <Route path="/supplies" element={<InventoryControlPage/>}/>
+
+
+      <Route path='/supplies'>
+      <Route path="" element={<InventoryControlPage/>}/>
+      <Route path="add" element={<AddMaterials/>}/>
+      </Route>
     </Routes>
   );
 };

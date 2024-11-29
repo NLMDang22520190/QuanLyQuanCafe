@@ -23,7 +23,7 @@ export const RoundedComboBox = ({
     };
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-y-2">
             {label && <p className={`mb-1-${textColor}`}>{label}</p>}
             <div
             className={`flex items-center pr-4 border border-amber-500 overflow-hidden bg-transparent ${textColor}  ${style}`}
