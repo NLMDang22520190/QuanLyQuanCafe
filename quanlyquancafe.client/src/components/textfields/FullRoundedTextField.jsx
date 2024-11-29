@@ -10,7 +10,7 @@ return (
             <input
                 type="text"
                 placeholder={placeholder}
-                className={`flex-1 px-4 py-2 bg-transparent border-0 border-transparent focus:outline-none  ${prefixIcon ? "" : "pl-4"}`}
+                className={`flex-1 px-4 py-4 bg-transparent border-0 border-transparent focus:outline-none  ${prefixIcon ? "" : "pl-4"}`}
             />
         </div>
 )

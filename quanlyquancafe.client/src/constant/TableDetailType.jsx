@@ -6,5 +6,6 @@ export const TableDetailType = {
     Avatar: "Avatar",
     Info: "Info",
     Action: "Action",
+    CheckSlider: "CheckSlider"
   }
   

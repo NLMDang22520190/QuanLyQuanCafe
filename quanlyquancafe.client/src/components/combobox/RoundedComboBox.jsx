@@ -8,7 +8,9 @@ export const RoundedComboBox = ({
     width = "300px",
     height = "30px",
     textColor = "text-white",
-    onValueChange
+    onValueChange,
+    style = "rounded-md",
+    label,
 }) => {
     const [value, setValue] = useState(initialValue);
 
@@ -21,15 +23,18 @@ export const RoundedComboBox = ({
     };
 
     return (
-        <div
-            className={`flex items-center border border-amber-500 rounded-sm overflow-hidden bg-transparent ${textColor}`}
+        <div className="flex flex-col gap-y-2">
+            {label && <p className={`mb-1-${textColor}`}>{label}</p>}
+            <div
+            className={`flex items-center pr-4 border border-amber-500 overflow-hidden bg-transparent ${textColor}  ${style}`}
             style={{ width, height }}
         >
+            
             {prefixIcon && <span className="pl-2">{prefixIcon}</span>}
             <select
                 value={value}
                 onChange={handleChange}
-                className={`flex-1 px-4 py-2 bg-transparent border-0 border-transparent focus:outline-none ${prefixIcon ? "" : "pl-4"}`}
+                className={`flex-1 bg-transparent border-none focus:outline-none ${prefixIcon ? "pl-2" : "pl-4"} text-white`}
             >
                 {placeholder && (
                     <option value="" disabled>
@@ -37,11 +42,18 @@ export const RoundedComboBox = ({
                     </option>
                 )}
                 {options.map((option, index) => (
-                    <option key={index} value={option.value}>
+                    <option key={index} value={option.value}
+                    className="bg-gray-700 text-white hover:bg-gray-600 focus:bg-gray-500"
+                    >
+                        
                         {option.label}
                     </option>
                 ))}
             </select>
         </div>
-    );
-};
+        </div>
+       
+    )
+}
+
+

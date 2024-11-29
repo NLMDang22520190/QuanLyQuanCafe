@@ -10,7 +10,7 @@ export const OrderProductCard = ({ key, imageUrl, name, price, inStock = 0 }) =>
             </div>
             <div className="flex flex-col justify-between items-end">
                 <p className="p-1 rounded-full bg-gray-500 w-8 h-8 text-center">{inStock}</p>
-                <CircleButton style="bg-amber-500 rounded-full p-1 w-8 h-8 hover:bg-amber-600" icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <CircleButton style="bg-amber-500 rounded-full p-1 w-8 h-8 hover:bg-amber-600 text-white" icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
                 } />
