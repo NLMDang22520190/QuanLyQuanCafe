@@ -15,7 +15,7 @@ const FooterSection = () => {
               name="Rise and Drink"
             />
           </div>
-          <div className="grid grid-cols-2 gap-8 sm:mt-4 sm:grid-cols-3 sm:gap-6">
+          <div className="grid grid-cols-2 gap-8 sm:mt-4 sm:gap-6">
             <div>
               <Footer.Title title="about" />
               <Footer.LinkGroup col>

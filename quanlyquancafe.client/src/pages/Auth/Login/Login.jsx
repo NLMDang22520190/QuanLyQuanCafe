@@ -21,6 +21,7 @@ const Login = () => {
         <img
           src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
           alt="Login background"
+          loading="lazy"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/25" />

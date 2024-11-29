@@ -37,6 +37,7 @@ const SignUp = () => {
         <img
           src="https://images.unsplash.com/photo-1581092795360-fd1ca04f0952"
           alt="Sign up background"
+          loading="lazy"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/25" />
