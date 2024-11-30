@@ -4,11 +4,11 @@ import { RoundedTextField } from "../textfields/RoundedTextField";
 import { CheckBox } from '../checkboxes/CheckBox';
 import { StatusBadge } from "../badges/StatusBadge";
 import { useEffect, useState } from "react";
-import { CircleButton } from '../buttons/CircleButton'
+import { CircleButton } from "../buttons/CircleButton";
 import { RoundedComboBox } from "../combobox/RoundedComboBox";
 import { CheckSlider } from "../checkboxes/CheckSlider";
 
-export const TableLayout = ({ columns = [], data = [], pageLayout = true }) => {
+export const TableLayout = ({ columns = [], data = [], pageLayout = true, hideHeader=false }) => {
 
     const [currentPage, setCurrentPage] = useState(1)
     const [rowsPerPage, setRowsPerPage] = useState(pageLayout ? 15 : data.length)
@@ -39,7 +39,7 @@ export const TableLayout = ({ columns = [], data = [], pageLayout = true }) => {
         <div className="h-full flex flex-col justify-between">
             <div className="w-full  bg-gray-900 overflow-y-auto scrollbar-hide">
                 <table className="table-auto w-full text-left ">
-                    <thead className="bg-amber-500 text-black font-normal sticky top-0 z-10">
+                    {hideHeader==false && <thead className="bg-amber-500 text-black font-normal sticky top-0 z-10">
                         <tr>
                             {columns.map((column, colIndex) => (
                                 <th key={colIndex}
@@ -48,7 +48,8 @@ export const TableLayout = ({ columns = [], data = [], pageLayout = true }) => {
                                 </th>
                             ))}
                         </tr>
-                    </thead>
+                    </thead>}
+                    
                     <tbody className="font-light divide-y divide-amber-500 divide-opacity-30">
                         {displayedData.map((row, index) => (
                             <tr key={`row-${index}`}>
@@ -74,18 +75,20 @@ export const TableLayout = ({ columns = [], data = [], pageLayout = true }) => {
 
                                             } />
                                         </td>
-                                    ) : column.type === TableDetailType.TextField ? (
-                                        <RoundedTextField width="100%" initialValue={row[column.key]} />
+                                    ) : column.type === TableDetailType.NumberField ? (
+                                        <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-center">
+                                            <RoundedTextField options={column.options} width="100px" initialValue={row[column.key]} />
+                                        </td>
                                     ) : column.type === TableDetailType.ComboBox ? (
-                                        <td key={`col-${index}-${colIndex}`} className="px-1 py-4 justify-items-center">
-                                            <RoundedComboBox width="100%" initialValue={row[column.key]} options={column.options || []} />
+                                        <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-center">
+                                            <RoundedComboBox options={column.options} width="100%" initialValue={row[column.key]} />
                                         </td>
                                     ) : column.type === TableDetailType.CheckSlider ? (
                                         <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-center">
                                             <CheckSlider initialValue={row[column.key]} />
                                         </td>
-                                    ) 
-                                    :
+                                    )
+                                        :
                                         (
                                             <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-start">
                                                 <p>{row[column.key]}</p>

@@ -4,135 +4,111 @@ import { TableLayout } from "../../components/tables/TableLayout"
 import { RoundedTextField } from "../../components/textfields/RoundedTextField"
 import { TableDetailType } from "../../constant/TableDetailType";
 import { useState } from "react";
+import CreateCategory from "./modals/CreateCategory";
 
 export const MenuPage = () => {
     const navigate = useNavigate();
     const [currentTab, setCurrentTab] = useState(0);
+    const [currentProducts,setCurrentProducts] = useState([]);
+    const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] = useState(false);
 
-    const sampleData = [
+    const categoryWithProducts = [
         {
             id: 1,
-            name: "Paneer Tikka Biryani",
-            category: "Indian",
-            price: "$12.99",
-            quantity: 50,
-            description: "A spicy and aromatic rice dish with paneer tikka.",
-            variations: ["Regular", "Spicy", "Extra Serving"],
-            available: true,
-            action: "Edit"
+            name: "Indian",
+            products: [
+                {
+                    id: 1,
+                    name: "Paneer Tikka Biryani",
+                    price: "$12.99",
+                    quantity: 50,
+                    description: "A spicy and aromatic rice dish with paneer tikka.",
+                    variations: ["Regular", "Spicy", "Extra Serving"],
+                    available: true,
+                    category: "Indian",
+                    action: "Edit"
+                },
+                {
+                    id: 3,
+                    name: "Chicken Boneless Biryani",
+                    price: "$14.49",
+                    quantity: 60,
+                    description: "Fragrant rice cooked with boneless chicken and spices.",
+                    variations: ["Regular", "Spicy", "Extra Serving"],
+                    available: true,
+                    category: "Indian",
+                    action: "Edit"
+                },
+                {
+                    id: 5,
+                    name: "Butter Chicken",
+                    price: "$15.99",
+                    quantity: 20,
+                    description: "A creamy chicken curry served with naan or rice.",
+                    variations: ["Regular", "Spicy", "Extra Cream"],
+                    available: true,
+                    category: "Indian",
+                    action: "Edit"
+                }
+            ]
         },
         {
             id: 2,
-            name: "Boneless Chicken 65",
-            category: "Chinese",
-            price: "$10.99",
-            quantity: 30,
-            description: "A crispy, boneless chicken dish, popular in Chinese cuisine.",
-            variations: ["Small", "Large", "Extra Spicy"],
-            available: true,
-            action: "Edit"
-        },
-        {
-            id: 3,
-            name: "Chicken Boneless Biryani",
-            category: "Indian",
-            price: "$14.49",
-            quantity: 60,
-            description: "Fragrant rice cooked with boneless chicken and spices.",
-            variations: ["Regular", "Spicy", "Extra Serving"],
-            available: true,
-            action: "Edit"
-        },
-        {
-            id: 4,
-            name: "Veg Fried Rice",
-            category: "Chinese",
-            price: "$8.99",
-            quantity: 40,
-            description: "A stir-fried rice dish with mixed vegetables.",
-            variations: ["Small", "Large", "Extra Vegetables"],
-            available: false,
-            action: "Edit"
-        },
-        {
-            id: 5,
-            name: "Butter Chicken",
-            category: "Indian",
-            price: "$15.99",
-            quantity: 20,
-            description: "A creamy chicken curry served with naan or rice.",
-            variations: ["Regular", "Spicy", "Extra Cream"],
-            available: false,
-            action: "Edit"
-        },
-        {
-            id: 5,
-            name: "Butter Chicken",
-            category: "Indian",
-            price: "$15.99",
-            quantity: 20,
-            description: "A creamy chicken curry served with naan or rice.",
-            variations: ["Regular", "Spicy", "Extra Cream"],
-            available: true,
-            action: "Edit"
-        },
-        {
-            id: 5,
-            name: "Butter Chicken",
-            category: "Indian",
-            price: "$15.99",
-            quantity: 20,
-            description: "A creamy chicken curry served with naan or rice.",
-            variations: ["Regular", "Spicy", "Extra Cream"],
-            available: false,
-            action: "Edit"
-        },
-        {
-            id: 5,
-            name: "Butter Chicken",
-            category: "Indian",
-            price: "$15.99",
-            quantity: 20,
-            description: "A creamy chicken curry served with naan or rice.",
-            variations: ["Regular", "Spicy", "Extra Cream"],
-            available: true,
-            action: "Edit"
-        },
-        {
-            id: 5,
-            name: "Butter Chicken",
-            category: "Indian",
-            price: "$15.99",
-            quantity: 20,
-            description: "A creamy chicken curry served with naan or rice.",
-            variations: ["Regular", "Spicy", "Extra Cream"],
-            available: true,
-            action: "Edit"
+            name: "Chinese",
+            products: [
+                {
+                    id: 2,
+                    name: "Boneless Chicken 65",
+                    price: "$10.99",
+                    quantity: 30,
+                    description: "A crispy, boneless chicken dish, popular in Chinese cuisine.",
+                    variations: ["Small", "Large", "Extra Spicy"],
+                    available: true,
+                    category: "Chinese",
+                    action: "Edit"
+                },
+                {
+                    id: 4,
+                    name: "Veg Fried Rice",
+                    price: "$8.99",
+                    quantity: 40,
+                    description: "A stir-fried rice dish with mixed vegetables.",
+                    variations: ["Small", "Large", "Extra Vegetables"],
+                    available: false,
+                    category: "Chinese",
+                    action: "Edit"
+                }
+            ]
         }
     ];
-
-    const categories = [
-        { name: "All" },
-        { name: "Biryani" },
-        { name: "Bervarage" },
-    ]
-
-
-
 
     const columnData = [
         { header: "", key: "id", type: TableDetailType.CheckBox },
         { header: "Name", key: "name", type: TableDetailType.TextField },
-        { header: "Category", key: "category", type: TableDetailType.ComboBox },
-        { header: "Price", key: "price", type: TableDetailType.TextField },
-        { header: "Quantity", key: "quantity", type: TableDetailType.TextField },
+        { header: "Category", key: "category", type: TableDetailType.ComboBox, options: [
+            { label: "Indian", value: "Indian" },
+            { label: "Chinese", value: "Chinese" },
+            { label: "Italian", value: "Italian" },
+            { label: "Mexican", value: "Mexican" },
+            { label: "Thai", value: "Thai" }
+        ] },
+        { header: "Price", key: "price", type: TableDetailType.NumberField },
+        { header: "Quantity", key: "quantity", type: TableDetailType.NumberField },
         { header: "Description", key: "description", type: TableDetailType.TextField },
-        { header: "Variants", key: "variations", type: TableDetailType.ComboBox },
-          { header: "Available", key: "available", type: TableDetailType.CheckSlider },
+        { header: "Variants", key: "variations", type: TableDetailType.ComboBox, options: [
+            { label: "Regular", value: "Regular" },
+            { label: "Spicy", value: "Spicy" },
+            { label: "Extra Serving", value: "Extra Serving" },
+            { label: "Extra Cream", value: "Extra Cream" },
+            { label: "Extra Spicy", value: "Extra Spicy" },
+            { label: "Extra Vegetables", value: "Extra Vegetables" }
+        ] },
+        { header: "Available", key: "available", type: TableDetailType.CheckSlider },
         { header: "", key: "action", type: TableDetailType.Action }
     ];
 
-    return (
+    return (<>
+    
         <div className="flex flex-col gap-y-4 overflow-hidden h-full">
             <div className="flex justify-between items-center">
                 <h2 className="text-amber-500 font-medium text-3xl">Menu Management</h2>
@@ -158,7 +134,7 @@ export const MenuPage = () => {
                         </svg>
                         } />
 
-                    <RoundedButton onClick={() => navigate("/orderAndBilling/create")} prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <RoundedButton onClick={() => setIsAddCategoryModalVisible(true)} prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
                     }
@@ -169,24 +145,24 @@ export const MenuPage = () => {
 
             </div>
             <div className=" max-h-[calc(100vh-250px)] bg-amber-200/20  min-h-[calc(100vh-250px)]">
-                <div className="border-gray-200 rounded-lg bg-gray-600/30">
+                <div className="border-gray-200 rounded-lg bg-gray-800/50">
                     <ul
                         className="flex gap-x-2 -mb-px text-sm  text-center max-w-full overflow-x-auto"
                         id="default-tab"
                         data-tabs-toggle="#default-tab-content"
                         role="tablist"
                     >
-                        {categories.map((tab, index) => (
-                            <li key={tab.name} role="presentation">
+                        {categoryWithProducts.map((category, index) => (
+                            <li key={category.name} role="presentation">
                                 <button
                                     onClick={() => {
-
+                                        setCurrentProducts(category.products);
                                         setCurrentTab(index);
                                     }}
                                     className={`inline-block p-4 border-b-2 rounded-t-lg ${currentTab === index ? 'border-amber-500 text-amber-500' : ''
                                         }`}
                                 >
-                                    {tab.name}
+                                    {category.name}
                                 </button>
                             </li>
                         ))}
@@ -203,23 +179,22 @@ export const MenuPage = () => {
                         </svg>
                         } />
 
-                    <RoundedButton onClick={() => navigate("/orderAndBilling/create")} prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <RoundedButton onClick={() => {}} prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
                     }
                         height="30px"
-                        label="Create new Category" />
+                        label="Add new product" />
                 </div>
                 <TableLayout
-                pageLayout={false}
+                    hideHeader={isAddCategoryModalVisible}
+                    pageLayout={true}
                     columns={columnData}
-                    data={sampleData}
+                    data={currentProducts}
                 />
             </div>
-
-
-
-
         </div>
+        <CreateCategory isOpen={isAddCategoryModalVisible} closeModal={() => setIsAddCategoryModalVisible(false)} />
+        </>
     )
 }

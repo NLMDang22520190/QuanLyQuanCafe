@@ -10,7 +10,7 @@ import { RoundedComboBox } from "../../components/combobox/RoundedComboBox";
 export const Profile = () => {
 
     return (
-        <div className="flex flex-col gap-y-4 overflow-hidden h-full p-10">
+        <div className="flex flex-col gap-y-4 overflow-hidden h-full px-10 py-2">
             <div className="flex justify-between items-center">
                 <h2 className="text-amber-500 font-medium text-3xl">View & Edit Profile</h2>
             </div>
@@ -60,7 +60,7 @@ export const Profile = () => {
                 <div className="flex flex-col w-2/3 bg-gray-900 gap-y-6 rounded-lg p-4 px-8">
                     <h2 className="text-amber-500 font-medium text-xl">Personal Information</h2>
                     <div className="flex justify-around">
-                    <div className="grid grid-cols-2 justify-around gap-x-20 gap-y-6">
+                    <div className="grid grid-cols-2 justify-around gap-x-20 gap-y-4">
                         <RoundedTextField textColor="gray-800" height="40px" style="border-gray-500 rounded-md" label="First Name"/>
                         <RoundedTextField height="40px" style="border-gray-500 rounded-md" label="Last Name"/>
                         <RoundedTextField height="40px" style="border-gray-500 rounded-md" label="Phone Number"/>
@@ -70,7 +70,7 @@ export const Profile = () => {
                     </div>
 
                     <div className="flex justify-around">
-                    <div className="grid grid-cols-2 justify-around gap-x-20 gap-y-6">
+                    <div className="grid grid-cols-2 justify-around gap-x-20 gap-y-4">
                         <RoundedTextField height="40px" style="border-gray-500 rounded-md" label="Address"/>
                         <RoundedTextField height="40px" style="border-gray-500 rounded-md" label="City/Town/Village"/>
                         <RoundedTextField height="40px" style="border-gray-500 rounded-md" label="State/Province"/>
