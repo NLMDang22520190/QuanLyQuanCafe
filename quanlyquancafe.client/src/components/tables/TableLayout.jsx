@@ -1,32 +1,27 @@
-import { Checkbox } from "@material-tailwind/react";
+import { Table, Pagination, Select, Badge, Input, } from 'antd';
 import { TableDetailType } from "../../constant/TableDetailType";
-import { RoundedTextField } from "../textfields/RoundedTextField";
-import { CheckBox } from '../checkboxes/CheckBox';
-import { StatusBadge } from "../badges/StatusBadge";
 import { useEffect, useState } from "react";
+import { CheckBox } from '../checkboxes/CheckBox';
 import { CircleButton } from "../buttons/CircleButton";
-import { RoundedComboBox } from "../combobox/RoundedComboBox";
 import { CheckSlider } from "../checkboxes/CheckSlider";
+import { StatusBadge } from '../badges/StatusBadge';
+import { Popover, Button, InputNumber } from 'antd';
+import {ActionPopover} from '../popover/ActionPopover';
 
-export const TableLayout = ({ columns = [], data = [], pageLayout = true, hideHeader=false }) => {
+const { Option } = Select;
 
-    const [currentPage, setCurrentPage] = useState(1)
-    const [rowsPerPage, setRowsPerPage] = useState(pageLayout ? 15 : data.length)
+export const TableLayout = ({ columns = [], data = [], pageLayout = true, hideHeader = false }) => {
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(pageLayout ? 15 : data.length);
 
     const totalPages = Math.ceil(data.length / rowsPerPage);
     const currentData = data.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
-    const [displayedData, setDisplayedData] = useState(data.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage));
+    const [displayedData, setDisplayedData] = useState(currentData);
 
-    const handlePageChange = (newPage) => {
-        if (newPage > 0 && newPage <= totalPages) {
-            setCurrentPage(newPage);
-        }
-    };
-
-    const handleRowsPerPageChange = (newRowsPerPage) => {
-        setRowsPerPage(newRowsPerPage);
-        setCurrentPage(1);
+    const handlePageChange = (page, pageSize) => {
+        setCurrentPage(page);
+        setRowsPerPage(pageSize);
     };
 
     useEffect(() => {
@@ -34,129 +29,95 @@ export const TableLayout = ({ columns = [], data = [], pageLayout = true, hideHe
         setDisplayedData(newData);
     }, [currentPage, data, rowsPerPage]);
 
+    const antdColumns = columns.map((column) => {
+        const columnConfig = {
+            title: column.header,
+            dataIndex: column.key,
+            key: column.key,
+            render: (text, row) => {
+                switch (column.type) {
+                    case TableDetailType.Badge:
+                        return <StatusBadge label={row[column.key]} status={row[column.key]} />;
+                    case TableDetailType.TextField:
+                        return <Input defaultValue={row[column.key]} />;
+                    case TableDetailType.CheckBox:
+                        return <CheckBox />;
+                    case TableDetailType.Action:
+                       
+                        return <ActionPopover actions={column.actions} />;
+               
+                    case TableDetailType.NumberField:
+                        return <InputNumber defaultValue={row[column.key]} />;
+                    case TableDetailType.ComboBox:
+                        return (
+                            <Select defaultValue={row[column.key]} style={{ width: '100%' }}>
+                                {column.options.map((option) => (
+                                    <Option key={option.label} value={option.value}>{option.label}</Option>
+                                ))}
+                            </Select>
+                        );
+                    case TableDetailType.CheckSlider:
+                        return <CheckSlider initialValue={row[column.key]} />;
+                    default:
+                        return <p>{row[column.key]}</p>;
+                }
+            }
+        };
+
+        if (column.type !== TableDetailType.CheckBox && column.type !== TableDetailType.Action) {
+            columnConfig.sorter = (a, b) => {
+                if (typeof a[column.key] === 'number' && typeof b[column.key] === 'number') {
+                    return a[column.key] - b[column.key];
+                }
+                if (typeof a[column.key] === 'string' && typeof b[column.key] === 'string') {
+                    return a[column.key].localeCompare(b[column.key]);
+                }
+                return 0;
+            };
+        }
+
+        return columnConfig;
+    });
 
     return (
-        <div className="h-full flex flex-col justify-between">
-            <div className="w-full  bg-gray-900 overflow-y-auto scrollbar-hide">
-                <table className="table-auto w-full text-left ">
-                    {hideHeader==false && <thead className="bg-amber-500 text-black font-normal sticky top-0 z-10">
-                        <tr>
-                            {columns.map((column, colIndex) => (
-                                <th key={colIndex}
-                                    className={`px-4 py-2 ${column.type === TableDetailType.Badge ? "text-center" : "text-left"} ${(colIndex === 0) && "rounded-s-md"} ${(colIndex === columns.length - 1) && "rounded-e-md"} `}>
-                                    {column.header}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>}
-                    
-                    <tbody className="font-light divide-y divide-amber-500 divide-opacity-30">
-                        {displayedData.map((row, index) => (
-                            <tr key={`row-${index}`}>
-                                {columns.map((column, colIndex) => (
-                                    column.type === TableDetailType.Badge ? (
-                                        <td key={`col-${index}-${colIndex}`} className="flex px-4 py-4 justify-center ">
-                                            <StatusBadge label={row[column.key]} status={row[column.key]} />
-
-                                        </td>
-                                    ) : column.type === TableDetailType.TextField ? (
-                                        <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-center">
-                                            <RoundedTextField initialValue={row[column.key]} width="100%" />
-                                        </td>
-                                    ) : column.type === TableDetailType.CheckBox ? (
-                                        <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-center">
-                                            <CheckBox />
-                                        </td>
-                                    ) : column.type === TableDetailType.Action ? (
-                                        <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-center">
-                                            <CircleButton icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                                            </svg>
-
-                                            } />
-                                        </td>
-                                    ) : column.type === TableDetailType.NumberField ? (
-                                        <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-center">
-                                            <RoundedTextField options={column.options} width="100px" initialValue={row[column.key]} />
-                                        </td>
-                                    ) : column.type === TableDetailType.ComboBox ? (
-                                        <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-center">
-                                            <RoundedComboBox options={column.options} width="100%" initialValue={row[column.key]} />
-                                        </td>
-                                    ) : column.type === TableDetailType.CheckSlider ? (
-                                        <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-center">
-                                            <CheckSlider initialValue={row[column.key]} />
-                                        </td>
-                                    )
-                                        :
-                                        (
-                                            <td key={`col-${index}-${colIndex}`} className="px-4 py-4 justify-items-start">
-                                                <p>{row[column.key]}</p>
-                                            </td>
-                                        )
-
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
+        <div className="h-full flex flex-col">
+            <div className="flex-grow overflow-auto">
+                <Table
+                    columns={antdColumns}
+                    dataSource={displayedData}
+                    pagination={false}
+                    rowKey={(record, index) => `row-${index}`}
+                    sticky
+                />
             </div>
-
-            {pageLayout && (<div className="flex flex-col">
-
-                <div className="flex justify-end px-4 mt-2">
-                    <div className="flex items-center space-x-2">
-                        <label htmlFor="rowsPerPage" className="text-white">Rows per page:</label>
-                        <select
-                            id="rowsPerPage"
-                            value={rowsPerPage}
-                            onChange={(e) => handleRowsPerPageChange(parseInt(e.target.value))}
-                            className="bg-amber-500 bg-opacity-40 border-amber-500 border-2 text-white rounded px-2 py-1"
-                        >
-                            {[5, 10, 15, 20].map((num) => (
-                                <option key={num} value={num}>{num}</option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-
-
-                <div className="flex justify-center items-center space-x-2">
-                    {currentPage != 1 && <button
-
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        className="px-1 py-1 rounded bg-transparent border-gray-800 border-2 text-white"
+            <div className="flex justify-between items-center mt-2 px-2">
+                <div></div> {/* Empty div to push pagination to center */}
+                <Pagination
+                    current={currentPage}
+                    total={data.length}
+                    pageSize={rowsPerPage}
+                    onChange={handlePageChange}
+                    showSizeChanger={false}
+                />
+                <div className="flex items-center">
+                    <Select
+                        value={rowsPerPage}
+                        onChange={(value) => handlePageChange(1, value)}
+                        style={{ width: 'auto' }}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                        </svg>
-
-                    </button>}
-                    {Array.from({ length: totalPages }, (_, i) => (
-                        <button
-                            key={i + 1}
-                            onClick={() => handlePageChange(i + 1)}
-                            className={`px-3 py-1 rounded ${currentPage === i + 1 ? "bg-amber-500 text-black" : "bg-transparent border-gray-800 border-2 text-white"}`}
-                        >
-                            {i + 1}
-                        </button>
-                    ))}
-
-                    {currentPage != totalPages && <button
-
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        className="px-1 py-1 rounded bg-transparent border-gray-800 border-2 text-white"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                        </svg>
-                    </button>}
+                        <Option value={5}>5</Option>
+                        <Option value={10}>10</Option>
+                        <Option value={15}>15</Option>
+                        <Option value={20}>20</Option>
+                        <Option value={50}>50</Option>
+                    </Select>
+                    <span className="ml-2">/ per page</span>
                 </div>
-            </div>)}
-
-
-
+            </div>
         </div>
     );
 };
+
+
+
+

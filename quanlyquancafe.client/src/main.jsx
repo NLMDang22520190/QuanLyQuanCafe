@@ -7,7 +7,8 @@ import { registerLicense } from '@syncfusion/ej2-base';
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NDaF1cXmhIfEx1RHxQdld5ZFRHallYTnNWUj0eQnxTdEFiWH1acXRVT2VYWU12WA==');
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter><App />
+    <BrowserRouter>
+    <App />
     </BrowserRouter>
     
   </StrictMode>,

@@ -36,7 +36,7 @@ export const InventoryControlPage = () => {
         {
             id: "P003",
             name: "Carrot",
-            category: ["Produce", "Meat/Seafood", "Dairy Products"],
+            category: ["Produce", "Dairy Products"],
             stock: 5,
             dom: "Kgs",
             purchase: "24 July, 2024",
@@ -47,7 +47,7 @@ export const InventoryControlPage = () => {
         {
             id: "P004",
             name: "Carrot",
-            category: ["Produce", "Meat/Seafood", "Dairy Products"],
+            category: ["Produce",  "Dairy Products"],
             stock: 5,
             dom: "Kgs",
             purchase: "24 July, 2024",
@@ -58,7 +58,7 @@ export const InventoryControlPage = () => {
         {
             id: "P005",
             name: "Carrot",
-            category: ["Produce", "Meat/Seafood", "Dairy Products"],
+            category: ["Produce", "Dairy Products"],
             stock: 5,
             dom: "Kgs",
             purchase: "24 July, 2024",

@@ -19,6 +19,7 @@ import { InventoryControlPage } from "./pages/Inventory/InventoryControlPage";
 
 import  TableManagementPage  from "./pages/table_management/TableManagementPage";
 import { AddMaterials } from "./pages/Inventory/AddMaterials";
+import {PromotionPage} from "./pages/promotion/PromotionPage";
 
 const AllRoutes = () => {
   return (
@@ -26,6 +27,7 @@ const AllRoutes = () => {
 
       <Route path="/" element={<Home/>} />
       <Route path="/dashboard" element={<ManagerDashboard/>} />
+    
       <Route path="/schedule" element={<Schedule/>} />
       <Route path="/staff-schedule" element={<StaffSchedule/>} />
       <Route path="/user" element={<UserPage/>} />
@@ -39,6 +41,10 @@ const AllRoutes = () => {
       <Route path='/orderAndBilling' element={<OrderAndBilling/>}/>
       <Route path='/menu' >
       <Route path="" element={<MenuPage/>}/>      
+      </Route>
+
+      <Route path='/promotions' >
+      <Route path="" element={<PromotionPage/>}/>      
       </Route>
 
 

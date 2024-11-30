@@ -5,6 +5,7 @@ import { RoundedTextField } from "../../components/textfields/RoundedTextField"
 import { TableDetailType } from "../../constant/TableDetailType";
 import { useState } from "react";
 import CreateCategory from "./modals/CreateCategory";
+import {Modal} from 'antd';
 
 export const MenuPage = () => {
     const navigate = useNavigate();
@@ -194,7 +195,9 @@ export const MenuPage = () => {
                 />
             </div>
         </div>
-        <CreateCategory isOpen={isAddCategoryModalVisible} closeModal={() => setIsAddCategoryModalVisible(false)} />
+        <Modal  title="Add New Category"s open={isAddCategoryModalVisible} onCancel={()=> setIsAddCategoryModalVisible(false)}>
+        <CreateCategory />
+        </Modal>
         </>
     )
 }
