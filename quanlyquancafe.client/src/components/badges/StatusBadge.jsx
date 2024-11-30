@@ -17,6 +17,18 @@ export const StatusBadge = ({label = "", status = "",}) => {
           badgeStyle = 'bg-red-500';
           textColor = 'text-red-900';
           break;
+        case  Status.OutOfStock:
+          badgeStyle = 'bg-red-500';
+          textColor = 'text-red-900';
+          break;
+        case  Status.InStock:
+          badgeStyle = 'bg-yellow-500';
+          textColor = 'text-yellow-600';
+          break;
+        case Status.LowStock:
+            badgeStyle = 'bg-gray-500';
+            textColor = 'text-gray-300';
+          break;
         default:
          
           badgeStyle = 'bg-green-500';

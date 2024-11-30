@@ -23,8 +23,8 @@ export const RoundedComboBox = ({
     };
 
     return (
-        <div className="flex flex-col">
-            {label && <p className={`text-${textColor}`}>{label}</p>}
+        <div className="flex flex-col gap-y-2">
+            {label && <p className={`mb-1-${textColor}`}>{label}</p>}
             <div
             className={`flex items-center pr-4 border border-amber-500 overflow-hidden bg-transparent ${textColor}  ${style}`}
             style={{ width, height }}
@@ -34,7 +34,7 @@ export const RoundedComboBox = ({
             <select
                 value={value}
                 onChange={handleChange}
-                className={`flex-1 py-2 bg-transparent border-0 border-transparent focus:outline-none ${prefixIcon ? "" : "pl-4"}`}
+                className={`flex-1 bg-transparent border-none focus:outline-none ${prefixIcon ? "pl-2" : "pl-4"} text-white`}
             >
                 {placeholder && (
                     <option value="" disabled>
@@ -42,7 +42,10 @@ export const RoundedComboBox = ({
                     </option>
                 )}
                 {options.map((option, index) => (
-                    <option key={index} value={option.value}>
+                    <option key={index} value={option.value}
+                    className="bg-gray-700 text-white hover:bg-gray-600 focus:bg-gray-500"
+                    >
+                        
                         {option.label}
                     </option>
                 ))}
@@ -50,5 +53,7 @@ export const RoundedComboBox = ({
         </div>
         </div>
        
-    );
-};
+    )
+}
+
+

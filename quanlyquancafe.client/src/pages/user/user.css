@@ -1,0 +1,9 @@
+.ant-table-thead > tr > th {
+    background-color: #ffc107 !important; 
+    color: #000000 !important; 
+  }
+.custom-table-title {
+    color: #ffc107; 
+    font-weight: 600; 
+}
+  

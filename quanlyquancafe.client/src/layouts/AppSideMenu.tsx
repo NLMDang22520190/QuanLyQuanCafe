@@ -46,10 +46,13 @@ const ScheduleIcon = () => (
 const menuItems = [
     { label: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
     { label: 'Employees', icon: <OrderAndBillingIcon />, path: '/orderAndBilling' },
+
     { label: 'Customers', icon: <TablesIcon />, path: '/customers' },
     { label: 'Products', icon: <MenuIcon />, path: '/menu' },
     { label: 'Supplies', icon: <InventoryIcon />, path: '/supplies' },
     { label: 'Promotion', icon: <ScheduleIcon />, path: '/promotions' },
+    { label: 'Schedule', icon: <ScheduleIcon />, path: '/schedule' },
+
 ];
 
 
@@ -58,7 +61,7 @@ export const AppSideMenu = () => {
 
     return (<div className="h-full bg-gray-900">
         <nav className="flex flex-col items-center">
-
+            
             {menuItems.map((item, index) => (
                 <Link
                     onClick={() => setActiveIndex(index)}
@@ -75,4 +78,3 @@ export const AppSideMenu = () => {
     </div>
     )
 }
-
