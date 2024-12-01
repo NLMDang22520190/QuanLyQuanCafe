@@ -12,9 +12,9 @@ const AddNewUser = ({ onSubmit }) => {
       title="Add New User"
       bordered={false}
       style={{
-        width: 400, // Đặt chiều rộng cho card
-        margin: "0 auto", // Căn giữa card
-        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)", // Tạo hiệu ứng bóng cho đẹp
+        width: 400, 
+        margin: "0 auto", 
+        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)", 
       }}
     >
       <Form layout="vertical" onFinish={handleFinish}>

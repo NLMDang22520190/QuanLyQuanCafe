@@ -39,8 +39,8 @@ const UserPage = () => {
         { date: "2024-02", hourlyWage: "$15" },
       ],
       monthlyWage: [
-        { month: "January", hoursWorked: 160, hourlyWage: "$14", totalSalary: "$2240" },
-        { month: "February", hoursWorked: 160, hourlyWage: "$15", totalSalary: "$2400" },
+        { month: "January",year:"2024", hoursWorked: 160, hourlyWage: "$14", totalSalary: "$2240" },
+        { month: "February",year:"2024", hoursWorked: 160, hourlyWage: "$15", totalSalary: "$2400" },
       ],
     },
     {
@@ -54,8 +54,8 @@ const UserPage = () => {
         { date: "2024-02", hourlyWage: "$20" },
       ],
       monthlyWage: [
-        { month: "January", hoursWorked: 160, hourlyWage: "$18", totalSalary: "$2880" },
-        { month: "February", hoursWorked: 160, hourlyWage: "$20", totalSalary: "$3200" },
+        { month: "January",year:"2024", hoursWorked: 160, hourlyWage: "$18", totalSalary: "$2880" },
+        { month: "February",year:"2024", hoursWorked: 160, hourlyWage: "$20", totalSalary: "$3200" },
       ],
     },
   ]);
