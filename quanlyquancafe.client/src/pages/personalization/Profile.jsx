@@ -57,6 +57,7 @@ export const Profile = () => {
             <div>
                 <Personal/>
                 <ChangePassword/>
+
             </div>
           )}
           {currentTab === 1 && (

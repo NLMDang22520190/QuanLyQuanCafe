@@ -14,14 +14,14 @@ export const RoundedButton = ({
             <button
                 onClick={onClick}
                 style={{ paddingLeft: paddingX, paddingRight: paddingX, paddingTop: paddingY, paddingBottom: paddingY, width: width || 'fit-content', }}
-                className="flex gap-x-2">
+                className="flex gap-x-2 justify-center">
 
                 {prefixIcon && (
                     <span className="pl-2">
                         {prefixIcon}
                     </span>
                 )}
-                <p>{label}</p>
+                <p className="text-center">{label}</p>
             </button>
         </div>
     )

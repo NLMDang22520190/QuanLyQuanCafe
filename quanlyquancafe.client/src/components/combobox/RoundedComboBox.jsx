@@ -9,7 +9,7 @@ export const RoundedComboBox = ({
     height = "30px",
     textColor = "text-white",
     onValueChange,
-    style = "rounded-md",
+    style = "rounded-sm",
     label,
 }) => {
     const [value, setValue] = useState(initialValue);

@@ -4,8 +4,7 @@ import { RoundedTextField } from "../textfields/RoundedTextField";
 import { CheckBox } from '../checkboxes/CheckBox';
 import { StatusBadge } from "../badges/StatusBadge";
 import { useEffect, useState } from "react";
-import { CircleButton } from '../buttons/CircleButton'
-
+import {CircleButton} from "../buttons/CircleButton";
 export const OverviewTableLayout = ({ columns = [], data = [] }) => {
 
     const displayedData = data.slice(0,5);
