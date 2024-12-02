@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Layout, theme, Menu, Button } from 'antd';
+import UserRole from '../constant/UserRole';
 
 
 const {Sider } = Layout;
@@ -54,14 +55,13 @@ const PromotionIcon = () => (
 );
 
 const items = [
-    { label: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-   
-    { label: 'User', icon: <UserIcon />, path: '/user' },
-    { label: 'Order & Billing', icon: <OrderAndBillingIcon />, path: '/orderAndBilling' },
-    { label: 'Menu', icon: <MenuIcon />, path: '/menu' },
-    { label: 'Inventory', icon: <InventoryIcon />, path: '/inventory' },
-    { label: 'Promotion', icon: <PromotionIcon />, path: '/promotions' },
-    { label: 'Schedule', icon: <ScheduleIcon />, path: '/schedule' },
+    { label: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', roles: [UserRole.ADMIN] },
+    { label: 'User', icon: <UserIcon />, path: '/user', roles: [UserRole.ADMIN] },
+    { label: 'Order & Billing', icon: <OrderAndBillingIcon />, path: '/orderAndBilling', roles: [UserRole.ADMIN, UserRole.STAFF] },
+    { label: 'Menu', icon: <MenuIcon />, path: '/menu', roles: [UserRole.ADMIN, UserRole.STAFF] },
+    { label: 'Inventory', icon: <InventoryIcon />, path: '/inventory', roles: [UserRole.ADMIN, UserRole.STAFF] },
+    { label: 'Promotion', icon: <PromotionIcon />, path: '/promotions', roles: [UserRole.ADMIN, UserRole.STAFF] },
+    { label: 'Schedule', icon: <ScheduleIcon />, path: '/schedule', roles: [UserRole.ADMIN, UserRole.STAFF] },
 ];
 
 
@@ -70,6 +70,9 @@ export const AppSideMenu = () => {
     const [collapsed, setCollapsed] = useState(false);
     const navigate = useNavigate();
 
+    const userRole = UserRole.STAFF; 
+
+    const filteredItems = items.filter(item => item.roles.includes(userRole));
 
     const {
         token: { colorBgContainer, borderRadiusLG },
@@ -80,17 +83,18 @@ export const AppSideMenu = () => {
             <div className="demo-logo-vertical p-4">
                 <img src="src/assets/radlogo.png" alt="Logo" />
             </div>
+
             <Menu
                 defaultSelectedKeys={[`${activeIndex}`]}
                 mode="inline"
-                items={items.map((item, index) => ({
+                items={filteredItems.map((item, index) => ({
                     key: `${index}-menuitem`,
                     icon: item.icon,
                     label: <span className='px-4'>{item.label}</span>,
                     onClick: () => { navigate(item.path); setActiveIndex(index); },
                     className: `flex items-center hover:bg-gray-700 ${collapsed ? 'p-2' : 'p-8'} rounded-sm duration-200 ${activeIndex === index ? 'border-l-4 border-l-amber-500' : ''}`
                 }))}
-            />
+             />
             <div className="flex flex-col justify-center absolute bottom-0 w-full mb-4 gap-y-4">
                 <Button
                     variant="text"
@@ -101,8 +105,8 @@ export const AppSideMenu = () => {
                     className="px-4 py-2 rounded"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
-</svg>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+                    </svg>
                 </Button>
                 <Button
                     onClick={() => setCollapsed(!collapsed)}
@@ -110,12 +114,12 @@ export const AppSideMenu = () => {
                     color="default"
                 >
                     {collapsed ? <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-  <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-</svg>
- : <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-</svg>
-}
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>
+                    : <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    </svg>
+                    }
                 </Button>
             </div>
                      

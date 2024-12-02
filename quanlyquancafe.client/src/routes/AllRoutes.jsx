@@ -20,38 +20,58 @@ import { InventoryControlPage } from "../pages/Inventory/InventoryControlPage";
 import  TableManagementPage  from "../pages/table_management/TableManagementPage";
 import { AddMaterials } from "../pages/Inventory/AddMaterials";
 import {PromotionPage} from "../pages/promotion/PromotionPage";
+import UserRole from "../constant/UserRole";    
 
 const AllRoutes = () => {
+  const userRole = UserRole.ADMIN;
+
   return (
     <Routes>
-
-      <Route path="/" element={<Home/>} />
-      <Route path="/dashboard" element={<ManagerDashboard/>} />
-    
-      <Route path="/schedule" element={<Schedule/>} />
-      <Route path="/staff-schedule" element={<StaffSchedule/>} />
-      <Route path="/user" element={<UserPage/>} />
-
-      <Route path="/profile" element={<Profile/>} />
-      <Route path='/orderAndBilling' >
-      <Route path="" element={<OrderAndBilling/>}/>
-        <Route path="create" element={<CreateOrder/>}/>
-        <Route path="payment" element={<OrderPayment/>}/>
-      </Route>
-      <Route path='/orderAndBilling' element={<OrderAndBilling/>}/>
-      <Route path='/menu' >
-      <Route path="" element={<MenuPage/>}/>      
-      </Route>
-
-      <Route path='/promotions' >
-      <Route path="" element={<PromotionPage/>}/>      
-      </Route>
-
-
-      <Route path='/inventory'>
-      <Route path="" element={<InventoryControlPage/>}/>
-      <Route path="add" element={<AddMaterials/>}/>
-      </Route>
+      <Route path="/" element={<Home />} />
+      {userRole === UserRole.ADMIN && (
+        <>
+          <Route path="/dashboard" element={<ManagerDashboard />} />
+          <Route path="/schedule" element={<Schedule />} />
+          <Route path="/staff-schedule" element={<StaffSchedule />} />
+          <Route path="/user" element={<UserPage />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/orderAndBilling">
+            <Route path="" element={<OrderAndBilling />} />
+            <Route path="create" element={<CreateOrder />} />
+            <Route path="payment" element={<OrderPayment />} />
+          </Route>
+          <Route path="/menu">
+            <Route path="" element={<MenuPage />} />
+          </Route>
+          <Route path="/promotions">
+            <Route path="" element={<PromotionPage />} />
+          </Route>
+          <Route path="/inventory">
+            <Route path="" element={<InventoryControlPage />} />
+            <Route path="add" element={<AddMaterials />} />
+          </Route>
+          <Route path="/table-management" element={<TableManagementPage />} />
+        </>
+      )}
+      {userRole === UserRole.STAFF && (
+        <>
+          <Route path="/schedule" element={<Schedule />} />
+          <Route path="/staff-schedule" element={<StaffSchedule />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/orderAndBilling">
+            <Route path="" element={<OrderAndBilling />} />
+            <Route path="create" element={<CreateOrder />} />
+            <Route path="payment" element={<OrderPayment />} />
+          </Route>
+          <Route path="/menu">
+            <Route path="" element={<MenuPage />} />
+          </Route>
+          <Route path="/inventory">
+            <Route path="" element={<InventoryControlPage />} />
+            <Route path="add" element={<AddMaterials />} />
+          </Route>
+        </>
+      )}
     </Routes>
   );
 };

@@ -108,7 +108,7 @@ export const TableLayout = ({ columns = [], data = [], pageLayout = true, hideHe
                         <Option value={10}>10</Option>
                         <Option value={15}>15</Option>
                         <Option value={20}>20</Option>
-                        <Option value={50}>50</Option>
+                        <Option value={30}>30</Option>
                     </Select>
                     <span className="ml-2">/ per page</span>
                 </div>

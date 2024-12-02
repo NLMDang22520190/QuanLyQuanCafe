@@ -6,7 +6,6 @@ import { UserRole } from '../constants/UserRole';
 
 const ProtectedRoute = ({ children, requiredRoles }) => {
 //   const userRole = localStorage.getItem('userRole'); 
-
 const userRole = UserRole[localStorage.getItem(UserRole.ADMIN)];
 
   if (!requiredRoles.includes(userRole)) {
