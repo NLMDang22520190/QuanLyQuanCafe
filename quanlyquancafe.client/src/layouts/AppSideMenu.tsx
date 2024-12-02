@@ -1,5 +1,9 @@
 import React, { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { Layout, theme, Menu, Button } from 'antd';
+
+
+const {Sider } = Layout;
 
 const DashboardIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -8,20 +12,19 @@ const DashboardIcon = () => (
 
 );
 
+const UserIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+</svg>
+);
+
+
 const OrderAndBillingIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
         <path strokeLinecap="round" strokeLinejoin="round" d="m9 14.25 6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185ZM9.75 9h.008v.008H9.75V9Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm4.125 4.5h.008v.008h-.008V13.5Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
     </svg>
 
 );
-
-const TablesIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M16.712 4.33a9.027 9.027 0 0 1 1.652 1.306c.51.51.944 1.064 1.306 1.652M16.712 4.33l-3.448 4.138m3.448-4.138a9.014 9.014 0 0 0-9.424 0M19.67 7.288l-4.138 3.448m4.138-3.448a9.014 9.014 0 0 1 0 9.424m-4.138-5.976a3.736 3.736 0 0 0-.88-1.388 3.737 3.737 0 0 0-1.388-.88m2.268 2.268a3.765 3.765 0 0 1 0 2.528m-2.268-4.796a3.765 3.765 0 0 0-2.528 0m4.796 4.796c-.181.506-.475.982-.88 1.388a3.736 3.736 0 0 1-1.388.88m2.268-2.268 4.138 3.448m0 0a9.027 9.027 0 0 1-1.306 1.652c-.51.51-1.064.944-1.652 1.306m0 0-3.448-4.138m3.448 4.138a9.014 9.014 0 0 1-9.424 0m5.976-4.138a3.765 3.765 0 0 1-2.528 0m0 0a3.736 3.736 0 0 1-1.388-.88 3.737 3.737 0 0 1-.88-1.388m2.268 2.268L7.288 19.67m0 0a9.024 9.024 0 0 1-1.652-1.306 9.027 9.027 0 0 1-1.306-1.652m0 0 4.138-3.448M4.33 16.712a9.014 9.014 0 0 1 0-9.424m4.138 5.976a3.765 3.765 0 0 1 0-2.528m0 0c.181-.506.475-.982.88-1.388a3.736 3.736 0 0 1 1.388-.88m-2.268 2.268L4.33 7.288m6.406 1.18L7.288 4.33m0 0a9.024 9.024 0 0 0-1.652 1.306A9.025 9.025 0 0 0 4.33 7.288" />
-    </svg>
-
-);
-
 
 const MenuIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -48,39 +51,75 @@ const PromotionIcon = () => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
         <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
     </svg>
+);
 
-)
-
-const menuItems = [
+const items = [
     { label: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { label: 'OrderAndBilling', icon: <OrderAndBillingIcon />, path: '/orderAndBilling' },
-    { label: 'Customers', icon: <TablesIcon />, path: '/customers' },
-    { label: 'Products', icon: <MenuIcon />, path: '/menu' },
-    { label: 'Supplies', icon: <InventoryIcon />, path: '/supplies' },
+   
+    { label: 'User', icon: <UserIcon />, path: '/user' },
+    { label: 'Order & Billing', icon: <OrderAndBillingIcon />, path: '/orderAndBilling' },
+    { label: 'Menu', icon: <MenuIcon />, path: '/menu' },
+    { label: 'Inventory', icon: <InventoryIcon />, path: '/inventory' },
     { label: 'Promotion', icon: <PromotionIcon />, path: '/promotions' },
     { label: 'Schedule', icon: <ScheduleIcon />, path: '/schedule' },
 ];
 
 
 export const AppSideMenu = () => {
-    const [activeIndex, setActiveIndex] = useState<number | null>(0);
-
-    return (<div className="h-full bg-gray-900">
-        <nav className="flex flex-col items-center">
-
-            {menuItems.map((item, index) => (
-                <Link
-                    onClick={() => setActiveIndex(index)}
-                    key={index}
-                    to={item.path}
-                    className={`flex items-center hover:bg-gray-700 p-6 rounded-md duration-200 
-                    ${activeIndex === index ? 'bg-amber-400 text-amber-500 bg-opacity-30 border-l-4 border-l-amber-500' : 'text-gray-600 hover:bg-amber-500 '}`}>
-                    {item.icon}
-                </Link>
-            ))}
-        </nav>
+    const [activeIndex, setActiveIndex] = useState<number>(0);
+    const [collapsed, setCollapsed] = useState(false);
+    const navigate = useNavigate();
 
 
-    </div>
+    const {
+        token: { colorBgContainer, borderRadiusLG },
+    } = theme.useToken();
+
+    return (
+        <Sider trigger={null} collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} style={{ background: colorBgContainer }}>
+            <div className="demo-logo-vertical p-4">
+                <img src="src/assets/radlogo.png" alt="Logo" />
+            </div>
+            <Menu
+                defaultSelectedKeys={[`${activeIndex}`]}
+                mode="inline"
+                items={items.map((item, index) => ({
+                    key: `${index}-menuitem`,
+                    icon: item.icon,
+                    label: <span className='px-4'>{item.label}</span>,
+                    onClick: () => { navigate(item.path); setActiveIndex(index); },
+                    className: `flex items-center hover:bg-gray-700 ${collapsed ? 'p-2' : 'p-8'} rounded-sm duration-200 ${activeIndex === index ? 'border-l-4 border-l-amber-500' : ''}`
+                }))}
+            />
+            <div className="flex flex-col justify-center absolute bottom-0 w-full mb-4 gap-y-4">
+                <Button
+                    variant="text"
+                    color="default"
+                    onClick={() => {
+                        console.log("Sign out");
+                    }}
+                    className="px-4 py-2 rounded"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+</svg>
+                </Button>
+                <Button
+                    onClick={() => setCollapsed(!collapsed)}
+                    variant="text"
+                    color="default"
+                >
+                    {collapsed ? <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+</svg>
+ : <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+</svg>
+}
+                </Button>
+            </div>
+                     
+        </Sider>
+
     )
 }

@@ -4,7 +4,8 @@ import { TableLayout } from "../../components/tables/TableLayout"
 import { RoundedTextField } from "../../components/textfields/RoundedTextField"
 import { TableDetailType } from "../../constant/TableDetailType";
 import { useState } from "react";
-import CreateCategory from "./modals/CreateCategory";
+import CreateCategory from "./CreateCategory";
+import CreateProduct from "./CreateProduct";
 import {Modal} from 'antd';
 
 export const MenuPage = () => {
@@ -12,6 +13,7 @@ export const MenuPage = () => {
     const [currentTab, setCurrentTab] = useState(0);
     const [currentProducts,setCurrentProducts] = useState([]);
     const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] = useState(false);
+    const [isAddProductModalVisible, setIsAddProductModalVisible] = useState(false);
 
     const categoryWithProducts = [
         {
@@ -105,7 +107,7 @@ export const MenuPage = () => {
             { label: "Extra Vegetables", value: "Extra Vegetables" }
         ] },
         { header: "Available", key: "available", type: TableDetailType.CheckSlider },
-        { header: "", key: "action", type: TableDetailType.Action }
+        { header: "", key: "action", type: TableDetailType.Action, actions: [{ label: "Save Change" }] }
     ];
 
     return (<>
@@ -145,8 +147,8 @@ export const MenuPage = () => {
                 </div>
 
             </div>
-            <div className=" max-h-[calc(100vh-250px)] bg-amber-200/20  min-h-[calc(100vh-250px)]">
-                <div className="border-gray-200 rounded-lg bg-gray-800/50">
+            <div className=" max-h-[calc(100vh-300px)] bg-amber-200/20  min-h-[calc(100vh-300px)]">
+                <div className="border-gray-200 rounded-lg bg-gray-900">
                     <ul
                         className="flex gap-x-2 -mb-px text-sm  text-center max-w-full overflow-x-auto"
                         id="default-tab"
@@ -172,7 +174,7 @@ export const MenuPage = () => {
                 <div className="flex py-2 justify-end gap-x-4 px-4">
                 <RoundedTextField
                         textColor="text-gray-500"
-                        placeholder="Search category..."
+                        placeholder="Search product..."
                         height="30px"
                         width="250px"
                         prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -180,7 +182,7 @@ export const MenuPage = () => {
                         </svg>
                         } />
 
-                    <RoundedButton onClick={() => {}} prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <RoundedButton onClick={() => {setIsAddProductModalVisible(true)}} prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
                     }
@@ -195,9 +197,12 @@ export const MenuPage = () => {
                 />
             </div>
         </div>
-        <Modal  title="Add New Category"s open={isAddCategoryModalVisible} onCancel={()=> setIsAddCategoryModalVisible(false)}>
-        <CreateCategory />
+        <Modal title="Add New Category" open={isAddCategoryModalVisible} onCancel={()=> setIsAddCategoryModalVisible(false)} footer={null}>
+            <CreateCategory onSubmit={() => setIsAddCategoryModalVisible(false)} />
         </Modal>
-        </>
-    )
+        <Modal title="Add New Product" open={isAddProductModalVisible} onCancel={()=> setIsAddProductModalVisible(false)} footer={null}>
+
+            <CreateProduct onSubmit={() => setIsAddProductModalVisible(false)}/>
+        </Modal>
+    </>)
 }

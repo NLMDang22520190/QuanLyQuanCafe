@@ -70,7 +70,7 @@ export const PromotionPage = () => {
         { header: "End Date", key: "endDate", type: TableDetailType.Info },
         { header: "Discount", key: "discount", type: TableDetailType.Info },
         { header: "Status", key: "status", type: TableDetailType.Badge },
-        { header: "", key: "action", type: TableDetailType.Action, actions: [{ label: "Edit" }] },
+        { header: "", key: "action", type: TableDetailType.Action, actions: [{ label: "Save change" }] },
     ];
 
 
@@ -115,7 +115,6 @@ export const PromotionPage = () => {
             </div>
             <Modal title="Add New Promotion" open={isModalAddVisible} onCancel={() => setIsModalAddVisible(false)}>
                <AddPromotion />
-
             </Modal>
         </>
     );

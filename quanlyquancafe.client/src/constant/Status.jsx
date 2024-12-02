@@ -8,5 +8,6 @@ export const Status = {
     InStock: "In Stock",
     OutOfStock: "Out of Stock",
     Upcoming: "Upcoming",
-    
+    InProgress:"In Progress",
+    Completed:"Completed",
 }

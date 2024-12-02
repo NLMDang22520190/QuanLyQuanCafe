@@ -1,11 +1,10 @@
 import { Table, Pagination, Select, Badge, Input, } from 'antd';
 import { TableDetailType } from "../../constant/TableDetailType";
 import { useEffect, useState } from "react";
-import { CheckBox } from '../checkboxes/CheckBox';
 import { CircleButton } from "../buttons/CircleButton";
 import { CheckSlider } from "../checkboxes/CheckSlider";
 import { StatusBadge } from '../badges/StatusBadge';
-import { Popover, Button, InputNumber } from 'antd';
+import { Popover, Button, InputNumber, Switch, Checkbox } from 'antd';
 import {ActionPopover} from '../popover/ActionPopover';
 
 const { Option } = Select;
@@ -41,7 +40,7 @@ export const TableLayout = ({ columns = [], data = [], pageLayout = true, hideHe
                     case TableDetailType.TextField:
                         return <Input defaultValue={row[column.key]} />;
                     case TableDetailType.CheckBox:
-                        return <CheckBox />;
+                        return <Checkbox />;
                     case TableDetailType.Action:
                        
                         return <ActionPopover actions={column.actions} />;
@@ -57,7 +56,7 @@ export const TableLayout = ({ columns = [], data = [], pageLayout = true, hideHe
                             </Select>
                         );
                     case TableDetailType.CheckSlider:
-                        return <CheckSlider initialValue={row[column.key]} />;
+                        return <Switch defaultChecked={row[column.key]} />;
                     default:
                         return <p>{row[column.key]}</p>;
                 }
@@ -86,7 +85,7 @@ export const TableLayout = ({ columns = [], data = [], pageLayout = true, hideHe
                     columns={antdColumns}
                     dataSource={displayedData}
                     pagination={false}
-                    rowKey={(record, index) => `row-${index}`}
+                    rowKey={(record) => record.id}
                     sticky
                 />
             </div>

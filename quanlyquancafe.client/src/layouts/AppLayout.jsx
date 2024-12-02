@@ -1,18 +1,42 @@
-import { AppHeader } from "./AppHeader"
-import { AppSideMenu } from "./AppSideMenu"
+import React, { useState, useRef } from 'react';
+import { Layout, Menu, theme } from 'antd';
+import { PieChartOutlined, DesktopOutlined, FileOutlined } from '@ant-design/icons';
+import { AppSideMenu } from './AppSideMenu';
+import { AppHeader } from './AppHeader';        
+
+const { Header, Content, Sider } = Layout;
+
+function getItem(label, key, icon, children) {
+    return {
+        key,
+        icon,
+        children,
+        label,
+    };
+}
+
+const items = [
+    getItem('Option 1', '1', <PieChartOutlined />, '/option1'),
+ 
+];
 
 export const AppLayout = ({ children }) => {
-    return <div className="flex flex-col bg-black h-screen">
-        <AppHeader/>
-        <div className="flex w-full h-full">
-        <AppSideMenu/>
-        <div className="m-5 w-full overflow-y-auto">
-        {children}
-        </div>
-       
-        </div>
-        
-    </div>
 
+    const {
+        token: { colorBgContainer, borderRadiusLG },
+    } = theme.useToken();
 
-}
+    
+
+    return (
+        <Layout style={{ minHeight: '100vh' }}>
+            <AppSideMenu />
+            <Layout>
+                <AppHeader />
+                <Content style={{ margin: '16px 16px' }}>
+                    {children}
+                </Content>
+            </Layout>
+        </Layout>
+    );
+};

@@ -2,49 +2,55 @@ import {theme} from 'antd';
 
 export const themeConfig = {
     token: {
-      colorPrimary: '#f59e0b', 
+      colorPrimary: '#FEBA39', 
       colorPrimaryText: "#ffffff",
-      colorLink: '#f59e0b', 
+      colorLink: '##FEBA39', 
       colorSuccess: '#52c41a', 
       colorWarning: '#faad14', 
       colorError: '#f5222d', 
       borderRadiusBase: '2px',
       fontSizeBase: '14px', 
       backgroundColor: '#212121',
-      colorBorder: '#f59e0b', // Set the border color to amber-500
+      colorBorder: '#FEBA39', // Set the border color to amber-500
       colorText: '#FFFFFF',
-      
+
+      //Input
+      colorInputBorder: '#FEBA39',
       colorBgContainer: '#212121',
-      colorTableRowBorder: '#f59e0b', 
-      controlItemBgActive: '#f59e0b', // Background color for the active option
-      controlItemBgHover: '#f59e0b', // Background color when hovered
+      colorTableRowBorder: '#FEBA39', 
+      controlItemBgActive: 'rgba(254, 186, 57, 0.5)', // Background color for the active option with opacity
+      controlItemBgHover: '#FEBA39', // Background color when hovered
       
       // Select
       colorBgElevated: '#424242',
       colorSelectText: '#000000',
       optionActiveBg: '#424242',
-      optionSelectedBg: '#f59e0b',
-      optionSelectedColor: '#f59e0b',
-      optionHoverBg: '#f59e0b',
-    colorSelectBorder: '#f59e0b', // Set the border color of select to amber-500
+      optionSelectedBg: '#FEBA39',
+      optionSelectedColor: '#FEBA39',
+      optionHoverBg: '#FEBA39',
+    colorSelectBorder: '#FEBA39', // Set the border color of select to amber-500
 
       //Table
-      colorTable: '#f59e0b', 
-      colorTableDivider: '#f59e0b', // Set the table divider color to amber-500
+      colorTable: '#FEBA39', 
+      colorTableDivider: '#FEBA39', // Set the table divider color to amber-500
       headerBorderRadius: '5px',
-      headerSplitColor: 'transparent',
 
     //Divider
-    colorSplit: '#f59e0b', // Set the divider color to amber-500
+    colorSplit: '#FEBA39', // Set the divider color to amber-500
 
-    //Modal
     // Modal
     modalHeaderBg: '#424242',
     modalFooterBg: '#424242',
     modalContentBg: '#212121',
-    modalHeaderBorderColor: '#f59e0b',
-    modalFooterBorderColor: '#f59e0b',
-    modalCloseIconColor: '#f59e0b',
+    modalHeaderBorderColor: '#FEBA39',
+    modalFooterBorderColor: '#FEBA39',
+    modalCloseIconColor: '#FEBA39',
+
+    //Menu
+    menuItemIconAlign: 'center',
+
+    //Popover
+    colorPopoverText: '#FEBA39',
 
     },
     algorithm: theme.darkAlgorithm,

@@ -1,15 +1,18 @@
-export const CircleButton = ({icon = null, style = "", onClick = () => {}, size = "medium"}) => {
+import { Button } from 'antd';
+
+export const CircleButton = ({ icon = null, style = "border-0", onClick = () => {}, size = "medium" }) => {
     const sizeClasses = {
-        small: "w-6 h-6",
-        medium: "w-8 h-8",
-        large: "w-10 h-10"
+        small: `width: 24px; height: 24px;`,
+        medium: `width: 32px; height: 32px;`,
+        large: `width: 40px; height: 40px;`
     };
 
     return (
-        <div className={`${style} ${sizeClasses[size]} text-amber-500 flex items-center justify-center`}>
-            <button onClick={onClick} className="w-full h-full rounded-full flex items-center justify-center">
-                {icon}
-            </button>
-        </div>
-    )
-}
+        <Button
+            onClick={onClick}
+            className={`${style} ${sizeClasses[size]} text-amber-500 flex items-center justify-center rounded-full`}
+            icon={icon}
+            shape="circle"
+        />
+    );
+};
