@@ -1,4 +1,13 @@
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using QuanLyQuanCafe.Server.Models;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Đọc ConnectionString từ appsettings.json
+builder.Services.AddDbContext<CoffeeManagementContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("CoffeeManagementDb")));
+
 
 // Add services to the container.
 
