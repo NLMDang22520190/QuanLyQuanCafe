@@ -116,12 +116,12 @@ const Login = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="text-center text-sm"
+              className="text-center text-black text-sm"
             >
               Chưa có tài khoản?{" "}
               <Link
                 to="/auth/signup"
-                className="text-coffee-600 hover:text-coffee-800 transition-colors"
+                className="text-primary-600 hover:text-primary-800 transition-colors"
               >
                 Tạo tài khoản mới!
               </Link>
