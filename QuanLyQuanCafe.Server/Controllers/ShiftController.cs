@@ -15,7 +15,7 @@ namespace QuanLyQuanCafe.Server.Controllers
             _shiftRepo = repo;
         }
         [HttpGet]
-        public async Task<IActionResult> getAllShifts()
+        public async Task<IActionResult> GetAllShifts()
         {
             try
             {

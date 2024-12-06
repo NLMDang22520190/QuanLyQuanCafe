@@ -6,8 +6,8 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 {
     public class CoffeeManagementRepository<T> : ICoffeeManagementRepository<T> where T : class
     {
-        private readonly CoffeeManagementContext dbContext;
-        private DbSet<T> _dbSet;
+        protected readonly CoffeeManagementContext dbContext;
+        protected DbSet<T> _dbSet;
         public CoffeeManagementRepository(CoffeeManagementContext dbContext)
         {
             this.dbContext = dbContext;
