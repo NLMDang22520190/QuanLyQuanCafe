@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using QuanLyQuanCafe.Server.Models.Domain;
 
 namespace QuanLyQuanCafe.Server.Models;
 
@@ -48,6 +49,7 @@ public partial class CoffeeManagementContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<VoucherDetail> VoucherDetails { get; set; }
+    public virtual DbSet<MonthSalary> MonthSalaries { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -243,7 +245,7 @@ public partial class CoffeeManagementContext : DbContext
             entity.HasKey(e => e.ScheduleId).HasName("PK__Schedule__9C8A5B6915250820");
 
             entity.Property(e => e.ScheduleId).HasColumnName("ScheduleID");
-            entity.Property(e => e.DayOfWeek).HasMaxLength(20);
+            
             entity.Property(e => e.ShiftId).HasColumnName("ShiftID");
             entity.Property(e => e.StaffId).HasColumnName("StaffID");
 
@@ -306,6 +308,11 @@ public partial class CoffeeManagementContext : DbContext
         });
 
         OnModelCreatingPartial(modelBuilder);
+    }
+
+    internal async Task SaveChangesAsync()
+    {
+        throw new NotImplementedException();
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

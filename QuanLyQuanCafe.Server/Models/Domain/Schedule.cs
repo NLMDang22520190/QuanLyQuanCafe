@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyQuanCafe.Server.Models;
-
+[Table("Schedule")]
 public partial class Schedule
 {
+    [Key]
     public int ScheduleId { get; set; }
-
     public int StaffId { get; set; }
 
-    public string DayOfWeek { get; set; } = null!;
+    public DateOnly StartDate { get; set; }
+    public DateOnly EndDate { get; set; }
 
     public int ShiftId { get; set; }
 

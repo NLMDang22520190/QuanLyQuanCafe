@@ -1,25 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyQuanCafe.Server.Models;
-
+[Table("Salary")]
 public partial class Salary
 {
+    [Key]
     public int SalaryId { get; set; }
-
+    [Required]
     public int StaffId { get; set; }
-
-    public int HourWorked { get; set; }
-
-    public double SalaryBase { get; set; }
-
-    public double Factor { get; set; }
-
-    public double SalaryEarned { get; set; }
-
-    public DateOnly Date { get; set; }
-
-    public bool IsPaid { get; set; }
+    [Required]
+    public int HourWage { get; set; }
+    [Required]
+    public DateOnly StartDate { get; set; }
 
     public virtual Staff Staff { get; set; } = null!;
 }
