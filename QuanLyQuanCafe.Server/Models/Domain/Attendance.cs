@@ -17,7 +17,5 @@ public partial class Attendance
 
     public DateTime Checkin { get; set; }
     public DateTime Checkout { get; set; }
-
-
     public virtual Schedule Schedule { get; set; } = null!;
 }

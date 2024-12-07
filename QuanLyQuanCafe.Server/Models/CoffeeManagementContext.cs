@@ -310,10 +310,10 @@ public partial class CoffeeManagementContext : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
-    internal async Task SaveChangesAsync()
-    {
-        throw new NotImplementedException();
-    }
+    //internal async Task SaveChangesAsync()
+    //{
+    //    throw new NotImplementedException();
+    //}
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

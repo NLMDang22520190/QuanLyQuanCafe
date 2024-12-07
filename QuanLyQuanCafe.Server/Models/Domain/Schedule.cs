@@ -9,10 +9,15 @@ public partial class Schedule
 {
     [Key]
     public int ScheduleId { get; set; }
+    [Required]
     public int StaffId { get; set; }
+    [Required]
 
     public DateOnly StartDate { get; set; }
+    [Required]
+
     public DateOnly EndDate { get; set; }
+    [Required]
 
     public int ShiftId { get; set; }
 

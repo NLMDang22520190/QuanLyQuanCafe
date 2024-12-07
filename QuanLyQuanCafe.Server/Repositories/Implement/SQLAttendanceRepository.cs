@@ -9,6 +9,34 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         public SQLAttendanceRepository(CoffeeManagementContext dbContext) : base(dbContext)
         {
         }
+        public async Task<Attendance?> GetAttendanceByScheduleIdAndDateAsync(int scheduleId, DateOnly date)
+        {
+            return await _dbSet
+                .FirstOrDefaultAsync(a => a.ScheduleId == scheduleId && a.Date == date);
+        }
+
+        public async Task DeleteAttendancesForRangeAsync(int scheduleId, DateOnly startDate, DateOnly endDate)
+        {
+            if (startDate > endDate)
+            {
+                throw new ArgumentException("startDate cannot be later than endDate.");
+            }
+
+            var attendancesToDelete = await _dbSet
+                .Where(a => a.ScheduleId == scheduleId &&
+                            a.Date >= startDate &&
+                            a.Date <= endDate)
+                .ToListAsync();
+
+            if (attendancesToDelete.Count == 0)
+            {
+                throw new ArgumentException("No attendances found for the specified range.");
+            }
+
+            _dbSet.RemoveRange(attendancesToDelete);
+            await dbContext.SaveChangesAsync();
+        }
+
         // Check-in
         public async Task<Attendance?> CheckInAsync(int scheduleId, DateTime checkinTime)
         {
@@ -45,7 +73,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         {
             return await _dbSet.Where(a => a.Date == date).ToListAsync();
         }
-        public async Task<List<Attendance>> CreateAttendancesForRangeAsync(int scheduleId, DateTime startDate, DateTime endDate)
+        public async Task<List<Attendance>> CreateAttendancesForRangeAsync(int scheduleId, DateOnly startDate, DateOnly endDate)
         {
             
             if (startDate > endDate)
@@ -61,7 +89,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 var attendance = new Attendance
                 {
                     ScheduleId = scheduleId,
-                    Date = DateOnly.FromDateTime(date), 
+                    Date = date, 
                     Checkin = default(DateTime), 
                     Checkout = default(DateTime) 
                 };
