@@ -32,7 +32,7 @@ const AllRoutes = () => {
 
   return (
     <Routes>
-      <>
+      {/* <>
         <Route path="/" element={<Home />} />
         <Route path="/menuAll" element={<Menu />} />
         <Route path="/order-confirmation" element={<OrderConfirmation />} />
@@ -41,7 +41,7 @@ const AllRoutes = () => {
         <Route path="/auth/forgot-password" element={<ForgotPassword />} />
         <Route path="/auth/verify-code" element={<VerifyCode />} />
         <Route path="/auth/reset-password" element={<ResetPassword />} />
-      </>
+      </> */}
 
       {userRole === UserRole.ADMIN && (
         <>
