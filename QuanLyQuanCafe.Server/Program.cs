@@ -5,11 +5,10 @@ using QuanLyQuanCafe.Server.Repositories;
 using QuanLyQuanCafe.Server.Repositories.Implement;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Đọc ConnectionString từ appsettings.json
+Console.WriteLine("connection string: "+ builder.Configuration.GetConnectionString("se100-db"));
 builder.Services.AddDbContext<CoffeeManagementContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CoffeeManagementDb")));
-
+    options.UseSqlServer(builder.Configuration.GetConnectionString("se100-db")));
 // Add services to the container.
 
 builder.Services.AddControllers();
