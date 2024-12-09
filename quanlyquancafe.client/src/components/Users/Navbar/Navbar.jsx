@@ -15,7 +15,7 @@ const Navbar = () => {
           </Link>
           <div className="ml-4 md:ml-8 space-x-4">
             <Link
-              to="/Menu"
+              to="/MenuAll"
               className="text-lg font-medium text-primary-400 hover:underline hover:underline-offset-8"
             >
               Menu
