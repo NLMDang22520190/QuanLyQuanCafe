@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuanLyQuanCafe.Server.Models;
 
@@ -11,9 +12,11 @@ using QuanLyQuanCafe.Server.Models;
 namespace QuanLyQuanCafe.Server.Migrations
 {
     [DbContext(typeof(CoffeeManagementContext))]
-    partial class CoffeeManagementContextModelSnapshot : ModelSnapshot
+    [Migration("20241207093408_Ingredient-ImportRecord")]
+    partial class IngredientImportRecord
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -213,33 +216,6 @@ namespace QuanLyQuanCafe.Server.Migrations
                         .HasName("PK__FoodType__A86DA8FF9F87DB0B");
 
                     b.ToTable("FoodTypes");
-                });
-
-            modelBuilder.Entity("QuanLyQuanCafe.Server.Models.ImportRecord", b =>
-                {
-                    b.Property<int>("ImportRecordId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ImportRecordId"));
-
-                    b.Property<DateOnly>("DateImport")
-                        .HasColumnType("date");
-
-                    b.Property<double>("ImportPrice")
-                        .HasColumnType("float");
-
-                    b.Property<int>("IngredientId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("QuantityImport")
-                        .HasColumnType("float");
-
-                    b.HasKey("ImportRecordId");
-
-                    b.HasIndex("IngredientId");
-
-                    b.ToTable("ImportRecord");
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Importer", b =>
@@ -687,17 +663,6 @@ namespace QuanLyQuanCafe.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("Salary");
-                });
-
-            modelBuilder.Entity("QuanLyQuanCafe.Server.Models.ImportRecord", b =>
-                {
-                    b.HasOne("QuanLyQuanCafe.Server.Models.Ingredient", "Ingredient")
-                        .WithMany()
-                        .HasForeignKey("IngredientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Ingredient");
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.ItemRecipe", b =>
