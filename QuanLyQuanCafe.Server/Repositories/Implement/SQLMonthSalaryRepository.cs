@@ -2,6 +2,7 @@
 using QuanLyQuanCafe.Server.Migrations;
 using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Models.Domain;
+using QuanLyQuanCafe.Server.Models.DTOs;
 
 namespace QuanLyQuanCafe.Server.Repositories.Implement
 {
@@ -9,13 +10,6 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
     {
         public SQLMonthSalaryRepository(CoffeeManagementContext dbContext) : base(dbContext)
         {
-        }
-
-         public class MonthSalarySummary
-        {
-            public string Month { get; set; }
-            public int TotalHours { get; set; }
-            public decimal TotalSalaryPayed { get; set; }
         }
 
         public async Task UpdateWorkingHoursAsync(int salaryId, DateTime checkinTime, DateTime checkoutTime)
@@ -62,7 +56,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             return monthSalaries;
         }
 
-        public async Task<List<MonthSalarySummary>> GetTotalMonthSalariesByMonthsAsync()
+        public async Task<List<MonthSalaryStatisticDTO>> GetTotalMonthSalariesByMonthsAsync()
         {
             var totalMonthSalariesByMonth = await dbContext.MonthSalaries
                 .Join(dbContext.Salaries,
@@ -70,7 +64,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                     s => s.SalaryId,
                     (ms, s) => new { ms.Month, s.HourWage, ms.TotalHours })
                 .GroupBy(ms => ms.Month)
-                .Select(ms => new MonthSalarySummary
+                .Select(ms => new MonthSalaryStatisticDTO
                 {
                     Month = ms.Key,
                     TotalHours = ms.Sum(m => m.TotalHours),

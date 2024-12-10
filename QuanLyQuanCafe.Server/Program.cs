@@ -24,6 +24,8 @@ builder.Services.AddScoped<IAttendanceRepository, SQLAttendanceRepository>();
 builder.Services.AddScoped<IFoodTypeRepository, SQLFoodTypeRepository>();
 builder.Services.AddScoped<IMenuItemRepository, SQLMenuItemRepository>();
 builder.Services.AddScoped<IVoucherDetailRepository, SQLVoucherDetailRepository>();
+builder.Services.AddScoped<IOrderDetailRepository, SQLOrderDetailRepository>();
+builder.Services.AddScoped<IOrderRepository, SQLOrderRepository>();
 
 var app = builder.Build();
 

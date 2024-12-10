@@ -1,5 +1,5 @@
 ﻿using QuanLyQuanCafe.Server.Models.Domain;
-using static QuanLyQuanCafe.Server.Repositories.Implement.SQLMonthSalaryRepository;
+using QuanLyQuanCafe.Server.Models.DTOs;
 
 namespace QuanLyQuanCafe.Server.Repositories
 {
@@ -7,6 +7,6 @@ namespace QuanLyQuanCafe.Server.Repositories
     {
         Task UpdateWorkingHoursAsync(int staffId, DateTime checkinTime, DateTime checkoutTime);
         Task<List<MonthSalary>> GetAllMonthSalariesByStaffIdAsync(int staffId);
-        Task<List<MonthSalarySummary>> GetTotalMonthSalariesByMonthsAsync();
+        Task<List<MonthSalaryStatisticDTO>> GetTotalMonthSalariesByMonthsAsync();
     }
 }
