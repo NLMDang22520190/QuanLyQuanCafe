@@ -4,12 +4,12 @@ using QuanLyQuanCafe.Server.Models;
 
 namespace QuanLyQuanCafe.Server.Repositories
 {
-    public interface IOrderRepository : ICoffeeManagementRepository<Order>
-    {
-        // Lấy tổng số lượng món đã đặt theo ItemId
-        Task<int> GetTotalQuantityOrderedByItemIdAsync(int itemId);
-
-        // Lấy số lần món đã được đặt theo ItemId
-        Task<int> GetTotalTimesOrderedByItemIdAsync(int itemId);
-    }
+	public interface IOrderDetailRepository : ICoffeeManagementRepository<OrderDetail>
+	{
+		Task<IEnumerable<OrderDetail>> GetOrderDetailsByOrderIdAsync(int orderId);
+		Task<int> GetTotalQuantityOrderedByItemIdAsync(int itemId);
+		Task<int> GetTotalTimesOrderedByItemIdAsync(int itemId);
+		Task<bool> UpdateNotesOrAdjustmentsAsync(int orderDetailId, string? notes, string? adjustments);
+		Task<bool> DeleteOrderDetailsByOrderIdAsync(int orderId);
+	}
 }
