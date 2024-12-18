@@ -48,8 +48,12 @@ public partial class CoffeeManagementContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<ImportRecord> ImportRecords { get; set; }
+
     public virtual DbSet<VoucherDetail> VoucherDetails { get; set; }
     public virtual DbSet<MonthSalary> MonthSalaries { get; set; }
+
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
