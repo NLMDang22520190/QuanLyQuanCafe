@@ -110,7 +110,7 @@ namespace QuanLyQuanCafe.Server.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("CartDetails");
+                    b.ToTable("CartDetails", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.CustomerDetail", b =>
@@ -166,7 +166,7 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.HasIndex(new[] { "UserId" }, "UQ__Customer__1788CCADA42D5552")
                         .IsUnique();
 
-                    b.ToTable("CustomerDetails");
+                    b.ToTable("CustomerDetails", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Domain.MonthSalary", b =>
@@ -192,7 +192,7 @@ namespace QuanLyQuanCafe.Server.Migrations
 
                     b.HasIndex("SalaryId");
 
-                    b.ToTable("MonthSalary");
+                    b.ToTable("MonthSalary", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.FoodType", b =>
@@ -212,7 +212,34 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.HasKey("TypeOfFoodId")
                         .HasName("PK__FoodType__A86DA8FF9F87DB0B");
 
-                    b.ToTable("FoodTypes");
+                    b.ToTable("FoodTypes", (string)null);
+                });
+
+            modelBuilder.Entity("QuanLyQuanCafe.Server.Models.ImportRecord", b =>
+                {
+                    b.Property<int>("ImportRecordId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ImportRecordId"));
+
+                    b.Property<DateOnly>("DateImport")
+                        .HasColumnType("date");
+
+                    b.Property<double>("ImportPrice")
+                        .HasColumnType("float");
+
+                    b.Property<int>("IngredientId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("QuantityImport")
+                        .HasColumnType("float");
+
+                    b.HasKey("ImportRecordId");
+
+                    b.HasIndex("IngredientId");
+
+                    b.ToTable("ImportRecord", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Importer", b =>
@@ -232,7 +259,7 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.HasKey("ImporterId")
                         .HasName("PK__Importer__F516551233E2184F");
 
-                    b.ToTable("Importers");
+                    b.ToTable("Importers", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Ingredient", b =>
@@ -243,12 +270,6 @@ namespace QuanLyQuanCafe.Server.Migrations
                         .HasColumnName("IngredientID");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IngredientId"));
-
-                    b.Property<DateOnly>("DateImported")
-                        .HasColumnType("date");
-
-                    b.Property<DateOnly>("ExpiryDate")
-                        .HasColumnType("date");
 
                     b.Property<double>("ImportPrice")
                         .HasColumnType("float");
@@ -273,7 +294,7 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.HasKey("IngredientId")
                         .HasName("PK__Ingredie__BEAEB27AD332FD81");
 
-                    b.ToTable("Ingredients");
+                    b.ToTable("Ingredient", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.ItemRecipe", b =>
@@ -337,7 +358,7 @@ namespace QuanLyQuanCafe.Server.Migrations
 
                     b.HasIndex("TypeOfFoodId");
 
-                    b.ToTable("MenuItems");
+                    b.ToTable("MenuItems", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Order", b =>
@@ -377,7 +398,7 @@ namespace QuanLyQuanCafe.Server.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.OrderDetail", b =>
@@ -414,7 +435,7 @@ namespace QuanLyQuanCafe.Server.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderDetails");
+                    b.ToTable("OrderDetails", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Salary", b =>
@@ -474,7 +495,7 @@ namespace QuanLyQuanCafe.Server.Migrations
 
                     b.HasIndex("StaffId");
 
-                    b.ToTable("Schedule");
+                    b.ToTable("Schedule", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Shift", b =>
@@ -500,7 +521,7 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.HasKey("ShiftId")
                         .HasName("PK__Shifts__C0A838E1A0411B33");
 
-                    b.ToTable("Shift");
+                    b.ToTable("Shift", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Staff", b =>
@@ -537,7 +558,7 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.HasKey("StaffId")
                         .HasName("PK__Staffs__96D4AAF765015FDD");
 
-                    b.ToTable("Staffs");
+                    b.ToTable("Staffs", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.User", b =>
@@ -576,7 +597,7 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.HasIndex(new[] { "Username" }, "UQ__Users__536C85E4169A0A61")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.VoucherDetail", b =>
@@ -613,7 +634,7 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.HasIndex(new[] { "VoucherCode" }, "UQ__VoucherD__7F0ABCA998F92D0B")
                         .IsUnique();
 
-                    b.ToTable("VoucherDetails");
+                    b.ToTable("VoucherDetails", (string)null);
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Attendance", b =>
@@ -666,6 +687,17 @@ namespace QuanLyQuanCafe.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("Salary");
+                });
+
+            modelBuilder.Entity("QuanLyQuanCafe.Server.Models.ImportRecord", b =>
+                {
+                    b.HasOne("QuanLyQuanCafe.Server.Models.Ingredient", "Ingredient")
+                        .WithMany()
+                        .HasForeignKey("IngredientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ingredient");
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.ItemRecipe", b =>
