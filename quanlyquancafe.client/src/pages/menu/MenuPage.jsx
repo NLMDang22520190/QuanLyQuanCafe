@@ -6,7 +6,8 @@ import { TableDetailType } from "../../constant/TableDetailType";
 import { useState } from "react";
 import CreateCategory from "./CreateCategory";
 import CreateProduct from "./CreateProduct";
-import {Modal} from 'antd';
+import {Modal, Table, Input, Select, Switch, Button, Checkbox, Pagination} from 'antd';
+import ProductDetail from "./ProductDetail";
 
 export const MenuPage = () => {
     const navigate = useNavigate();
@@ -14,6 +15,10 @@ export const MenuPage = () => {
     const [currentProducts,setCurrentProducts] = useState([]);
     const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] = useState(false);
     const [isAddProductModalVisible, setIsAddProductModalVisible] = useState(false);
+    const [isProductDetailModalVisible, setIsProductDetailModalVisible] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [loading, setLoading] = useState(false);
 
     const categoryWithProducts = [
         {
@@ -23,35 +28,35 @@ export const MenuPage = () => {
                 {
                     id: 1,
                     name: "Paneer Tikka Biryani",
-                    price: "$12.99",
+                    price: 12.99,
                     quantity: 50,
                     description: "A spicy and aromatic rice dish with paneer tikka.",
                     variations: ["Regular", "Spicy", "Extra Serving"],
                     available: true,
                     category: "Indian",
-                    action: "Edit"
+        
                 },
                 {
                     id: 3,
                     name: "Chicken Boneless Biryani",
-                    price: "$14.49",
+                    price: 14.49,
                     quantity: 60,
                     description: "Fragrant rice cooked with boneless chicken and spices.",
                     variations: ["Regular", "Spicy", "Extra Serving"],
                     available: true,
                     category: "Indian",
-                    action: "Edit"
+                 
                 },
                 {
                     id: 5,
                     name: "Butter Chicken",
-                    price: "$15.99",
+                    price: "15.99",
                     quantity: 20,
                     description: "A creamy chicken curry served with naan or rice.",
                     variations: ["Regular", "Spicy", "Extra Cream"],
-                    available: true,
+                    available: false,
                     category: "Indian",
-                    action: "Edit"
+                    
                 }
             ]
         },
@@ -62,53 +67,112 @@ export const MenuPage = () => {
                 {
                     id: 2,
                     name: "Boneless Chicken 65",
-                    price: "$10.99",
+                    price: 10.99,
                     quantity: 30,
                     description: "A crispy, boneless chicken dish, popular in Chinese cuisine.",
                     variations: ["Small", "Large", "Extra Spicy"],
                     available: true,
                     category: "Chinese",
-                    action: "Edit"
+                  
                 },
                 {
                     id: 4,
                     name: "Veg Fried Rice",
-                    price: "$8.99",
+                    price: 8.99,
                     quantity: 40,
                     description: "A stir-fried rice dish with mixed vegetables.",
                     variations: ["Small", "Large", "Extra Vegetables"],
                     available: false,
                     category: "Chinese",
-                    action: "Edit"
+                 
                 }
             ]
         }
     ];
 
     const columnData = [
-        { header: "", key: "id", type: TableDetailType.CheckBox },
-        { header: "Name", key: "name", type: TableDetailType.TextField },
-        { header: "Category", key: "category", type: TableDetailType.ComboBox, options: [
-            { label: "Indian", value: "Indian" },
-            { label: "Chinese", value: "Chinese" },
-            { label: "Italian", value: "Italian" },
-            { label: "Mexican", value: "Mexican" },
-            { label: "Thai", value: "Thai" }
-        ] },
-        { header: "Price", key: "price", type: TableDetailType.NumberField },
-        { header: "Quantity", key: "quantity", type: TableDetailType.NumberField },
-        { header: "Description", key: "description", type: TableDetailType.TextField },
-        { header: "Variants", key: "variations", type: TableDetailType.ComboBox, options: [
-            { label: "Regular", value: "Regular" },
-            { label: "Spicy", value: "Spicy" },
-            { label: "Extra Serving", value: "Extra Serving" },
-            { label: "Extra Cream", value: "Extra Cream" },
-            { label: "Extra Spicy", value: "Extra Spicy" },
-            { label: "Extra Vegetables", value: "Extra Vegetables" }
-        ] },
-        { header: "Available", key: "available", type: TableDetailType.CheckSlider },
-        { header: "", key: "action", type: TableDetailType.Action, actions: [{ label: "Save Change" }] }
+        {
+            title: '',
+            dataIndex: 'id',
+            key: 'id',
+            render: (text, record) => <Checkbox />
+        },
+        {
+            title: 'Name',
+            dataIndex: 'name',
+            key: 'name',
+            sorter: (a, b) => a.name.localeCompare(b.name), 
+        },
+        {
+            title: 'Price',
+            dataIndex: 'price',
+            key: 'price',
+            render: (text) => `$${parseFloat(text.replace('$', '')).toFixed(2)}`,
+            sorter: (a, b) => a.price - b.price,
+        },
+        {
+            title: 'Category',
+            dataIndex: 'category',
+            key: 'category',
+            render: (text, record) => (
+                <Select defaultValue={text}>
+                    <Option value="Indian">Indian</Option>
+                    <Option value="Chinese">Chinese</Option>
+                    <Option value="Italian">Italian</Option>
+                    <Option value="Mexican">Mexican</Option>
+                    <Option value="Thai">Thai</Option>
+                </Select>
+            )
+        },
+       
+        {
+            title: 'In stock',
+            dataIndex: 'quantity',
+            key: 'quantity',
+            sorter: (a, b) => a.quantity - b.quantity,
+        },
+        {
+            title: 'Description',
+            dataIndex: 'description',
+            key: 'description',
+        },
+        {
+            title: 'Variants',
+            dataIndex: 'variations',
+            key: 'variations',
+            render: (text, record) => (
+                <Select defaultValue={text}>
+                    <Option value="Regular">Regular</Option>
+                    <Option value="Spicy">Spicy</Option>
+                    <Option value="Extra Serving">Extra Serving</Option>
+                    <Option value="Extra Cream">Extra Cream</Option>
+                    <Option value="Extra Spicy">Extra Spicy</Option>
+                    <Option value="Extra Vegetables">Extra Vegetables</Option>
+                </Select>
+            )
+        },
+        {
+            title: 'Available',
+            dataIndex: 'available',
+            key: 'available',
+            sorter: (a, b) => a.available - b.available,
+            render: (text, record) => <Switch defaultChecked={text} />
+        },
+        {
+            title: '',
+            dataIndex: 'action',
+            key: 'action',
+            render: (text, record) => <Button onClick={()=>setIsProductDetailModalVisible(true)} type="text"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>          
+          </Button>
+        }
     ];
+
+    const handlePageChange = (page, pageSize) => {
+        setCurrentPage(page);
+        setRowsPerPage(pageSize);
+    };
 
     return (<>
     
@@ -127,22 +191,11 @@ export const MenuPage = () => {
             <div className="flex justify-between">
                 <p className="text-2xl items-center">Categories</p>
                 <div className="flex gap-x-4">
-                    <RoundedTextField
-                        textColor="text-gray-500"
-                        placeholder="Search category..."
-                        height="30px"
-                        width="250px"
-                        prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <Input placeholder="Seach category" prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>
-                        } />
+                        </svg>} />
 
-                    <RoundedButton onClick={() => setIsAddCategoryModalVisible(true)} prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    }
-                        height="30px"
-                        label="Create new Category" />
+                    <Button onClick={setIsAddCategoryModalVisible} type="primary" > Add new Category</Button>
 
                 </div>
 
@@ -172,30 +225,27 @@ export const MenuPage = () => {
                     </ul>
                 </div>
                 <div className="flex py-2 justify-end gap-x-4 px-4">
-                <RoundedTextField
-                        textColor="text-gray-500"
-                        placeholder="Search product..."
-                        height="30px"
-                        width="250px"
-                        prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <div className="w-1/4">
+                    <Input placeholder="Seach menu items" prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>
-                        } />
-
-                    <RoundedButton onClick={() => {setIsAddProductModalVisible(true)}} prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    }
-                        height="30px"
-                        label="Add new product" />
+                        </svg>} />
+                    </div>
+                    <Button onClick={setIsAddProductModalVisible} type="primary" > Add Menu Item</Button>
                 </div>
-                <TableLayout
-                    hideHeader={isAddCategoryModalVisible}
-                    pageLayout={true}
-                    columns={columnData}
-                    data={currentProducts}
-                />
+                <Table 
+                 loading={loading} 
+                 pagination={false}
+                 rowKey={(record) => record.id} 
+                 dataSource={currentProducts} 
+                 columns={ columnData } />
             </div>
+            <Pagination
+                    current={currentProducts.length}
+                    total={currentProducts.length}
+                    pageSize={rowsPerPage}
+                    onChange={handlePageChange}
+                    showSizeChanger={false}
+                />
         </div>
         <Modal title="Add New Category" open={isAddCategoryModalVisible} onCancel={()=> setIsAddCategoryModalVisible(false)} footer={null}>
             <CreateCategory onSubmit={() => setIsAddCategoryModalVisible(false)} />
@@ -203,6 +253,9 @@ export const MenuPage = () => {
         <Modal title="Add New Product" open={isAddProductModalVisible} onCancel={()=> setIsAddProductModalVisible(false)} footer={null}>
 
             <CreateProduct onSubmit={() => setIsAddProductModalVisible(false)}/>
+        </Modal>
+        <Modal title="Menu item detail" open={isProductDetailModalVisible} onCancel={()=> setIsProductDetailModalVisible(false)} footer={null}> 
+            <ProductDetail/>
         </Modal>
     </>)
 }
