@@ -13,12 +13,12 @@ function App() {
   return (
     <ConfigProvider theme={themeConfig}>
       <div className="App ">
-        {/* <AppLayout>
+        <AppLayout>
           <AllRoutes />
-        </AppLayout> */}
+        </AppLayout>
         <>
-          <Navbar />
-          <AllUserRoutes />
+          {/* <Navbar />
+          <AllUserRoutes /> */}
         </>
       </div>
     </ConfigProvider>
