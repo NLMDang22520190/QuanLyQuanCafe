@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { RoundedButton } from "../../components/buttons/RoundedButton"
 import { RoundedTextField } from "../../components/textfields/RoundedTextField"
 import { RoundedComboBox } from "../../components/combobox/RoundedComboBox";
@@ -6,17 +6,25 @@ import { Navigate } from "react-router-dom";
 
 export const AddMaterials = () => {
     
-    const [imagePreview, setImagePreview] = useState(null);
+    // const [imagePreview, setImagePreview] = useState(null);
+     // const handleImageUpload = (e) => {
+    //     const file = e.target.files[0];
+    //     if (file) {
+    //         const reader = new FileReader();
+    //         reader.onload = () => setImagePreview(reader.result);
+    //         reader.readAsDataURL(file);
+    //     }
+    // };
+    const [currentDateTime, setCurrentDateTime] = useState("");
 
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => setImagePreview(reader.result);
-            reader.readAsDataURL(file);
-        }
-    };
+   
 
+    useEffect(() => {
+        const now = new Date();
+        const formattedDateTime = now.toLocaleString(); 
+        setCurrentDateTime(formattedDateTime); 
+    }, []);
+    
     return (
         <div className="flex flex-col md:flex-row p-6 bg-gray-800 h-screen gap-8 text-gray-200">
         
@@ -47,16 +55,14 @@ export const AddMaterials = () => {
                     />
 
                  
-                    <RoundedComboBox
-                        placeholder="--Chọn loại--"
-                        label="Loại mặt hàng (*)"
-                        options={[
-                            { value: "seafood", label: "Hải sản" },
-                            { value: "meat", label: "Thịt" },
-                            { value: "vegetables", label: "Rau củ" },
-                        ]}
+                    <RoundedTextField
+                        initialValue={currentDateTime} 
+                        label="Ngày nhập"
+                        readOnly 
                         textColor="text-gray-200"
-                        bgColor="bg-gray-800"
+                        style="border-gray-700 rounded-md"
+                        width="100%"
+                        height="40px"
                     />
 
                   
