@@ -6,15 +6,7 @@ import { Navigate } from "react-router-dom";
 
 export const AddMaterials = () => {
     
-    // const [imagePreview, setImagePreview] = useState(null);
-     // const handleImageUpload = (e) => {
-    //     const file = e.target.files[0];
-    //     if (file) {
-    //         const reader = new FileReader();
-    //         reader.onload = () => setImagePreview(reader.result);
-    //         reader.readAsDataURL(file);
-    //     }
-    // };
+  
     const [currentDateTime, setCurrentDateTime] = useState("");
 
    
