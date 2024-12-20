@@ -6,13 +6,13 @@ import { TableDetailType } from "../../constant/TableDetailType";
 import { useState } from "react";
 import CreateCategory from "./CreateCategory";
 import CreateProduct from "./CreateProduct";
-import {Modal, Table, Input, Select, Switch, Button, Checkbox, Pagination} from 'antd';
+import { Modal, Table, Input, Select, Switch, Button, Checkbox, Pagination } from 'antd';
 import ProductDetail from "./ProductDetail";
 
 export const MenuPage = () => {
     const navigate = useNavigate();
     const [currentTab, setCurrentTab] = useState(0);
-    const [currentProducts,setCurrentProducts] = useState([]);
+    const [currentProducts, setCurrentProducts] = useState([]);
     const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] = useState(false);
     const [isAddProductModalVisible, setIsAddProductModalVisible] = useState(false);
     const [isProductDetailModalVisible, setIsProductDetailModalVisible] = useState(false);
@@ -34,7 +34,7 @@ export const MenuPage = () => {
                     variations: ["Regular", "Spicy", "Extra Serving"],
                     available: true,
                     category: "Indian",
-        
+
                 },
                 {
                     id: 3,
@@ -45,7 +45,7 @@ export const MenuPage = () => {
                     variations: ["Regular", "Spicy", "Extra Serving"],
                     available: true,
                     category: "Indian",
-                 
+
                 },
                 {
                     id: 5,
@@ -56,7 +56,7 @@ export const MenuPage = () => {
                     variations: ["Regular", "Spicy", "Extra Cream"],
                     available: false,
                     category: "Indian",
-                    
+
                 }
             ]
         },
@@ -73,7 +73,7 @@ export const MenuPage = () => {
                     variations: ["Small", "Large", "Extra Spicy"],
                     available: true,
                     category: "Chinese",
-                  
+
                 },
                 {
                     id: 4,
@@ -84,7 +84,7 @@ export const MenuPage = () => {
                     variations: ["Small", "Large", "Extra Vegetables"],
                     available: false,
                     category: "Chinese",
-                 
+
                 }
             ]
         }
@@ -101,13 +101,13 @@ export const MenuPage = () => {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a, b) => a.name.localeCompare(b.name), 
+            sorter: (a, b) => a.name.localeCompare(b.name),
         },
         {
             title: 'Price',
             dataIndex: 'price',
             key: 'price',
-            render: (text) => `$${parseFloat(text.replace('$', '')).toFixed(2)}`,
+            render: (text) => `$${parseFloat(text).toFixed(2)}`,
             sorter: (a, b) => a.price - b.price,
         },
         {
@@ -124,7 +124,7 @@ export const MenuPage = () => {
                 </Select>
             )
         },
-       
+
         {
             title: 'In stock',
             dataIndex: 'quantity',
@@ -162,10 +162,10 @@ export const MenuPage = () => {
             title: '',
             dataIndex: 'action',
             key: 'action',
-            render: (text, record) => <Button onClick={()=>setIsProductDetailModalVisible(true)} type="text"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-          </svg>          
-          </Button>
+            render: (text, record) => <Button onClick={() => setIsProductDetailModalVisible(true)} type="text"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            </Button>
         }
     ];
 
@@ -175,27 +175,29 @@ export const MenuPage = () => {
     };
 
     return (<>
-    
+
         <div className="flex flex-col gap-y-4 overflow-hidden h-full">
             <div className="flex justify-between items-center">
                 <h2 className="text-amber-500 font-medium text-3xl">Menu Management</h2>
                 <div className="flex gap-x-2">
 
-                    <RoundedButton prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                   <Button className="text-black" size="large" type="primary" ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                    </svg>
-                    } height="40px" label="Export Menu Report" />
+                    </svg> Export Menu Report</Button>
 
                 </div>
             </div>
             <div className="flex justify-between">
                 <p className="text-2xl items-center">Categories</p>
                 <div className="flex gap-x-4">
-                <Input placeholder="Seach category" prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>} />
+                    <Input placeholder="Seach category" prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>} />
 
-                    <Button onClick={setIsAddCategoryModalVisible} type="primary" > Add new Category</Button>
+                    <Button  className="text-black"  onClick={setIsAddCategoryModalVisible} icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>} type="primary" >
+                        Add new Category</Button>
 
                 </div>
 
@@ -226,36 +228,38 @@ export const MenuPage = () => {
                 </div>
                 <div className="flex py-2 justify-end gap-x-4 px-4">
                     <div className="w-1/4">
-                    <Input placeholder="Seach menu items" prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                        <Input placeholder="Seach menu items" prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                         </svg>} />
                     </div>
-                    <Button onClick={setIsAddProductModalVisible} type="primary" > Add Menu Item</Button>
+                    <Button  className="text-black"  onClick={setIsAddProductModalVisible} type="primary" icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>} > Add Menu Item</Button>
                 </div>
-                <Table 
-                 loading={loading} 
-                 pagination={false}
-                 rowKey={(record) => record.id} 
-                 dataSource={currentProducts} 
-                 columns={ columnData } />
+                <Table
+                    loading={loading}
+                    pagination={false}
+                    rowKey={(record) => record.id}
+                    dataSource={currentProducts}
+                    columns={columnData} />
             </div>
             <Pagination
-                    current={currentProducts.length}
-                    total={currentProducts.length}
-                    pageSize={rowsPerPage}
-                    onChange={handlePageChange}
-                    showSizeChanger={false}
-                />
+                current={currentProducts.length}
+                total={currentProducts.length}
+                pageSize={rowsPerPage}
+                onChange={handlePageChange}
+                showSizeChanger={false}
+            />
         </div>
-        <Modal title="Add New Category" open={isAddCategoryModalVisible} onCancel={()=> setIsAddCategoryModalVisible(false)} footer={null}>
+        <Modal title="Add New Category" open={isAddCategoryModalVisible} onCancel={() => setIsAddCategoryModalVisible(false)} footer={null}>
             <CreateCategory onSubmit={() => setIsAddCategoryModalVisible(false)} />
         </Modal>
-        <Modal title="Add New Product" open={isAddProductModalVisible} onCancel={()=> setIsAddProductModalVisible(false)} footer={null}>
+        <Modal title="Add New Product" open={isAddProductModalVisible} onCancel={() => setIsAddProductModalVisible(false)} footer={null}>
 
-            <CreateProduct onSubmit={() => setIsAddProductModalVisible(false)}/>
+            <CreateProduct onSubmit={() => setIsAddProductModalVisible(false)} />
         </Modal>
-        <Modal title="Menu item detail" open={isProductDetailModalVisible} onCancel={()=> setIsProductDetailModalVisible(false)} footer={null}> 
-            <ProductDetail/>
+        <Modal title="Menu item detail" open={isProductDetailModalVisible} onCancel={() => setIsProductDetailModalVisible(false)} footer={null}>
+            <ProductDetail />
         </Modal>
     </>)
 }

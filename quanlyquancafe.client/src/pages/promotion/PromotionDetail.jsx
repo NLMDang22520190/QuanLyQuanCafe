@@ -1,13 +1,20 @@
-import {Input, TimePicker, DatePicker, InputNumber, Select, Steps, Radio, Form, Button} from 'antd';
+import { Input, TimePicker, DatePicker, InputNumber, Select, Steps, Radio, Form, Button } from 'antd';
 const { Option } = Select;
 import { useState } from 'react';
 import PromotionType from '../../constant/PromotionType';
 
-export const AddPromotion = () => {
+export const PromotionDetail = () => {
     const [selectedPromotionType, setSelectedPromotionType] = useState('percentage');
     const [currentStep, setCurrentStep] = useState(0);
     const [type, setType] = useState('Product');
 
+    const selectAfter = (
+        <Select defaultValue="USD" style={{ width: 100 }}>
+            <Option value="USD">$</Option>
+            <Option value="VND">VND</Option>
+            <Option value="percentage">%</Option>
+        </Select>
+    );
     const promotionTypes = Object.keys(PromotionType).map((key) => ({
         label: PromotionType[key],
         value: key,
@@ -15,8 +22,8 @@ export const AddPromotion = () => {
 
     const onChangeStep = current => { setCurrentStep(current); };
 
-return (
-    <Form layout="horizontal" className='flex flex-col gap-y-4' labelCol={{ span: 7 }}  wrapperCol={{ span: 24 }}>
+    return (
+        <Form layout="horizontal" className='flex flex-col gap-y-4' labelCol={{ span: 7 }}  wrapperCol={{ span: 24 }}>
 
 
             <div className='flex flex-col gap-y-4'>
@@ -61,7 +68,7 @@ return (
                     </Radio.Group>
                 </Form.Item>
                 <Form.Item label="Discount">
-                    <InputNumber  defaultValue={100} />
+                    <InputNumber addonAfter={selectAfter} defaultValue={100} />
                 </Form.Item>
                 <Form.Item label="Status">
                     <Radio.Group>
@@ -80,13 +87,13 @@ return (
                 </Form.Item>
                 <Form.Item>
                     <Button type="primary" htmlType="submit">
-                        Save
+                        Save Change
                     </Button>
                 </Form.Item>
                 
             </div>
 
         </Form>
-);
+    );
 }
 

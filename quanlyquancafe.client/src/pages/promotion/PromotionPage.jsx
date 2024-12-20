@@ -5,14 +5,17 @@ import { RoundedTextField } from "../../components/textfields/RoundedTextField";
 import { TableDetailType } from "../../constant/TableDetailType";
 import { useState, useEffect } from "react";
 import { filterData } from "../../utils/FilterUtil";
-import { Modal, Input, TimePicker, DatePicker } from 'antd'
+import { Modal, Button, Table, Checkbox } from 'antd'
 import {AddPromotion} from './AddPromotion';
+import { StatusBadge } from "../../components/badges/StatusBadge";
+import { PromotionDetail } from "./PromotionDetail";
 
 export const PromotionPage = () => {
     const navigate = useNavigate();
     const [searchQuerry, setSearchQuerry] = useState("");
     const [filteredData, setFilteredData] = useState([]);
     const [isModalAddVisible, setIsModalAddVisible] = useState(false);
+    const [isPromotionDetailModalVisible, setIsPromotionDetailModalVisible] = useState(false);
 
     const sampleData = [
         {
@@ -22,7 +25,7 @@ export const PromotionPage = () => {
             endDate: "2024-11-30",
             discount: "50%",
             status: "Active",
-            action: "View Details",
+           
         },
         {
             id: "PROMO002",
@@ -31,7 +34,6 @@ export const PromotionPage = () => {
             endDate: "2024-12-25",
             discount: "30%",
             status: "Upcoming",
-            action: "View Details",
         },
         {
             id: "PROMO003",
@@ -40,7 +42,6 @@ export const PromotionPage = () => {
             endDate: "2025-01-05",
             discount: "20%",
             status: "Upcoming",
-            action: "View Details",
         },
         {
             id: "PROMO004",
@@ -49,7 +50,6 @@ export const PromotionPage = () => {
             endDate: "2025-02-14",
             discount: "25%",
             status: "Upcoming",
-            action: "View Details",
         },
         {
             id: "PROMO005",
@@ -58,19 +58,54 @@ export const PromotionPage = () => {
             endDate: "2025-06-10",
             discount: "40%",
             status: "Inactive",
-            action: "View Details",
         },
     ];
 
-    const columnData = [
-        { header: "", key: "id", type: TableDetailType.CheckBox },
-        { header: "Promotion ID", key: "id", type: TableDetailType.Info },
-        { header: "Name", key: "name", type: TableDetailType.Info },
-        { header: "Start Date", key: "startDate", type: TableDetailType.Info },
-        { header: "End Date", key: "endDate", type: TableDetailType.Info },
-        { header: "Discount", key: "discount", type: TableDetailType.Info },
-        { header: "Status", key: "status", type: TableDetailType.Badge },
-        { header: "", key: "action", type: TableDetailType.Action, actions: [{ label: "Save change" }] },
+    const columns = [
+        {
+            title: 'Promotion ID',
+            dataIndex: 'id',
+            key: 'id',
+            render: (text, record) => {
+                return <Checkbox>{text}</Checkbox>;
+            }
+        },
+        {
+            title: 'Name',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: 'Start Date',
+            dataIndex: 'startDate',
+            key: 'startDate',
+        },
+        {
+            title: 'End Date',
+            dataIndex: 'endDate',
+            key: 'endDate',
+        },
+        {
+            title: 'Discount',
+            dataIndex: 'discount',
+            key: 'discount',
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            render: (text, record) => {
+                return <StatusBadge  status={text} label={text} />
+            }
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (text, record) => <Button onClick={() => setIsPromotionDetailModalVisible(true)} type="text"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            </Button>
+        },
     ];
 
 
@@ -107,15 +142,15 @@ export const PromotionPage = () => {
                     </div>
                 </div>
                 <div className="max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)]">
-                    <TableLayout
-                        columns={columnData}
-                        data={filteredData}
-                    />
+                    <Table columns={columns} dataSource={sampleData} />
                 </div>
             </div>
-            <Modal title="Add New Promotion" open={isModalAddVisible} onCancel={() => setIsModalAddVisible(false)}>
+            <Modal title="Add New Promotion" open={isModalAddVisible} onCancel={() => setIsModalAddVisible(false)} footer={null}>
                <AddPromotion />
             </Modal>
+            <Modal title="Promotion detail" open={isPromotionDetailModalVisible} onCancel={() => setIsPromotionDetailModalVisible(false)} footer={null}>
+            <PromotionDetail />
+        </Modal>
         </>
     );
 };
