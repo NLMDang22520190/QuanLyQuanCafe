@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { RoundedButton } from "../../components/buttons/RoundedButton";
 import { TableLayout } from "../../components/tables/TableLayout";
 import { RoundedTextField } from "../../components/textfields/RoundedTextField";
@@ -108,11 +109,32 @@ export const PromotionPage = () => {
         },
     ];
 
+    const headers = {
+        "Content-Type": "application/json",
+        Authorization: 'No Auth',
+      };
+
+      const apiUrl = "https://localhost:7087/api/voucher-details";
+
+    const fetchPromotions = async () => {
+        axios.get(apiUrl)
+    .then(response => {
+        console.log(response);
+    })
+    .catch(error => {
+        console.error('There was an error!', error);
+    });
+    }
+
 
 
     useEffect(() => {
         setFilteredData(filterData(sampleData, searchQuerry));
     }, [searchQuerry]);
+
+    useEffect(() => {
+        fetchPromotions();
+    }, []);
 
     return (
         <>
