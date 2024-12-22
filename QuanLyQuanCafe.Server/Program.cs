@@ -24,6 +24,9 @@ builder.Services.AddScoped<IMonthSalaryRepository, SQLMonthSalaryRepository>();
 builder.Services.AddScoped<IAttendanceRepository, SQLAttendanceRepository>();
 builder.Services.AddScoped<IIngredientRepository, SQLIngredientRepository>();
 builder.Services.AddScoped<IImportRecordRepository, SQLImportRecordRepository>();
+builder.Services.AddScoped<IMenuItemRepository, SQLMenuItemRepository>();
+builder.Services.AddScoped<ICartRepository, SQLCartRepository>();
+builder.Services.AddScoped<ICartDetailRepository, SQLCartDetailRepository>();
 
 builder.Services.AddScoped(typeof(ICoffeeManagementRepository<>), typeof(CoffeeManagementRepository<>));
 

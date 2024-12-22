@@ -9,6 +9,7 @@ namespace QuanLyQuanCafe.Server.Mapping
         public AutoMapperProfile()
         {
             CreateMap<MenuItem, FeatureMenuItem>().ReverseMap();
+            CreateMap<MenuItem, ItemOnMenuPage>().ReverseMap();
         }
     }
 }

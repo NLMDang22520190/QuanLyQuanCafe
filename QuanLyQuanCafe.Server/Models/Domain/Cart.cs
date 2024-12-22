@@ -11,7 +11,7 @@ public partial class Cart
 
     public DateTime LastUpdated { get; set; }
 
-    public virtual ICollection<CartDetail> CartDetails { get; set; } = new List<CartDetail>();
+    //public virtual ICollection<CartDetail> CartDetails { get; set; } = new List<CartDetail>();
 
     public virtual CustomerDetail Customer { get; set; } = null!;
 }

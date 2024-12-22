@@ -1,3 +1,4 @@
+﻿using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Repositories;
 
@@ -13,12 +14,21 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
         public Task<List<MenuItem>> GetMenuItemsByCategoryIdAsync(int categoryId)
         {
-            throw new NotImplementedException();
+            var menuItems = dbContext.MenuItems
+                .Where(x => x.TypeOfFoodId == categoryId)
+                .ToListAsync();
+
+            return menuItems;
         }
 
-        public Task<List<MenuItem>> GetFeatureMenuItemAsync()
+        public async Task<List<MenuItem>> GetFeatureMenuItemAsync()
         {
-            throw new NotImplementedException();
+            var randomMenuItems = await dbContext.MenuItems
+                .OrderBy(x => Guid.NewGuid()) // Sắp xếp ngẫu nhiên
+                .Take(8) // Lấy 8 món ăn ngẫu nhiên
+                .ToListAsync();
+
+            return randomMenuItems;
         }
     }
 }
