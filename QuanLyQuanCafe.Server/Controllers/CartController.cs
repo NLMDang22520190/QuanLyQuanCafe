@@ -95,5 +95,27 @@ namespace QuanLyQuanCafe.Server.Controllers
             }
         }
 
+        [HttpDelete("DeleteItemFromCart/{cartDetailId}")]
+        public async Task<IActionResult> DeleteItemFromCart(int cartDetailId)
+        {
+            try
+            {
+                // Gọi phương thức xóa từ repository và đợi kết quả
+                var isDeleted = await _cartDetailRepository.DeleteCartDetailByCartId(cartDetailId);
+
+                if (!isDeleted)
+                {
+                    return NotFound($"Cart detail with ID {cartDetailId} not found.");
+                }
+
+                return Ok($"Cart item with ID {cartDetailId} deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error deleting item from cart: {ex.Message}");
+            }
+        }
+
+
     }
 }
