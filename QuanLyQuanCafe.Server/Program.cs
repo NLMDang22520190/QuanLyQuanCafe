@@ -22,6 +22,9 @@ builder.Services.AddScoped<IScheduleRepository, SQLScheduleRepository>();
 builder.Services.AddScoped<IStaffRepository, SQLStaffRepository>();
 builder.Services.AddScoped<IMonthSalaryRepository, SQLMonthSalaryRepository>();
 builder.Services.AddScoped<IAttendanceRepository, SQLAttendanceRepository>();
+builder.Services.AddScoped<IIngredientRepository, SQLIngredientRepository>();
+builder.Services.AddScoped<IImportRecordRepository, SQLImportRecordRepository>();
+
 builder.Services.AddScoped(typeof(ICoffeeManagementRepository<>), typeof(CoffeeManagementRepository<>));
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
