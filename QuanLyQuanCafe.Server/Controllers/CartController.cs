@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTO.ADD;
+using QuanLyQuanCafe.Server.Models.DTO.GET;
+using QuanLyQuanCafe.Server.Models.DTO.UPDATE;
 using QuanLyQuanCafe.Server.Repositories;
 
 namespace QuanLyQuanCafe.Server.Controllers
@@ -23,19 +27,73 @@ namespace QuanLyQuanCafe.Server.Controllers
         [HttpGet("GetCartDetailsByUserId/{userId}")]
         public async Task<IActionResult> GetCartDetailsByUserId(int userId)
         {
-            var cart = await _cartRepository.GetCartByUserId(userId);
-            if (cart == null)
+            var cartDomain = await _cartRepository.GetCartByUserId(userId);
+            if (cartDomain == null)
             {
                 return NotFound($"No cart found for UserId {userId}");
             }
 
-            var cartDetails = await _cartDetailRepository.GetCartDetailByCartId(cart.CartId);
-            if (cartDetails == null || !cartDetails.Any())
+            var cartDetailsDomain = await _cartDetailRepository.GetCartDetailByCartId(cartDomain.CartId);
+            if (cartDetailsDomain == null || !cartDetailsDomain.Any())
             {
-                return NotFound($"No cart details found for CartId {cart.CartId}");
+                return NotFound($"No cart details found for CartId {cartDomain.CartId}");
             }
 
-            return Ok(cartDetails);
+            return Ok(_mapper.Map<List<CartItemDetailDTO>>(cartDetailsDomain));
         }
+
+        // POST: api/Cart/AddItemToCart
+        [HttpPost("AddItemToCart")]
+        public async Task<IActionResult> AddItemToCart([FromBody] AddItemToCartRequestDTO requestDto)
+        {
+            try
+            {
+                // Gọi phương thức AddCartDetailAsync để thêm sản phẩm vào giỏ
+                var cartDetailDomain = _mapper.Map<CartDetail>(requestDto);
+
+                await _cartDetailRepository.CreateAsync(cartDetailDomain);
+
+                return Ok("Item added to cart successfully!");
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi nếu có
+                return BadRequest($"Error adding item to cart: {ex.Message}");
+            }
+        }
+
+        [HttpPut("UpdateItemInCart")]
+        public async Task<IActionResult> UpdateItemInCart([FromBody] UpdateCartItemRequestDTO requestDto)
+        {
+            try
+            {
+                // Ánh xạ dữ liệu từ DTO sang đối tượng CartDetail
+                var cartDetail = _mapper.Map<CartDetail>(requestDto);
+
+                // Sử dụng hàm tổng quan để cập nhật
+                var updatedCartDetail = await _cartDetailRepository.UpdateAsync(
+                    cd => cd.CartDetailId == requestDto.CartDetailId, // filter
+                    existingRecord =>
+                    {
+                        existingRecord.Quantity = cartDetail.Quantity;
+                        existingRecord.Notes = cartDetail.Notes;
+                        existingRecord.Adjustments = cartDetail.Adjustments;
+                    }
+                );
+
+                if (updatedCartDetail == null)
+                {
+                    return NotFound($"Cart detail with ID {requestDto.CartDetailId} not found.");
+                }
+
+                return Ok("Cart item updated successfully!");
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi chung
+                return BadRequest($"Error updating item in cart: {ex.Message}");
+            }
+        }
+
     }
 }

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Repositories;
 
@@ -15,10 +15,12 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         public Task<List<CartDetail>> GetCartDetailByCartId(int cartId)
         {
             var cartDetails = dbContext.CartDetails
+                .Include(cd => cd.Item)
                 .Where(x => x.CartId == cartId)
                 .ToListAsync();
             return cartDetails;
         }
+
     }
 }
 

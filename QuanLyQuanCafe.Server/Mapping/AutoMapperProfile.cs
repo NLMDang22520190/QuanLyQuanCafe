@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTO.ADD;
 using QuanLyQuanCafe.Server.Models.DTO.GET;
+using QuanLyQuanCafe.Server.Models.DTO.UPDATE;
 
 namespace QuanLyQuanCafe.Server.Mapping
 {
@@ -8,8 +10,12 @@ namespace QuanLyQuanCafe.Server.Mapping
     {
         public AutoMapperProfile()
         {
-            CreateMap<MenuItem, FeatureMenuItem>().ReverseMap();
-            CreateMap<MenuItem, ItemOnMenuPage>().ReverseMap();
+            CreateMap<MenuItem, FeatureMenuItemDTO>().ReverseMap();
+            CreateMap<MenuItem, ItemOnMenuPageDTO>().ReverseMap();
+            CreateMap<CartDetail, CartItemDetailDTO>().ReverseMap();
+            CreateMap<MenuItem, CartItemDTO>().ReverseMap();
+            CreateMap<CartDetail, AddItemToCartRequestDTO>().ReverseMap();
+            CreateMap<CartDetail, UpdateCartItemRequestDTO>().ReverseMap();
         }
     }
 }

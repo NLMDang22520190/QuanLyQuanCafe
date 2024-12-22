@@ -28,7 +28,7 @@ namespace QuanLyQuanCafe.Server.Controllers
                 return NotFound($"No feature prods found");
             }
 
-            return Ok(_mapper.Map<List<FeatureMenuItem>>(menuItemDomain));
+            return Ok(_mapper.Map<List<FeatureMenuItemDTO>>(menuItemDomain));
         }
 
         [HttpGet("GetProdByCategoryId/{categoryId}")]
@@ -40,7 +40,7 @@ namespace QuanLyQuanCafe.Server.Controllers
                 return NotFound($"No prods by {categoryId} found");
             }
 
-            return Ok(_mapper.Map<List<ItemOnMenuPage>>(menuItemDomain));
+            return Ok(_mapper.Map<List<ItemOnMenuPageDTO>>(menuItemDomain));
         }
 
     }
