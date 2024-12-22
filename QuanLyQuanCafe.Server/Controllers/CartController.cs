@@ -24,13 +24,13 @@ namespace QuanLyQuanCafe.Server.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("GetCartDetailsByUserId/{userId}")]
-        public async Task<IActionResult> GetCartDetailsByUserId(int userId)
+        [HttpGet("GetCartDetailsByCustomerId/{customerId}")]
+        public async Task<IActionResult> GetCartDetailsByCustomerId(int customerId)
         {
-            var cartDomain = await _cartRepository.GetCartByUserId(userId);
+            var cartDomain = await _cartRepository.GetCartByCustomerId(customerId);
             if (cartDomain == null)
             {
-                return NotFound($"No cart found for UserId {userId}");
+                return NotFound($"No cart found for UserId {customerId}");
             }
 
             var cartDetailsDomain = await _cartDetailRepository.GetCartDetailByCartId(cartDomain.CartId);

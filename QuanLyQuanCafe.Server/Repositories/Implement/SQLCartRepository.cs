@@ -13,7 +13,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             this.dbContext = dbContext;
         }
 
-        public async Task<Cart> GetCartByUserId(int customerId)
+        public async Task<Cart> GetCartByCustomerId(int customerId)
         {
             var cart = await dbContext.Carts.FirstOrDefaultAsync(x => x.CustomerId == customerId);
             return cart;

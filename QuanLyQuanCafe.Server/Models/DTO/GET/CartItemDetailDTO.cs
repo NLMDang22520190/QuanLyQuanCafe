@@ -6,8 +6,8 @@
         public int CartId { get; set; }
         public int ItemId { get; set; }
         public int Quantity { get; set; }
-        public string? Note { get; set; }
-        public string? Adjustment { get; set; }
+        public string? Notes { get; set; }
+        public string? Adjustments { get; set; }
 
         public virtual CartItemDTO Item { get; set; } = null!;
     }

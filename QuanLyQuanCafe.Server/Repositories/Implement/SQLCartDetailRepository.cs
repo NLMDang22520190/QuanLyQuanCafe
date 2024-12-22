@@ -36,20 +36,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             }
 
             return true;
-
-
-            //// Tạo filter dựa trên CartDetailId
-            //var cartDetail = await _dbSet.FirstOrDefaultAsync(cd => cd.CartDetailId == cartDetailId);
-
-            //if (cartDetail == null)
-            //{
-            //    return false; // Không tìm thấy bản ghi
-            //}
-
-            //_dbSet.Remove(cartDetail);
-            //await dbContext.SaveChangesAsync(); // Lưu thay đổi vào CSDL
-
-            //return true; // Xóa thành công
+          
         }
 
     }

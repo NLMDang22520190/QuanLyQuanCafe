@@ -27,6 +27,7 @@ builder.Services.AddScoped<IImportRecordRepository, SQLImportRecordRepository>()
 builder.Services.AddScoped<IMenuItemRepository, SQLMenuItemRepository>();
 builder.Services.AddScoped<ICartRepository, SQLCartRepository>();
 builder.Services.AddScoped<ICartDetailRepository, SQLCartDetailRepository>();
+builder.Services.AddScoped<IVoucherDetailRepository, SQLVoucherDetailRepository>();
 
 builder.Services.AddScoped(typeof(ICoffeeManagementRepository<>), typeof(CoffeeManagementRepository<>));
 
