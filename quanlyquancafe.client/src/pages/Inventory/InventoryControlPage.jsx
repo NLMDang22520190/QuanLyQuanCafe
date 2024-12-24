@@ -1,140 +1,170 @@
 import { useNavigate } from "react-router-dom";
-import { RoundedButton } from "../../components/buttons/RoundedButton"
-import { TableLayout } from "../../components/tables/TableLayout"
-import { RoundedTextField } from "../../components/textfields/RoundedTextField"
-import { TableDetailType } from "../../constant/TableDetailType";
-import { useState } from "react";
+import { RoundedButton } from "../../components/buttons/RoundedButton";
+import { Table } from "antd";
+import { RoundedTextField } from "../../components/textfields/RoundedTextField";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { StatusBadge } from "../../components/badges/StatusBadge";
 
 export const InventoryControlPage = () => {
     const navigate = useNavigate();
-    const [currentTab1, setCurrentTab1] = useState(0);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [rowMaterialsData, setRowMaterialsData] = useState([]);
+    const [importRecordsData, setImportRecordsData] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const [currentTab, setCurrentTab] = useState(0);
 
-    const rowMaterialsData = [
+    const rowMaterialColumns = [
         {
-            id: "P001",
-            name: "Carrot",
-            stock: 5,
-            dom: "Kgs",
-            status: "In Stock",
-            action: "Edit"
+            title: "Item Code",
+            dataIndex: "id",
+            key: "id",
         },
         {
-            id: "P002",
-            name: "Tomato",
-            stock: 4,
-            dom: ["Kgs", "Meat/Seafood", "Dairy Products"],
-            status: "Out of Stock",
-            action: "Edit"
+            title: "Item Name",
+            dataIndex: "name",
+            key: "name",
         },
         {
-            id: "P003",
-            name: "Carrot",
-            stock: 5,
-            dom: "Kgs",
-            status: "Low Stock",
-            action: "Edit"
+            title: "Stock Left",
+            dataIndex: "stock",
+            key: "stock",
         },
         {
-            id: "P004",
-            name: "Carrot",
-            stock: 5,
-            dom: "Kgs",
-            status: "In Stock",
-            action: "Edit"
+            title: "DOM",
+            dataIndex: "dom",
+            key: "dom",
         },
         {
-            id: "P005",
-            name: "Carrot",
-            stock: 5,
-            dom: "Kgs",
-            status: "Low Stock",
-            action: "Edit"
+            title: "Stock Status",
+            dataIndex: "status",
+            key: "status",
+            render: (text) => <StatusBadge status={text} label={text} />,
         },
-       
+        {
+            title: "Action",
+            key: "action",
+            render: (_, record) => (
+                <button
+                    onClick={() => navigate(`/inventory/edit/${record.id}`)}
+                    className="text-blue-500 underline"
+                >
+                    Edit
+                </button>
+            ),
+        },
     ];
 
-    const purchaseOrderData = [
+   
+    const importRecordColumns = [
         {
-            id: "PO001",
-            name: "Beef",
-            dom: "Kgs",
-            quantity: 10,
-            price: "$50",
-            purchaseDate: "2023-12-01"
+            title: "Import Record ID",
+            dataIndex: "importRecordId",
+            key: "importRecordId",
         },
         {
-            id: "PO002",
-            name: "Chicken",
-            dom: "Kgs",
-            quantity: 20,
-            price: "$40",
-            purchaseDate: "2023-12-05"
+            title: "Ingredient Name", 
+            dataIndex: "ingredientName", 
+            key: "ingredientName",
         },
         {
-            id: "PO003",
-            name: "Chicken",
-            dom: "Kgs",
-            quantity: 20,
-            price: "$40",
-            purchaseDate: "2023-12-05"
+            title: "Date Import",
+            dataIndex: "dateImport",
+            key: "dateImport",
         },
         {
-            id: "PO004",
-            name: "Chicken",
-            dom: "Kgs",
-            quantity: 20,
-            price: "$40",
-            purchaseDate: "2023-12-05"
+            title: "Quantity Import",
+            dataIndex: "quantityImport",
+            key: "quantityImport",
+        },
+        {
+            title: "Import Price",
+            dataIndex: "importPrice",
+            key: "importPrice",
+        },
+    ];
+
+   
+    const fetchRowMaterials = async () => {
+        try {
+            const response = await axios.get("https://localhost:7087/api/ingredient");
+            const ingredients = response.data.map((item) => ({
+                id: item.ingredientId,
+                name: item.ingredientName,
+                stock: item.quantityInStock,
+                dom: item.unit,
+                status: item.quantityInStock > 0 ? "In Stock" : "Out of Stock",
+            }));
+            setRowMaterialsData(ingredients);
+            if (currentTab === 0) setFilteredData(ingredients);
+        } catch (error) {
+            console.error("Failed to fetch ingredients", error);
         }
-    ];
+    };
 
+    
+    const fetchImportRecords = async () => {
+        try {
+            // Fetch Ingredient data
+            const ingredientsResponse = await axios.get("https://localhost:7087/api/ingredient");
+            const ingredientMapping = ingredientsResponse.data.reduce((map, item) => {
+                map[item.ingredientId] = item.ingredientName;
+                return map;
+            }, {});
+    
+          
+            const importRecordsResponse = await axios.get("https://localhost:7087/api/import-record");
+            const records = importRecordsResponse.data.map((record) => ({
+                importRecordId: record.importRecordId,
+                ingredientId: record.ingredientId,
+                ingredientName: ingredientMapping[record.ingredientId] || "Unknown", 
+                dateImport: record.dateImport,
+                quantityImport: record.quantityImport,
+                importPrice: record.importPrice,
+            }));
+            setImportRecordsData(records);
+        } catch (error) {
+            console.error("Failed to fetch import records or ingredients", error);
+        }
+    };
+    
+  
+    useEffect(() => {
+        fetchRowMaterials();
+        fetchImportRecords();
+    }, []);
+
+    
+    useEffect(() => {
+        if (currentTab === 0) {
+            const filtered = rowMaterialsData.filter((item) =>
+                item.name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            setFilteredData(filtered);
+        } else if (currentTab === 1) {
+            setFilteredData(importRecordsData);
+        }
+    }, [searchQuery, currentTab, rowMaterialsData, importRecordsData]);
 
     const categories = [
-        {name: "Row Materials"},
-        {name: "Purchase Order"}
-    ]   
-
-
-
-    const rowMaterialsColumns= [
-        { header: "", key: "id", type: TableDetailType.CheckBox },
-        { header: "Item Code", key: "id", type: TableDetailType.Info },
-        { header: "Item Name", key: "name", type: TableDetailType.Info },
-        { header: "Stock Left", key: "stock", type: TableDetailType.Info },
-        { header: "DOM", key: "dom", type: TableDetailType.ComboBox, options: [
-            { value: "Kgs", label: "Kgs" }] },
-        { header: "Stock Status", key: "status", type: TableDetailType.Badge },
-        { header: "", key: "action", type: TableDetailType.Action }
-    ];
-
-    const purchaseOrderColumns = [
-        { header: "Order ID", key: "id", type: TableDetailType.Info },
-        { header: "Item Name", key: "name", type: TableDetailType.Info },
-        { header: "DOM", key: "dom", type: TableDetailType.ComboBox, options: [
-            { value: "Kgs", label: "Kgs" }] },
-        { header: "Quantity", key: "quantity", type: TableDetailType.Info },
-        { header: "Price", key: "price", type: TableDetailType.Info },
-        { header: "Purchase Date", key: "purchaseDate", type: TableDetailType.Info }
+        { name: "Row Materials" },
+        { name: "Import Records" },
     ];
 
     return (
         <div className="flex flex-col gap-y-4 overflow-hidden h-full">
-            <div className="flex justify-between items-center flex gap-x-10">
+            {/* Header Section */}
+            <div className="flex justify-between items-center">
                 <h2 className="text-amber-500 font-medium text-3xl">Inventory Control</h2>
-
                 <div className="mr-auto border-black-200 rounded-lg bg-black-600/30 flex gap-x-4">
-                    <ul
-                        className="flex gap-x-6 -mb-px text-sm text-center max-w-full overflow-x-auto"
-                        id="default-tab"
-                        data-tabs-toggle="#default-tab-content"
-                        role="tablist"
-                    >
+                    {/* Tab Navigation */}
+                    <ul className="flex gap-x-6 -mb-px text-sm text-center max-w-full overflow-x-auto">
                         {categories.map((tab, index) => (
                             <li key={tab.name} role="presentation">
                                 <button
-                                    onClick={() => setCurrentTab1(index)}
+                                    onClick={() => setCurrentTab(index)}
                                     className={`inline-block p-4 border-b-2 rounded-t-lg ${
-                                        currentTab1 === index ? "border-amber-500 text-amber-500" : ""
+                                        currentTab === index ? "border-amber-500 text-amber-500" : ""
                                     }`}
                                 >
                                     {tab.name}
@@ -144,35 +174,12 @@ export const InventoryControlPage = () => {
                     </ul>
                 </div>
                 <div className="flex gap-x-2">
-                    <RoundedButton
-                        prefixIcon={
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.5}
-                                stroke="currentColor"
-                                className="size-6"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
-                                />
-                            </svg>
-                        }
-                        height="40px"
-                        label="Export Inventory Report"
-                    />
-                </div>
-            </div>
-
-            <div className="max-h-[calc(100vh-250px)] bg-amber-200/20 min-h-[calc(100vh-250px)]">
-                <div className="flex py-2 justify-end gap-x-4 px-4">
+             
                     <RoundedTextField
+                        onValueChange={(value) => setSearchQuery(value)}
                         textColor="text-gray-500"
                         placeholder="Search Item..."
-                        height="30px"
+                        height="40px"
                         width="250px"
                         prefixIcon={
                             <svg
@@ -191,35 +198,26 @@ export const InventoryControlPage = () => {
                             </svg>
                         }
                     />
-
+       
+                    <RoundedButton
+                        height="40px"
+                        label="Export Inventory Report"
+                    />
                     <RoundedButton
                         onClick={() => navigate("/inventory/add")}
-                        prefixIcon={
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.5}
-                                stroke="currentColor"
-                                className="size-6"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 4.5v15m7.5-7.5h-15"
-                                />
-                            </svg>
-                        }
-                        height="30px"
-                        label="Add new Item"
+                        height="40px"
+                        label="Add New Item"
                     />
                 </div>
-
-                <TableLayout
-                    pageLayout={false}
-                    columns={currentTab1 === 0 ? rowMaterialsColumns : purchaseOrderColumns}
-                    data={currentTab1 === 0 ? rowMaterialsData : purchaseOrderData}
-                />
+            </div>
+    
+            <div className="max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)]">
+                {currentTab === 0 && (
+                    <Table columns={rowMaterialColumns} dataSource={filteredData} rowKey="id" />
+                )}
+                {currentTab === 1 && (
+                    <Table columns={importRecordColumns} dataSource={filteredData} rowKey="importRecordId" />
+                )}
             </div>
         </div>
     );

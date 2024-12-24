@@ -1,8 +1,9 @@
-import { useState } from "react";
+// import { useState } from "react";
 
 export const RoundedComboBox = ({
-    initialValue,
+    // initialValue,
     options = [],
+    value = "",
     prefixIcon = null,
     placeholder = "",
     width = "300px",
@@ -12,11 +13,11 @@ export const RoundedComboBox = ({
     style = "rounded-sm",
     label,
 }) => {
-    const [value, setValue] = useState(initialValue);
+    // const [value, setValue] = useState(initialValue);
 
     const handleChange = (e) => {
         const newValue = e.target.value;
-        setValue(newValue);
+        // setValue(newValue);
         if (onValueChange) {
             onValueChange(newValue);
         }
