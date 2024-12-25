@@ -46,6 +46,7 @@ builder.Services.AddScoped<ICartRepository, SQLCartRepository>();
 
 builder.Services.AddScoped<ICartDetailRepository, SQLCartDetailRepository>();
 builder.Services.AddScoped<IVoucherDetailRepository, SQLVoucherDetailRepository>();
+builder.Services.AddScoped<IItemRecipeRepository, SQLItemRecipeRepository>();
 
 builder.Services.AddScoped(typeof(ICoffeeManagementRepository<>), typeof(CoffeeManagementRepository<>));
 

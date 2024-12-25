@@ -10,5 +10,7 @@ namespace QuanLyQuanCafe.Server.Repositories
 
         Task<List<MenuItem>> GetMenuItemsByCategoryIdAsync(int categoryId);
         Task<List<MenuItem>> GetFeatureMenuItemAsync();
+
+        Task<MenuItem> AddMenuItemAsync(MenuItem menuItem);
     }
 }

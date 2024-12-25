@@ -60,5 +60,10 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             return randomMenuItems;
         }
+
+        public Task<MenuItem> AddMenuItemAsync(MenuItem menuItem)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
