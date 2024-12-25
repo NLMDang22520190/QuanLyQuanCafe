@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTOs;
 
 namespace QuanLyQuanCafe.Server.Repositories.Implement
 {
