@@ -10,10 +10,12 @@ namespace QuanLyQuanCafe.Server.Controllers
     public class SalaryController : ControllerBase
     {
         private ISalaryRepository _salaryRepo;
+        private readonly IStaffRepository _staffRepo;
 
-        public SalaryController(ISalaryRepository salaryRepository)
+        public SalaryController(ISalaryRepository salaryRepository, IStaffRepository staffRepository)
         {
             _salaryRepo = salaryRepository;
+            _staffRepo = staffRepository;
         }
         /// <summary>
         /// Create a new salary
@@ -54,6 +56,7 @@ namespace QuanLyQuanCafe.Server.Controllers
 
             return Ok(salary);
         }
+
         /// <summary>
         /// Get all salary of staff
         /// </summary>

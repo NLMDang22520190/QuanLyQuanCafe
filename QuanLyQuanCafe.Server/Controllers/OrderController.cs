@@ -14,7 +14,6 @@ namespace QuanLyQuanCafe.Server.Controllers
 	{
 		private readonly IOrderRepository _orderRepository;
 
-
 		public OrderController(IOrderRepository orderRepository)
 		{
 			_orderRepository = orderRepository;
@@ -26,8 +25,6 @@ namespace QuanLyQuanCafe.Server.Controllers
 			var orderSummaries = await _orderRepository.GetTotalOrderAmountByMonths();
 			return Ok(orderSummaries);
 		}
-
-
 
 		[HttpGet("{orderId}")]
 		public async Task<IActionResult> GetOrderById(int orderId)
@@ -75,3 +72,4 @@ namespace QuanLyQuanCafe.Server.Controllers
 
 	}
 }
+
