@@ -1,8 +1,33 @@
 import React from "react";
 import HomeItemDisplay from "../../HomeItemDisplay/HomeItemDisplay";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const FeatureProductsSection = () => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(
+          "https://localhost:7087/api/MenuItem/FeatureProducts"
+        );
+        const mappedData = response.data.map((item) => ({
+          id: item.itemId,
+          name: item.itemName,
+          price: item.price,
+          picture: item.picture || "https://placehold.co/600x400", // Thay thế null bằng hình mặc định nếu cần
+        }));
+        setProducts(mappedData);
+      } catch (error) {
+        console.error("Error fetching feature products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   return (
     <>
       <motion.div
@@ -19,16 +44,20 @@ const FeatureProductsSection = () => {
           Khám phá những lựa chọn cà phê phổ biến nhất của chúng tôi.
         </p>
       </motion.div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <HomeItemDisplay />
-        <HomeItemDisplay />
-        <HomeItemDisplay />
-        <HomeItemDisplay />
-        <HomeItemDisplay />
-        <HomeItemDisplay />
-        <HomeItemDisplay />
-        <HomeItemDisplay />
-      </div>
+
+      {products.length === 0 ? (
+        // Hiển thị thông báo nếu không có sản phẩm
+        <div className="text-center text-primary-600 mt-6">
+          <p>Không có sản phẩm nào.</p>
+        </div>
+      ) : (
+        // Hiển thị danh sách sản phẩm nếu có
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {products.map((product) => (
+            <HomeItemDisplay product={product} key={product.id} />
+          ))}
+        </div>
+      )}
     </>
   );
 };
