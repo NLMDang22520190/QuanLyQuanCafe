@@ -13,6 +13,9 @@ export const InventoryControlPage = () => {
     const [importRecordsData, setImportRecordsData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [currentTab, setCurrentTab] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [totalItems, setTotalItems] = useState(0);
 
     const rowMaterialColumns = [
         {
@@ -88,22 +91,29 @@ export const InventoryControlPage = () => {
     const fetchRowMaterials = async () => {
         try {
             const response = await axios.get("https://localhost:7087/api/ingredient");
-            const ingredients = response.data.map((item) => ({
+            console.log("API Response:", response.data);
+    
+            const items = response.data || [];
+            const ingredients = items.map((item) => ({
                 id: item.ingredientId,
                 name: item.ingredientName,
                 stock: item.quantityInStock,
                 dom: item.unit,
                 status: item.quantityInStock > 0 ? "In Stock" : "Out of Stock",
             }));
-            setRowMaterialsData(ingredients);
-            if (currentTab === 0) setFilteredData(ingredients);
+    
+            setRowMaterialsData(ingredients); 
+            setTotalItems(ingredients.length); 
         } catch (error) {
             console.error("Failed to fetch ingredients", error);
         }
     };
+    
+    
+    
 
     
-    const fetchImportRecords = async () => {
+    const fetchImportRecords = async (page = 1, size = 5) => {
         try {
             // Fetch Ingredient data
             const ingredientsResponse = await axios.get("https://localhost:7087/api/ingredient");
@@ -113,7 +123,10 @@ export const InventoryControlPage = () => {
             }, {});
     
           
-            const importRecordsResponse = await axios.get("https://localhost:7087/api/import-record");
+            const importRecordsResponse = await axios.get("https://localhost:7087/api/import-record", {
+                params: {page, pageSize: size},
+            });
+            const { items, total } = importRecordsResponse.data;
             const records = importRecordsResponse.data.map((record) => ({
                 importRecordId: record.importRecordId,
                 ingredientId: record.ingredientId,
@@ -123,6 +136,7 @@ export const InventoryControlPage = () => {
                 importPrice: record.importPrice,
             }));
             setImportRecordsData(records);
+            setTotalItems(total);
         } catch (error) {
             console.error("Failed to fetch import records or ingredients", error);
         }
@@ -130,21 +144,27 @@ export const InventoryControlPage = () => {
     
   
     useEffect(() => {
-        fetchRowMaterials();
-        fetchImportRecords();
-    }, []);
+        if (currentTab === 0) {
+            fetchRowMaterials();
+        } else if (currentTab === 1) {
+            fetchImportRecords(currentPage, pageSize);
+        }
+    }, [currentTab]);
 
-    
     useEffect(() => {
         if (currentTab === 0) {
             const filtered = rowMaterialsData.filter((item) =>
                 item.name.toLowerCase().includes(searchQuery.toLowerCase())
             );
-            setFilteredData(filtered);
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            setFilteredData(filtered.slice(startIndex, endIndex));
+            setTotalItems(filtered.length);
         } else if (currentTab === 1) {
             setFilteredData(importRecordsData);
         }
-    }, [searchQuery, currentTab, rowMaterialsData, importRecordsData]);
+    }, [searchQuery, currentPage, pageSize, currentTab, rowMaterialsData, importRecordsData]);
+
 
     const categories = [
         { name: "Row Materials" },
@@ -162,11 +182,11 @@ export const InventoryControlPage = () => {
                         {categories.map((tab, index) => (
                             <li key={tab.name} role="presentation">
                                 <button
-                                    onClick={() => setCurrentTab(index)}
+                                    onClick={() => {setCurrentTab(index);  setCurrentPage(1);}}
                                     className={`inline-block p-4 border-b-2 rounded-t-lg ${
                                         currentTab === index ? "border-amber-500 text-amber-500" : ""
                                     }`}
-                                >
+                                >``
                                     {tab.name}
                                 </button>
                             </li>
@@ -212,12 +232,20 @@ export const InventoryControlPage = () => {
             </div>
     
             <div className="max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)]">
-                {currentTab === 0 && (
-                    <Table columns={rowMaterialColumns} dataSource={filteredData} rowKey="id" />
-                )}
-                {currentTab === 1 && (
-                    <Table columns={importRecordColumns} dataSource={filteredData} rowKey="importRecordId" />
-                )}
+            <Table
+                    columns={currentTab === 0 ? rowMaterialColumns : importRecordColumns}
+                    dataSource={filteredData}
+                    rowKey={currentTab === 0 ? "id" : "importRecordId"}
+                    pagination={{
+                        current: currentPage,
+                        pageSize,
+                        total: totalItems,
+                        onChange: (page, size) => {
+                            setCurrentPage(page);
+                            setPageSize(size);
+                        },
+                    }}
+                />
             </div>
         </div>
     );
