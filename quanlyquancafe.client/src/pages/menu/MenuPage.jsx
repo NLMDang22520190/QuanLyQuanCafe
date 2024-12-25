@@ -3,7 +3,7 @@ import { RoundedButton } from "../../components/buttons/RoundedButton"
 import { TableLayout } from "../../components/tables/TableLayout"
 import { RoundedTextField } from "../../components/textfields/RoundedTextField"
 import { TableDetailType } from "../../constant/TableDetailType";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CreateCategory from "./CreateCategory";
 import CreateProduct from "./CreateProduct";
 import { Modal, Table, Input, Select, Switch, Button, Checkbox, Pagination } from 'antd';
@@ -12,6 +12,7 @@ import ProductDetail from "./ProductDetail";
 export const MenuPage = () => {
     const navigate = useNavigate();
     const [currentTab, setCurrentTab] = useState(0);
+    const [categoryWithProducts, setCategoryWithProducts] = useState([]);
     const [currentProducts, setCurrentProducts] = useState([]);
     const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] = useState(false);
     const [isAddProductModalVisible, setIsAddProductModalVisible] = useState(false);
@@ -19,76 +20,20 @@ export const MenuPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
-
-    const categoryWithProducts = [
-        {
-            id: 1,
-            name: "Indian",
-            products: [
-                {
-                    id: 1,
-                    name: "Paneer Tikka Biryani",
-                    price: 12.99,
-                    quantity: 50,
-                    description: "A spicy and aromatic rice dish with paneer tikka.",
-                    variations: ["Regular", "Spicy", "Extra Serving"],
-                    available: true,
-                    category: "Indian",
-
-                },
-                {
-                    id: 3,
-                    name: "Chicken Boneless Biryani",
-                    price: 14.49,
-                    quantity: 60,
-                    description: "Fragrant rice cooked with boneless chicken and spices.",
-                    variations: ["Regular", "Spicy", "Extra Serving"],
-                    available: true,
-                    category: "Indian",
-
-                },
-                {
-                    id: 5,
-                    name: "Butter Chicken",
-                    price: "15.99",
-                    quantity: 20,
-                    description: "A creamy chicken curry served with naan or rice.",
-                    variations: ["Regular", "Spicy", "Extra Cream"],
-                    available: false,
-                    category: "Indian",
-
-                }
-            ]
-        },
-        {
-            id: 2,
-            name: "Chinese",
-            products: [
-                {
-                    id: 2,
-                    name: "Boneless Chicken 65",
-                    price: 10.99,
-                    quantity: 30,
-                    description: "A crispy, boneless chicken dish, popular in Chinese cuisine.",
-                    variations: ["Small", "Large", "Extra Spicy"],
-                    available: true,
-                    category: "Chinese",
-
-                },
-                {
-                    id: 4,
-                    name: "Veg Fried Rice",
-                    price: 8.99,
-                    quantity: 40,
-                    description: "A stir-fried rice dish with mixed vegetables.",
-                    variations: ["Small", "Large", "Extra Vegetables"],
-                    available: false,
-                    category: "Chinese",
-
-                }
-            ]
+    
+    const fetchCategoriesWithMenuItems = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch("https://localhost:7087/api/food-types");
+            const data = await response.json();
+            setCategoryWithProducts(data);
+            setCurrentProducts(data[0].menuItems);
+        } catch (error) {
+            console.error("There was an error!", error);
+        } finally {
+            setLoading(false);
         }
-    ];
+    }
 
     const columnData = [
         {
@@ -99,9 +44,9 @@ export const MenuPage = () => {
         },
         {
             title: 'Name',
-            dataIndex: 'name',
+            dataIndex: 'itemName',
             key: 'name',
-            sorter: (a, b) => a.name.localeCompare(b.name),
+            sorter: (a, b) => a.itemName.localeCompare(b.itemName),
         },
         {
             title: 'Price',
@@ -153,10 +98,10 @@ export const MenuPage = () => {
         },
         {
             title: 'Available',
-            dataIndex: 'available',
-            key: 'available',
-            sorter: (a, b) => a.available - b.available,
-            render: (text, record) => <Switch defaultChecked={text} />
+            dataIndex: 'state',
+            key: 'state',
+            sorter: (a, b) => a.state - b.state,
+            render: (text, record) => <Switch defaultChecked={text === "Available"} />
         },
         {
             title: '',
@@ -174,92 +119,84 @@ export const MenuPage = () => {
         setRowsPerPage(pageSize);
     };
 
-    return (<>
+    useEffect(() => { 
+        fetchCategoriesWithMenuItems();
+    }, []  );
 
-        <div className="flex flex-col gap-y-4 overflow-hidden h-full">
-            <div className="flex justify-between items-center">
-                <h2 className="text-amber-500 font-medium text-3xl">Menu Management</h2>
-                <div className="flex gap-x-2">
-
-                   <Button className="text-black" size="large" type="primary" ><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                    </svg> Export Menu Report</Button>
-
-                </div>
-            </div>
-            <div className="flex justify-between">
-                <p className="text-2xl items-center">Categories</p>
-                <div className="flex gap-x-4">
-                    <Input placeholder="Seach category" prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                    </svg>} />
-
-                    <Button  className="text-black"  onClick={setIsAddCategoryModalVisible} icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>} type="primary" >
-                        Add new Category</Button>
-
-                </div>
-
-            </div>
-            <div className=" max-h-[calc(100vh-300px)] bg-amber-200/20  min-h-[calc(100vh-300px)]">
-                <div className="border-gray-200 rounded-lg bg-gray-900">
-                    <ul
-                        className="flex gap-x-2 -mb-px text-sm  text-center max-w-full overflow-x-auto"
-                        id="default-tab"
-                        data-tabs-toggle="#default-tab-content"
-                        role="tablist"
-                    >
-                        {categoryWithProducts.map((category, index) => (
-                            <li key={category.name} role="presentation">
-                                <button
-                                    onClick={() => {
-                                        setCurrentProducts(category.products);
-                                        setCurrentTab(index);
-                                    }}
-                                    className={`inline-block p-4 border-b-2 rounded-t-lg ${currentTab === index ? 'border-amber-500 text-amber-500' : ''
-                                        }`}
-                                >
-                                    {category.name}
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="flex py-2 justify-end gap-x-4 px-4">
-                    <div className="w-1/4">
-                        <Input placeholder="Seach menu items" prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>} />
+    return (
+        <>
+            <div className="flex flex-col gap-y-4 overflow-hidden h-full">
+                <div className="flex justify-between items-center">
+                    <h2 className="text-amber-500 font-medium text-3xl">Menu Management</h2>
+                    <div className="flex gap-x-2">
+                        <Button className="text-black" size="large" type="primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                            </svg> Export Menu Report
+                        </Button>
                     </div>
-                    <Button  className="text-black"  onClick={setIsAddProductModalVisible} type="primary" icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>} > Add Menu Item</Button>
                 </div>
-                <Table
-                    loading={loading}
-                    pagination={false}
-                    rowKey={(record) => record.id}
-                    dataSource={currentProducts}
-                    columns={columnData} />
+                <div className="flex justify-between">
+                    <p className="text-2xl items-center">Categories</p>
+                    <div className="flex gap-x-4">
+                        <Input placeholder="Seach category" prefix={
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                            </svg>
+                        } />
+                        <Button className="text-black" onClick={setIsAddCategoryModalVisible} icon={
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                        } type="primary">
+                            Add new Category
+                        </Button>
+                    </div>
+                </div>
+                <div className="max-h-[calc(100vh-300px)] bg-amber-200/20 min-h-[calc(100vh-300px)]">
+                    <div className="border-gray-200 rounded-lg bg-gray-900">
+                        <ul className="flex gap-x-2 -mb-px text-sm text-center max-w-full overflow-x-auto" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
+                            {categoryWithProducts.map((category, index) => (
+                                <li key={category.name} role="presentation">
+                                    <button onClick={() => {
+                                        setCurrentProducts(category.menuItems);
+                                        setCurrentTab(index);
+                                    }} className={`inline-block p-4 border-b-2 rounded-t-lg ${currentTab === index ? 'border-amber-500 text-amber-500' : ''}`}>
+                                        <span className="text-sm line-clamp-1">{category.typeOfFoodName}</span>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="flex py-2 justify-end gap-x-4 px-4">
+                        <div className="w-1/4">
+                            <Input placeholder="Seach menu items" prefix={
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                </svg>
+                            } />
+                        </div>
+                        <Button className="text-black" onClick={setIsAddProductModalVisible} type="primary" icon={
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                        }>
+                            Add Menu Item
+                        </Button>
+                    </div>
+                    <Table loading={loading || !currentProducts} pagination={false} rowKey={(record) => record.id} dataSource={currentProducts} columns={columnData} />
+                </div>
+                {currentProducts && <Pagination current={currentProducts.length} total={currentProducts.length} pageSize={rowsPerPage} onChange={handlePageChange} showSizeChanger={false} />}
             </div>
-            <Pagination
-                current={currentProducts.length}
-                total={currentProducts.length}
-                pageSize={rowsPerPage}
-                onChange={handlePageChange}
-                showSizeChanger={false}
-            />
-        </div>
-        <Modal title="Add New Category" open={isAddCategoryModalVisible} onCancel={() => setIsAddCategoryModalVisible(false)} footer={null}>
-            <CreateCategory onSubmit={() => setIsAddCategoryModalVisible(false)} />
-        </Modal>
-        <Modal title="Add New Product" open={isAddProductModalVisible} onCancel={() => setIsAddProductModalVisible(false)} footer={null}>
-
-            <CreateProduct onSubmit={() => setIsAddProductModalVisible(false)} />
-        </Modal>
-        <Modal title="Menu item detail" open={isProductDetailModalVisible} onCancel={() => setIsProductDetailModalVisible(false)} footer={null}>
-            <ProductDetail />
-        </Modal>
-    </>)
+            <Modal title="Add New Category" open={isAddCategoryModalVisible} onCancel={() => setIsAddCategoryModalVisible(false)} footer={null}>
+                <CreateCategory onSubmit={() => setIsAddCategoryModalVisible(false)} />
+            </Modal>
+            <Modal title="Add New Product" open={isAddProductModalVisible} onCancel={() => setIsAddProductModalVisible(false)} footer={null}>
+                <CreateProduct onSubmit={() => setIsAddProductModalVisible(false)} />
+            </Modal>
+            <Modal title="Menu item detail" open={isProductDetailModalVisible} onCancel={() => setIsProductDetailModalVisible(false)} footer={null}>
+                <ProductDetail />
+            </Modal>
+        </>
+    )
 }

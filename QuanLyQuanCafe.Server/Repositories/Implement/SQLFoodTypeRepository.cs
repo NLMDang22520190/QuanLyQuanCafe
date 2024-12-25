@@ -17,12 +17,25 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         {
             var foodTypeWithMenuItems = (from foodType in _dbContext.FoodTypes
                                          join menuItem in _dbContext.MenuItems
-                                         on foodType.TypeOfFoodId equals menuItem.TypeOfFoodId
+                                         on foodType.TypeOfFoodId equals menuItem.TypeOfFoodId into foodMenuGroup
+                                         from menuItem in foodMenuGroup.DefaultIfEmpty()
+                                         join itemRecipe in _dbContext.ItemRecipes
+                                         on menuItem.ItemId equals itemRecipe.ItemId into menuItemRecipeGroup
+                                         from itemRecipe in menuItemRecipeGroup.DefaultIfEmpty()
+                                         group new { foodType, menuItem, itemRecipe } by new { foodType.TypeOfFoodId, foodType.TypeOfFoodName } into grouped
                                          select new FoodType
                                          {
-                                             TypeOfFoodId = foodType.TypeOfFoodId,
-                                             TypeOfFoodName = foodType.TypeOfFoodName,
-                                             MenuItems = foodType.MenuItems
+                                             TypeOfFoodId = grouped.Key.TypeOfFoodId,
+                                             TypeOfFoodName = grouped.Key.TypeOfFoodName,
+                                            MenuItems = grouped.Where(g => g.menuItem != null).Select(g => new MenuItem
+                                            {
+                                                ItemId = g.menuItem.ItemId,
+                                                ItemName = g.menuItem.ItemName,
+                                                Price = g.menuItem.Price,
+                                                Picture = g.menuItem.Picture,
+                                                TypeOfFoodId = g.menuItem.TypeOfFoodId,
+                                                ItemRecipes = grouped.Where(gr => gr.itemRecipe != null && gr.menuItem.ItemId == gr.itemRecipe.ItemId).Select(gr => gr.itemRecipe).Distinct().ToList()
+                                            }).ToList()
                                          }).AsQueryable();
             return foodTypeWithMenuItems;
 

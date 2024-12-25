@@ -9,17 +9,12 @@ namespace QuanLyQuanCafe.Server.Controllers
 {
     [Route("api/food-types")]
     [ApiController]
-    public class FoodTypeController : ControllerBase
+    public class FoodTypeController(IFoodTypeRepository foodTypeRepo, IMenuItemRepository menuItemRepo, IIngredientRepository ingredientRepo) : ControllerBase
     {
-        private readonly IFoodTypeRepository _foodTypeRepo;
+        private readonly IFoodTypeRepository _foodTypeRepo = foodTypeRepo;
 
-        private readonly IMenuItemRepository _menuItemRepo;
-
-        public FoodTypeController(IFoodTypeRepository foodTypeRepo, IMenuItemRepository menuItemRepo)
-        {
-            _foodTypeRepo = foodTypeRepo;
-            _menuItemRepo = menuItemRepo;
-        }
+        private readonly IMenuItemRepository _menuItemRepo = menuItemRepo;
+        private readonly IIngredientRepository _ingredientRepo = ingredientRepo;
 
         [HttpGet]
         public async Task<IActionResult> GetAllFoodTypes()
@@ -61,14 +56,37 @@ namespace QuanLyQuanCafe.Server.Controllers
             }
         }
 
+        [HttpGet("ingredients")]
+        public async Task<IActionResult> GetAllIngredients()
+        {
+            try
+            {
+                var ingredients = await _ingredientRepo.GetAllAsync();
+                
+                return Ok(ingredients);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while fetching ingredients." });
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateFoodType([FromBody] FoodType foodType)
         {
             try
             {
+                
                 if (foodType == null)
                 {
                     return BadRequest("Food type is null.");
+                }
+
+                if (string.IsNullOrWhiteSpace(foodType.TypeOfFoodName))
+                {
+                    return BadRequest("Food type name is required.");
                 }
 
                 await _foodTypeRepo.CreateAsync(foodType);

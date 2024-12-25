@@ -37,6 +37,7 @@ builder.Services.AddScoped<IMenuItemRepository, SQLMenuItemRepository>();
 builder.Services.AddScoped<IVoucherDetailRepository, SQLVoucherDetailRepository>();
 builder.Services.AddScoped<IOrderDetailRepository, SQLOrderDetailRepository>();
 builder.Services.AddScoped<IOrderRepository, SQLOrderRepository>();
+builder.Services.AddScoped<IIngredientRepository, SQLIngredientRepository>();
 
 var app = builder.Build();
 

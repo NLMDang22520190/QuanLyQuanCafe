@@ -17,88 +17,53 @@ export const PromotionPage = () => {
     const [filteredData, setFilteredData] = useState([]);
     const [isModalAddVisible, setIsModalAddVisible] = useState(false);
     const [isPromotionDetailModalVisible, setIsPromotionDetailModalVisible] = useState(false);
-
-    const sampleData = [
-        {
-            id: "PROMO001",
-            name: "Black Friday Sale",
-            startDate: "2024-11-25",
-            endDate: "2024-11-30",
-            discount: "50%",
-            status: "Active",
-           
-        },
-        {
-            id: "PROMO002",
-            name: "Christmas Sale",
-            startDate: "2024-12-20",
-            endDate: "2024-12-25",
-            discount: "30%",
-            status: "Upcoming",
-        },
-        {
-            id: "PROMO003",
-            name: "New Year Sale",
-            startDate: "2025-01-01",
-            endDate: "2025-01-05",
-            discount: "20%",
-            status: "Upcoming",
-        },
-        {
-            id: "PROMO004",
-            name: "Valentine's Day Sale",
-            startDate: "2025-02-10",
-            endDate: "2025-02-14",
-            discount: "25%",
-            status: "Upcoming",
-        },
-        {
-            id: "PROMO005",
-            name: "Summer Sale",
-            startDate: "2025-06-01",
-            endDate: "2025-06-10",
-            discount: "40%",
-            status: "Inactive",
-        },
-    ];
+    const [vouchers, setVouchers] = useState([]);
 
     const columns = [
         {
             title: 'Promotion ID',
-            dataIndex: 'id',
-            key: 'id',
+            dataIndex: 'voucherId',
+            key: 'voucherId',
             render: (text, record) => {
                 return <Checkbox>{text}</Checkbox>;
             }
         },
         {
+            title: 'Code',
+            dataIndex: 'voucherCode',
+            key: 'voucherCode', 
+        },
+        {
             title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'voucherName',
+            key: 'voucherName', 
         },
         {
             title: 'Start Date',
-            dataIndex: 'startDate',
-            key: 'startDate',
+            dataIndex: 'voucherStartDate',
+            key: 'voucherStartDate',
         },
         {
             title: 'End Date',
-            dataIndex: 'endDate',
-            key: 'endDate',
+            dataIndex: 'voucherEndDate',
+            key: 'voucherEndDate',
         },
         {
             title: 'Discount',
-            dataIndex: 'discount',
-            key: 'discount',
-        },
-        {
-            title: 'Status',
-            dataIndex: 'status',
-            key: 'status',
+            dataIndex: 'percentDiscount',
+            key: 'percentDiscount',
             render: (text, record) => {
-                return <StatusBadge  status={text} label={text} />
+                return <span>{text}%</span>
             }
         },
+        // {
+        //     title: 'Status',
+        //     dataIndex: 'status',
+        //     key: 'status',
+        //     render: (text, record) => {
+        //         return <StatusBadge  status={text} label={text} />
+        //     }
+        // },
         {
             title: 'Action',
             key: 'action',
@@ -109,17 +74,13 @@ export const PromotionPage = () => {
         },
     ];
 
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: 'No Auth',
-      };
+    const apiUrl = "https://localhost:7087/api/voucher-details";
 
-      const apiUrl = "https://localhost:7087/api/voucher-details";
-
-    const fetchPromotions = async () => {
+    const fetchVouchers = async () => {
         axios.get(apiUrl)
     .then(response => {
-        console.log(response);
+        setVouchers(response.data);
+        console.log(response.data);
     })
     .catch(error => {
         console.error('There was an error!', error);
@@ -127,13 +88,12 @@ export const PromotionPage = () => {
     }
 
 
-
     useEffect(() => {
-        setFilteredData(filterData(sampleData, searchQuerry));
+        setFilteredData(filterData(vouchers, searchQuerry));
     }, [searchQuerry]);
 
     useEffect(() => {
-        fetchPromotions();
+        fetchVouchers();
     }, []);
 
     return (
@@ -164,11 +124,11 @@ export const PromotionPage = () => {
                     </div>
                 </div>
                 <div className="max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)]">
-                    <Table columns={columns} dataSource={sampleData} />
+                    <Table columns={columns} dataSource={vouchers} />
                 </div>
             </div>
             <Modal title="Add New Promotion" open={isModalAddVisible} onCancel={() => setIsModalAddVisible(false)} footer={null}>
-               <AddPromotion />
+               <AddPromotion onSubmit={()=>setIsModalAddVisible(false)}/>
             </Modal>
             <Modal title="Promotion detail" open={isPromotionDetailModalVisible} onCancel={() => setIsPromotionDetailModalVisible(false)} footer={null}>
             <PromotionDetail />
