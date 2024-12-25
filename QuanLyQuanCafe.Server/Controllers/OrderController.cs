@@ -26,8 +26,6 @@ namespace QuanLyQuanCafe.Server.Controllers
 			return Ok(orderSummaries);
 		}
 
-
-
 		[HttpGet("{orderId}")]
 		public async Task<IActionResult> GetOrderById(int orderId)
 		{
@@ -74,3 +72,4 @@ namespace QuanLyQuanCafe.Server.Controllers
 
 	}
 }
+

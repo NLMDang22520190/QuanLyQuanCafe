@@ -1,62 +1,71 @@
-// src/pages/CartInfo/CartInfo.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MenuItem from "../../../components/Users/MenuItem/MenuItem";
-import PromoModal from "../../../components/Users/PromoModal/PromoModal"; // Import PromoModal
+import PromoModal from "../../../components/Users/PromoModal/PromoModal";
+import AddItemForm from "../../../components/Users/AddItemForm/AddItemForm"; // Import AddItemForm
 import "./CartInfo.css";
 
 const CartInfo = () => {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Túi Nut Cracker 200g",
-      quantity: 1,
-      size: "Vừa",
-      price: 199000,
-    },
-    { id: 2, name: "Cà Phê Đen 250g", quantity: 1, size: "Nhỏ", price: 120000 },
-    { id: 3, name: "Trà Sữa Matcha", quantity: 2, size: "Lớn", price: 55000 },
-    { id: 4, name: "Bánh Quy Mặn", quantity: 1, size: "Vừa", price: 15000 },
-    { id: 5, name: "Cà Phê Sữa", quantity: 1, size: "Lớn", price: 90000 },
-    { id: 6, name: "Trà Đào", quantity: 2, size: "Vừa", price: 30000 },
-  ]);
+  const [cartItems, setCartItems] = useState(() => {
+    const storedCart = localStorage.getItem("cartItems");
+    return storedCart ? JSON.parse(storedCart) : [];
+  });
 
-  const totalAmount = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
-  const shippingFee = 25000;
-
+  const [isAddingItem, setIsAddingItem] = useState(false); // Track if "Add Item" form is open
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Save cartItems to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  const addItemToCart = (newItem) => {
+    setCartItems([...cartItems, newItem]);
+  };
+
   const removeItem = (itemId) => {
-    setCartItems(cartItems.filter((item) => item.id !== itemId));
+    setCartItems(cartItems.filter((item) => item.itemId !== itemId));
   };
 
   const clearCart = () => {
     setCartItems([]);
   };
 
-  const handlePromoCodeApply = (promoCode) => {
-    alert(`Áp dụng mã khuyến mại: ${promoCode}`);
-    setIsModalOpen(false);
+  const updateItem = (itemId, updatedFields) => {
+    setCartItems(
+      cartItems.map((item) =>
+        item.itemId === itemId ? { ...item, ...updatedFields } : item
+      )
+    );
   };
+
+  const totalAmount = cartItems.reduce(
+    (acc, item) => acc + item.item.price * item.quantity,
+    0
+  );
+  const shippingFee = 25000;
 
   return (
     <div className="cart-info">
       <div className="cart-header">
         <h3>Các món đã chọn</h3>
-        <button className="add-more">Thêm món</button>
+        <button className="add-more" onClick={() => setIsAddingItem(true)}>
+          Thêm món
+        </button>
       </div>
 
       <div className="cart-items-list">
         {cartItems.map((item) => (
           <MenuItem
-            key={item.id}
-            name={item.name}
-            quantity={item.quantity}
-            size={item.size}
-            price={item.price}
-            onRemove={() => removeItem(item.id)}
+            key={item.itemId}
+            item={item}
+            editMode={item.editMode || false} // Use editMode from the item
+            onRemove={() => removeItem(item.itemId)}
+            onEditToggle={() =>
+              updateItem(item.itemId, { editMode: !item.editMode })
+            }
+            onSaveEdit={(updatedFields) => {
+              updateItem(item.itemId, { ...updatedFields, editMode: false });
+            }}
           />
         ))}
       </div>
@@ -89,11 +98,17 @@ const CartInfo = () => {
         <button className="confirm-order">Đặt hàng</button>
       </div>
 
-      {/* Sử dụng PromoModal ở đây */}
+      {isAddingItem && (
+        <AddItemForm
+          onAddItem={addItemToCart}
+          onClose={() => setIsAddingItem(false)}
+        />
+      )}
+
       <PromoModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onApply={handlePromoCodeApply}
+        onApply={(promoCode) => alert(`Áp dụng mã khuyến mại: ${promoCode}`)}
       />
     </div>
   );
