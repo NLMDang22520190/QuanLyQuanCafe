@@ -143,6 +143,4 @@ namespace QuanLyQuanCafe.Server.Controllers
     }
 }
 
-    }
-
 
