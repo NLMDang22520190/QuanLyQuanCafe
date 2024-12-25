@@ -114,31 +114,34 @@ namespace QuanLyQuanCafe.Server.Controllers
             }
         }
 
-        //[HttpGet("FeatureProducts")]
-        //public async Task<IActionResult> GetFeatureProducts()
-        //{
-        //    var menuItemDomain = await _menuItemRepo.GetFeatureMenuItemAsync();
-        //    if (menuItemDomain == null)
-        //    {
-        //        return NotFound($"No feature prods found");
-        //    }
+        [HttpGet("FeatureProducts")]
+        public async Task<IActionResult> GetFeatureProducts()
+        {
+            var menuItemDomain = await _menuItemRepository.GetFeatureMenuItemAsync();
+            if (menuItemDomain == null)
+            {
+                return NotFound($"No feature prods found");
+            }
 
-        //    return Ok(_mapper.Map<List<FeatureMenuItemDTO>>(menuItemDomain));
-        //}
+            return Ok(_mapper.Map<List<FeatureMenuItemDTO>>(menuItemDomain));
+        }
 
-        //[HttpGet("GetProdByCategoryId/{categoryId}")]
-        //public async Task<IActionResult> GetProdsByCategoryId(int categoryId)
-        //{
-        //    var menuItemDomain = await _menuItemRepo.GetMenuItemsByCategoryIdAsync(categoryId);
-        //    if (menuItemDomain == null)
-        //    {
-        //        return NotFound($"No prods by {categoryId} found");
-        //    }
+        [HttpGet("GetProdByCategoryId/{categoryId}")]
+        public async Task<IActionResult> GetProdsByCategoryId(int categoryId)
+        {
+            var menuItemDomain = await _menuItemRepository.GetMenuItemsByCategoryIdAsync(categoryId);
+            if (menuItemDomain == null)
+            {
+                return NotFound($"No prods by {categoryId} found");
+            }
 
-        //    return Ok(_mapper.Map<List<ItemOnMenuPageDTO>>(menuItemDomain));
+            return Ok(_mapper.Map<List<ItemOnMenuPageDTO>>(menuItemDomain));
+        }
+
+
+
     }
 
-
-
     }
+
 
