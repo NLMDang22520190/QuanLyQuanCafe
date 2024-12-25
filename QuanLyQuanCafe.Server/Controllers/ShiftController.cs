@@ -5,7 +5,7 @@ using QuanLyQuanCafe.Server.Repositories;
 
 namespace QuanLyQuanCafe.Server.Controllers
 {
-    [Route("api/shitfs")]
+    [Route("api/shifts")]
     [ApiController]
     public class ShiftController : ControllerBase
     {
@@ -139,6 +139,26 @@ namespace QuanLyQuanCafe.Server.Controllers
             {
                 Console.WriteLine($"Error: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while deleting the shift." });
+            }
+        }
+
+        [HttpGet("statistics")]
+        public async Task<IActionResult> GetShiftStatistics()
+        {
+            try
+            {
+                var shiftDistribution = _shiftRepo.GetShiftDistribution();
+                if (shiftDistribution == null || !shiftDistribution.Any())
+                {
+                    return NotFound("No shift distribution found.");
+                }
+                return Ok(shiftDistribution);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while fetching shift distribution." });
             }
         }
     }
