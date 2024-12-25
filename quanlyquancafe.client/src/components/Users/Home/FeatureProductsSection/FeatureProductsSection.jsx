@@ -3,6 +3,7 @@ import HomeItemDisplay from "../../HomeItemDisplay/HomeItemDisplay";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import ProductModal from "../../ProductModal/ProductModal";
 
 const FeatureProductsSection = () => {
   const [products, setProducts] = useState([]);
@@ -16,6 +17,7 @@ const FeatureProductsSection = () => {
         const mappedData = response.data.map((item) => ({
           id: item.itemId,
           name: item.itemName,
+          description: item.description,
           price: item.price,
           picture: item.picture || "https://placehold.co/600x400", // Thay thế null bằng hình mặc định nếu cần
         }));
