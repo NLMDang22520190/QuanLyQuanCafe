@@ -10,28 +10,19 @@ import { OverviewTableLayoutWithTab } from "../../components/tables/OverviewTabl
 import { useState } from "react";
 import { useEffect } from "react";
 import { Table } from "antd";
+import { Tab } from "@material-tailwind/react";
 
 export const ManagerDashboard = () => {
     const [saleStatistic, setSaleStatistic] = useState();
+    const [saleStatisticByMonths, setSaleStatisticByMonths] = useState();
+    const [pendingOrders, setPendingOrders] = useState();
     const [shiftStatistic, setShiftStatistic] = useState();
     const [ingredients, setIngredients] = useState();
-    const [lineData , setLineData] = useState();
-    const doughnutChartData = {
-        labels: ['6AM-12AM', '12AM-6PM', '6PM-10PM'],
-        values: [12, 19, 3],
-    };
-
-    const sampleLineData = {
-        labels: ['01 Jul', '05 Jul', '10 Jul', '15 Jul', '20 Jul', '25 Jul', '30 Jul'],
-        period1: {
-            label: 'Current month figure',
-            values: [65, 59, 80, 81, 56, 42, 12],
-        },
-        period2: {
-            label: 'Last month figure',
-            values: [75, 69, 70, 91, 66, 31, 54],
-        },
-    };
+    const [lineData, setLineData] = useState();
+    const [loading, setLoading] = useState(true);
+    const [menuItemStatistic, setMenuItemStatistic] = useState();
+    const [newestStaffs, setNewestStaffs] = useState();
+    const [menuItemTab, setMenuItemTab] = useState(0);
 
     const sampleData = [
         {
@@ -80,32 +71,70 @@ export const ManagerDashboard = () => {
     ];
 
     const stockCol = [
-       {header: "Ingredient", key: "ingredientName", type: TableDetailType.Info},
-         {header: "Quantity in stock", key: "quantityInStock", type: TableDetailType.Info},
-            {header: "Unit", key: "unit", type: TableDetailType.Info},
+        { title: "Ingredient", dataIndex: "ingredientName", key: "ingredientName" },
+        { title: "Quantity in stock", dataIndex: "quantityInStock", key: "quantityInStock" },
+        { title: "Unit", dataIndex: "unit", key: "unit" },
+    ]
+
+    const menuItemCol = [
+        { header: "ID", key: "itemId", type: TableDetailType.Info },
+        { header: "Name", key: "itemName", type: TableDetailType.Info },
+    ]
+
+    const staffCol = [
+        { header: "ID", key: "staffId", type: TableDetailType.Info },
+        { header: "Name", key: "user", type: TableDetailType.Info },
+        { header: "Start Working", key: "dateStartedWorking", type: TableDetailType.Info },
+    ]
+
+    const orderCol = [
+        { title: "ID", dataIndex: "orderId", key: "orderId" },
+        { title: "Time", dataIndex: "orderTime", key: "orderTime" },
+        { title: "Payment", dataIndex: "paymentMethod", key: "paymentMethod" },
     ]
 
     const fetchSaleStatistic = async () => {
+        setLoading(true);
         try {
             const response = await fetch("https://localhost:7087/api/reports/sale-statistics");
             const data = await response.json();
             setSaleStatistic(data);
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
-    
-    const fetchShiftStatistic = async () => {
+
+    const fetchSaleStatisticByMonths = async () => {
+        setLoading(true);
         try {
-            const response = await fetch("https://localhost:7087/api/shifts/shift-statistics");
+            const response = await fetch("https://localhost:7087/api/reports/sale-statistics-by-months");
             const data = await response.json();
-            setShiftStatistic(data);
+            setSaleStatisticByMonths(data);
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const fetchShiftStatistic = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch("https://localhost:7087/api/shifts/statistics");
+            const data = await response.json();
+            setShiftStatistic(data);
+            
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
         }
     }
 
     const fetchIngredientsStock = async () => {
+        setLoading(true);
         try {
             const response = await fetch("https://localhost:7087/api/ingredient");
             const data = await response.json();
@@ -115,22 +144,89 @@ export const ManagerDashboard = () => {
             setIngredients(sortedIngredients.slice(0, 5));
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const fetchMenuItemStatistic = async () => {    
+        setLoading(true);
+        try {
+            const response = await fetch("https://localhost:7087/api/menu-items/statistics");
+            const data = await response.json();
+            setMenuItemStatistic(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
         }
     }
 
     const handleLineData = () => {
+        setLoading(true);
         setLineData(
             {
-                labels: saleStatistic.map((item) => item.month),
+                labels: saleStatistic ? saleStatistic.map((item) => item.period) : [],
+                period1: {
+                    label: 'Total Net Profit',
+                    values: saleStatistic ? saleStatistic.map((item) => item.totalNetProfit) : [],
+                },
+                period2: {
+                    label: 'Total Incomes',
+                    values: saleStatistic ? saleStatistic.map((item) => item.totalIncome) : [],
+                },
             }
         )
+        setLoading(false)
+    }
+
+    const fetchNewestStaffs = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch("https://localhost:7087/api/staff/newest-staffs/5");
+            const data = await response.json();
+            setNewestStaffs(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const fetchPendingOrders = async () => {    
+        setLoading(true);
+        try {
+            const response = await fetch("https://localhost:7087/api/orders/pending");
+            const data = await response.json();
+            setPendingOrders(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
         fetchSaleStatistic();
+        fetchSaleStatisticByMonths();
         fetchShiftStatistic();
         fetchIngredientsStock();
+        fetchMenuItemStatistic();
+        fetchNewestStaffs();
+        fetchPendingOrders();
     }, []);
+
+    useEffect(() => {
+        handleLineData();
+    }, [saleStatistic]);
+
+    if (loading || !lineData) {
+        return (
+            <div className="flex justify-center items-center h-full">
+               <p>Loading</p>
+            </div>
+        )
+    }
 
     return (
         <div className="flex flex-col gap-y-4 overflow-y-auto h-full">
@@ -141,23 +237,36 @@ export const ManagerDashboard = () => {
             <div className="flex gap-y-4 max-h-[calc(100vh-180px)]  min-h-[calc(100vh-180px)] w-full gap-x-4">
                 <div className="flex h-full flex-col gap-y-4 w-2/3">
                     <div className="flex gap-x-4 px-8 ">
-                        <MetricCard title="Total Net Profit" value={saleStatistic ? saleStatistic[0].totalNetProfit : 0} />
-                        <MetricCard title="Total Incomes" value={ saleStatistic ? saleStatistic[0].totalIncome : 0 } />
-                        <MetricCard title="Total Expenses" value={saleStatistic ? saleStatistic[0].totalExpense : 0} />
+                        <MetricCard 
+                        percentage= { saleStatisticByMonths ? ( saleStatisticByMonths[1] && saleStatisticByMonths[1].totalNetProfit !== 0 ? Math.floor( (saleStatisticByMonths[0].totalNetProfit - saleStatisticByMonths[1].totalNetProfit ) * 100 / saleStatisticByMonths[1].totalNetProfit ) : saleStatisticByMonths[0].totalNetProfit ) : 0} 
+                        title="Total Net Profit" 
+                        value={saleStatisticByMonths ? saleStatisticByMonths[0].totalNetProfit : 0} />
+                        
+                        <MetricCard
+                        percentage= { saleStatisticByMonths ? ( saleStatisticByMonths[1] && saleStatisticByMonths[1].totalIncome !== 0 ? Math.floor( (saleStatisticByMonths[0].totalIncome - saleStatisticByMonths[1].totalIncome ) * 100 / saleStatisticByMonths[1].totalIncome ) : saleStatisticByMonths[0].totalIncome ) : 0} 
+                         title="Total Incomes" 
+                         value={saleStatisticByMonths ? saleStatisticByMonths[0].totalIncome : 0} />
+                        <MetricCard 
+                        percentage= { saleStatisticByMonths ? ( saleStatisticByMonths[1] && saleStatisticByMonths[1].totalExpense !== 0 ? Math.floor( (saleStatisticByMonths[0].totalExpense - saleStatisticByMonths[1].totalExpense ) * 100 / saleStatisticByMonths[1].totalExpense ) : saleStatisticByMonths[0].totalExpense ) : 0} 
+                        title="Total Expenses" 
+                        value={saleStatisticByMonths ? saleStatisticByMonths[0].totalExpense : 0} />
                     </div>
 
                     <div className="flex gap-x-4 h-3/5">
                         <div className="flex flex-col w-1/2 h-full bg-gray-500/30 rounded-[20px] p-4 shadow-lg">
                             <p className="font-semibold text-xl">Time Chart</p>
 
-                            <DoughnutChart data={doughnutChartData} />
+                            <DoughnutChart data={{
+                                labels: shiftStatistic ? shiftStatistic.map((item) => item.period) : [],
+                                values: shiftStatistic ? shiftStatistic.map((item) => item.shiftCount) : [],
+                            }} />
 
                         </div>
 
                         <div className="flex flex-col w-1/2 h-full bg-gray-500/30 rounded-[20px] p-4 pb-8 shadow-lg">
-                            <p className="font-semibold text-xl">Employment Status</p>
+                            <p className="font-semibold text-xl">New Staff</p>
 
-                            <OverviewTableLayout columns={columnData} data={sampleData} />
+                            <OverviewTableLayout columns={staffCol} data={newestStaffs} />
 
                         </div>
                     </div>
@@ -173,7 +282,9 @@ export const ManagerDashboard = () => {
                                 } />
                             </div>
                         </div>
-                        <LineChart data={sampleLineData} values  />
+                        {
+                             <LineChart data={lineData ? lineData : []} />
+                        }
                     </div>
 
                 </div>
@@ -183,15 +294,18 @@ export const ManagerDashboard = () => {
                     <div className="flex flex-col gap-y-2 bg-gray-500/30 rounded-[20px] p-6 shadow-lg">
                         <p className="font-semibold text-xl">Popularity</p>
 
-                        <OverviewTableLayoutWithTab tabs={[{ name: "Most sold dish" }, { name: "Least sold dish" }]} columns={columnData} data={sampleData} />
+                        <OverviewTableLayoutWithTab 
+                        tabs={[{ name: "Most sold" }, { name: "Least sold" }]} 
+                        onTabChange={(index)=>setMenuItemTab(index)} 
+                        columns={menuItemCol} data={menuItemTab == 0 ? (menuItemStatistic?.mostSoldMenuItems ?? []) : (menuItemStatistic?.leastSoldMenuItems ?? [])} />
                     </div>
                     <div className="flex flex-col gap-y-2 bg-gray-500/30 rounded-[20px] p-6 shadow-lg">
-                        <p className="font-semibold text-xl">Order & Billing Status</p>
-                        <OverviewTableLayoutWithTab tabs={[{ name: "Pending" }, { name: "Billed" }]} columns={columnData} data={sampleData} />
+                        <p className="font-semibold text-xl">On Transaction</p>
+                        <Table columns={orderCol} dataSource={pendingOrders} pagination={false} />
                     </div>
                     <div className="flex flex-col gap-y-2 bg-gray-500/30 rounded-[20px] p-6 shadow-lg">
-                        <p className="font-semibold text-xl">Inverntory Status</p>
-                        <OverviewTableLayoutWithTab tabs={[{ name: "In stock" }]} columns={stockCol} data={ingredients} />
+                        <p className="font-semibold text-xl">Inventory Status</p>
+                        <Table loading={!ingredients} className="bg-transparent" columns={stockCol} dataSource={ingredients} pagination={false} />
                     </div>
                 </div>
             </div>

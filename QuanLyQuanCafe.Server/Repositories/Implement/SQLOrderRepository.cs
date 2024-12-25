@@ -29,10 +29,6 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 								   .ToListAsync();
 		}
 
-        public Task<List<OrderStatisticDTO>> GetTotalOrderAmountByMonths()
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<bool> UpdateOrderStateAsync(int orderId, string newState)
 		{
@@ -60,19 +56,29 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 			return false;
 		}
     
-    Task<List<OrderStatisticDTO>> IOrderRepository.GetTotalOrderAmountByMonths()
+	public async Task<List<OrderStatisticDTO>> GetTotalOrderAmountByMonths()
         {
-            var totalOrderAmountByMonth = dbContext.Orders
-                .GroupBy(o => new { o.OrderTime.Year, o.OrderTime.Month })
-                .Select(g => new OrderStatisticDTO
-                {
-                    Month = g.Key.Year + "-" + g.Key.Month,
-                    TotalIncome = g.Sum(o => o.TotalPrice)
-                })
-                .ToListAsync();
+			var totalOrderAmountByMonth = await _dbContext.Orders
+				.GroupBy(o => new { o.OrderTime.Year, Month = o.OrderTime.Month, Day = (o.OrderTime.Day - 1) / 5  })
+				.Select(g => new OrderStatisticDTO
+				{
+					Day = $"{g.Key.Day + 1}",
+					Month = $"{g.Key.Year}-{g.Key.Month}",
+					TotalIncome = g.Sum(o => o.TotalPrice)
+				})
+				.ToListAsync();
 
             return totalOrderAmountByMonth;
         }
-        
-	}
+
+		public Task<List<Order>> GetPendingOrdersAsync()
+        {
+            var pendingOrders = _dbContext.Orders
+				.Where(o => o.OrderState == "Pending")
+				.ToListAsync();
+			return pendingOrders;
+        }
+    }
+
+
 }

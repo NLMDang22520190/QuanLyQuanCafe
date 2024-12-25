@@ -5,7 +5,6 @@ using QuanLyQuanCafe.Server.Models;
 using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Helpers;
 using QuanLyQuanCafe.Server.Migrations;
-using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Repositories;
 namespace QuanLyQuanCafe.Server.Controllers
 {
@@ -132,11 +131,19 @@ namespace QuanLyQuanCafe.Server.Controllers
             }
             return Ok(staff);
         }
+
         [HttpGet("staffs")]
         public async Task<IActionResult> GetAllStaff(int id)
         {
             var staffs = await _staffRepo.GetAllAsync();
             
+            return Ok(staffs);
+        }
+
+        [HttpGet("newest-staffs/{count}")]
+        public async Task<IActionResult> GetNewestStaffAsync(int count)
+        {
+            var staffs = await _staffRepo.GetNewestStaffAsync(count);
             return Ok(staffs);
         }
 

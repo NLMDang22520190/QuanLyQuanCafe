@@ -4,7 +4,7 @@ namespace QuanLyQuanCafe.Server.Models.DTOs;
 
 public class SaleFigureDTO
 {
-    public string Month { get; set; }
+    public string period { get; set; }  
     public double TotalIncome { get; set; }
     public double TotalExpense { get; set; }
 

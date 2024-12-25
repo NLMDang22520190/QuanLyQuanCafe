@@ -2,10 +2,9 @@ using System;
 
 namespace QuanLyQuanCafe.Server.Models.DTOs;
 
-public class MonthSalaryStatisticDTO
+public class ImportRecordStatisticDTO
 {
     public string Day { get; set; }
     public string Month { get; set; }
-    public int TotalHours { get; set; }
-    public double TotalSalaryPayed { get; set; }
+    public double TotalImportPrice { get; set; }
 }
