@@ -66,11 +66,15 @@ const items = [
 
 
 export const AppSideMenu = () => {
-    const [activeIndex, setActiveIndex] = useState<number>(0);
+    const [activeIndex, setActiveIndex] = useState<number>(() => {
+        const path = window.location.pathname.split('/')[1];
+        const index = items.findIndex(item => item.path.split('/')[1] === path);
+        return index !== -1 ? index : 0;
+    });
     const [collapsed, setCollapsed] = useState(false);
     const navigate = useNavigate();
 
-    const userRole = UserRole.STAFF; 
+    const userRole = UserRole.ADMIN; 
 
     const filteredItems = items.filter(item => item.roles.includes(userRole));
 
