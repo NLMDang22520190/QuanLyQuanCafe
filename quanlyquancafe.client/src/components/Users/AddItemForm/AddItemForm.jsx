@@ -1,57 +1,57 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import Axios
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import PropTypes from "prop-types";
 import "./AddItemForm.css";
 
-const AddItemForm = ({ onClose, onAddItem }) => {
-  const [menuItems, setMenuItems] = useState([]); // State to store fetched menu items
-  const [selectedItem, setSelectedItem] = useState(null); // State for the selected item
-  const [quantity, setQuantity] = useState(1); // State for item quantity
-  const [notes, setNotes] = useState(""); // State for item notes
-  const [adjustments, setAdjustments] = useState(""); // State for item adjustments
+const AddItemForm = ({ onAddItem, onClose }) => {
+  const [menuItems, setMenuItems] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [notes, setNotes] = useState("");
 
-  // Fetch menu items from API on component mount
+  // Fetch menu items from API
   useEffect(() => {
     axios
-      .get("https://localhost:7087/api/MenuItem")
+      .get("https://localhost:7087/api/menu-items")
       .then((response) => {
-        setMenuItems(response.data); // Set the response data to the menuItems state
+        const availableItems = response.data.filter(
+          (item) => item.state === "Available" || item.state === "Còn hàng"
+        ); // Only include available items
+        setMenuItems(availableItems);
+        if (availableItems.length > 0) {
+          setSelectedItem(availableItems[0].itemId); // Default to the first available item
+        }
       })
       .catch((error) => {
         console.error("Error fetching menu items:", error);
       });
   }, []);
 
-  // Handle form submission
   const handleAddItem = () => {
-    if (!selectedItem) return; // Don't add if no item is selected
-    const newItem = {
-      itemId: selectedItem.itemId,
-      quantity,
-      notes,
-      adjustments,
-      item: selectedItem,
-    };
-    onAddItem(newItem);
-    onClose(); // Close the form after adding the item
+    const itemToAdd = menuItems.find((item) => item.itemId === selectedItem);
+    if (itemToAdd) {
+      onAddItem({
+        itemId: itemToAdd.itemId,
+        item: itemToAdd,
+        quantity,
+        notes,
+        adjustments: "",
+      });
+      onClose();
+    }
   };
 
   return (
     <div className="add-item-form">
       <form>
-        <h3>Chọn món để thêm vào giỏ hàng</h3>
+        <h3>Thêm món vào giỏ hàng</h3>
 
-        {/* Display menu items */}
-        <label>Chọn món</label>
+        <label htmlFor="menu-item">Chọn món:</label>
         <select
-          value={selectedItem ? selectedItem.itemId : ""}
-          onChange={(e) => {
-            const selected = menuItems.find(
-              (item) => item.itemId === Number(e.target.value)
-            );
-            setSelectedItem(selected);
-          }}
+          id="menu-item"
+          value={selectedItem || ""}
+          onChange={(e) => setSelectedItem(Number(e.target.value))}
         >
-          <option value="">-- Chọn món --</option>
           {menuItems.map((item) => (
             <option key={item.itemId} value={item.itemId}>
               {item.itemName} - {item.price.toLocaleString()}đ
@@ -59,45 +59,22 @@ const AddItemForm = ({ onClose, onAddItem }) => {
           ))}
         </select>
 
-        {selectedItem && (
-          <div className="item-details">
-            <h4>{selectedItem.itemName}</h4>
-            <p>{selectedItem.description}</p>
-            <p>
-              <strong>{selectedItem.price.toLocaleString()}đ</strong>
-            </p>
-            <p>{selectedItem.state}</p>
-            {selectedItem.picture && (
-              <img
-                src={selectedItem.picture}
-                alt={selectedItem.itemName}
-                className="item-picture"
-              />
-            )}
-          </div>
-        )}
-
-        <label>Số lượng</label>
+        <label htmlFor="quantity">Số lượng:</label>
         <input
           type="number"
-          value={quantity}
+          id="quantity"
           min="1"
+          value={quantity}
           onChange={(e) => setQuantity(Number(e.target.value))}
         />
 
-        <label>Ghi chú</label>
+        <label htmlFor="notes">Ghi chú:</label>
         <textarea
+          id="notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Ghi chú thêm cho món ăn"
-        />
-
-        <label>Điều chỉnh</label>
-        <textarea
-          value={adjustments}
-          onChange={(e) => setAdjustments(e.target.value)}
-          placeholder="Điều chỉnh món ăn"
-        />
+          placeholder="Ghi chú đặc biệt (nếu có)"
+        ></textarea>
 
         <button type="button" onClick={handleAddItem}>
           Thêm vào giỏ
@@ -108,6 +85,11 @@ const AddItemForm = ({ onClose, onAddItem }) => {
       </form>
     </div>
   );
+};
+
+AddItemForm.propTypes = {
+  onAddItem: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default AddItemForm;

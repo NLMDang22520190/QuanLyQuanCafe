@@ -1,51 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MenuItem from "../../../components/Users/MenuItem/MenuItem";
-import PromoModal from "../../../components/Users/PromoModal/PromoModal"; // Import PromoModal
-import AddItemForm from "../../../components/Users/AddItemForm/AddItemForm"; // Import the new AddItemForm component
+import PromoModal from "../../../components/Users/PromoModal/PromoModal";
+import AddItemForm from "../../../components/Users/AddItemForm/AddItemForm"; // Import AddItemForm
 import "./CartInfo.css";
 
 const CartInfo = () => {
-  const [cartItems, setCartItems] = useState([
-    {
-      cartDetailId: 1,
-      cartId: 101,
-      itemId: 1,
-      quantity: 1,
-      notes: "Chế biến nhẹ",
-      adjustments: "Không đường",
-      size: "Medium",
-      item: {
-        itemName: "Túi Nut Cracker 200g",
-        price: 199000,
-        picture: null,
-      },
-    },
-    {
-      cartDetailId: 2,
-      cartId: 101,
-      itemId: 2,
-      quantity: 1,
-      notes: "Thêm sữa",
-      adjustments: "Đường ít",
-      size: "Small",
-      item: {
-        itemName: "Cà Phê Đen 250g",
-        price: 120000,
-        picture: null,
-      },
-    },
-    // Add more items as necessary...
-  ]);
+  const [cartItems, setCartItems] = useState(() => {
+    const storedCart = localStorage.getItem("cartItems");
+    return storedCart ? JSON.parse(storedCart) : [];
+  });
 
-  const totalAmount = cartItems.reduce(
-    (acc, item) => acc + item.item.price * item.quantity,
-    0
-  );
-  const shippingFee = 25000;
-
+  const [isAddingItem, setIsAddingItem] = useState(false); // Track if "Add Item" form is open
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editMode, setEditMode] = useState(null); // Track which item is being edited
-  const [isFormOpen, setIsFormOpen] = useState(false); // Track the form visibility
+
+  // Save cartItems to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  const addItemToCart = (newItem) => {
+    setCartItems([...cartItems, newItem]);
+  };
 
   const removeItem = (itemId) => {
     setCartItems(cartItems.filter((item) => item.itemId !== itemId));
@@ -55,48 +30,25 @@ const CartInfo = () => {
     setCartItems([]);
   };
 
-  const handlePromoCodeApply = (promoCode) => {
-    alert(`Áp dụng mã khuyến mại: ${promoCode}`);
-    setIsModalOpen(false);
-  };
-
-  const handleEditToggle = (itemId) => {
-    setEditMode(editMode === itemId ? null : itemId); // Toggle edit mode for the specific item
-  };
-
-  const handleSaveEdit = (itemId, updatedItem) => {
+  const updateItem = (itemId, updatedFields) => {
     setCartItems(
       cartItems.map((item) =>
-        item.itemId === itemId ? { ...item, ...updatedItem } : item
+        item.itemId === itemId ? { ...item, ...updatedFields } : item
       )
     );
-    setEditMode(null); // Exit edit mode after saving
   };
 
-  const handleAddItem = (newItem) => {
-    const newCartItem = {
-      cartDetailId: cartItems.length + 1,
-      cartId: 101,
-      itemId: newItem.itemId,
-      quantity: newItem.quantity,
-      notes: newItem.notes,
-      adjustments: newItem.adjustments,
-      size: newItem.size,
-      item: {
-        itemName: "New Item", // Replace with actual item selection
-        price: 100000, // Replace with the selected price
-        picture: null,
-      },
-    };
-    setCartItems([...cartItems, newCartItem]);
-    setIsFormOpen(false); // Close the form after adding the item
-  };
+  const totalAmount = cartItems.reduce(
+    (acc, item) => acc + item.item.price * item.quantity,
+    0
+  );
+  const shippingFee = 25000;
 
   return (
     <div className="cart-info">
       <div className="cart-header">
         <h3>Các món đã chọn</h3>
-        <button className="add-more" onClick={() => setIsFormOpen(true)}>
+        <button className="add-more" onClick={() => setIsAddingItem(true)}>
           Thêm món
         </button>
       </div>
@@ -106,10 +58,14 @@ const CartInfo = () => {
           <MenuItem
             key={item.itemId}
             item={item}
-            editMode={editMode === item.itemId}
+            editMode={item.editMode || false} // Use editMode from the item
             onRemove={() => removeItem(item.itemId)}
-            onEditToggle={() => handleEditToggle(item.itemId)}
-            onSaveEdit={handleSaveEdit}
+            onEditToggle={() =>
+              updateItem(item.itemId, { editMode: !item.editMode })
+            }
+            onSaveEdit={(updatedFields) => {
+              updateItem(item.itemId, { ...updatedFields, editMode: false });
+            }}
           />
         ))}
       </div>
@@ -142,20 +98,18 @@ const CartInfo = () => {
         <button className="confirm-order">Đặt hàng</button>
       </div>
 
-      {/* Promo Modal */}
+      {isAddingItem && (
+        <AddItemForm
+          onAddItem={addItemToCart}
+          onClose={() => setIsAddingItem(false)}
+        />
+      )}
+
       <PromoModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onApply={handlePromoCodeApply}
+        onApply={(promoCode) => alert(`Áp dụng mã khuyến mại: ${promoCode}`)}
       />
-
-      {/* Show AddItemForm if isFormOpen is true */}
-      {isFormOpen && (
-        <AddItemForm
-          onAddItem={handleAddItem}
-          onCancel={() => setIsFormOpen(false)}
-        />
-      )}
     </div>
   );
 };
