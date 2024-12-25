@@ -1,35 +1,54 @@
-// src/pages/CartInfo/CartInfo.jsx
 import React, { useState } from "react";
 import MenuItem from "../../../components/Users/MenuItem/MenuItem";
 import PromoModal from "../../../components/Users/PromoModal/PromoModal"; // Import PromoModal
+import AddItemForm from "../../../components/Users/AddItemForm/AddItemForm"; // Import the new AddItemForm component
 import "./CartInfo.css";
 
 const CartInfo = () => {
   const [cartItems, setCartItems] = useState([
     {
-      id: 1,
-      name: "Túi Nut Cracker 200g",
+      cartDetailId: 1,
+      cartId: 101,
+      itemId: 1,
       quantity: 1,
-      size: "Vừa",
-      price: 199000,
+      notes: "Chế biến nhẹ",
+      adjustments: "Không đường",
+      size: "Medium",
+      item: {
+        itemName: "Túi Nut Cracker 200g",
+        price: 199000,
+        picture: null,
+      },
     },
-    { id: 2, name: "Cà Phê Đen 250g", quantity: 1, size: "Nhỏ", price: 120000 },
-    { id: 3, name: "Trà Sữa Matcha", quantity: 2, size: "Lớn", price: 55000 },
-    { id: 4, name: "Bánh Quy Mặn", quantity: 1, size: "Vừa", price: 15000 },
-    { id: 5, name: "Cà Phê Sữa", quantity: 1, size: "Lớn", price: 90000 },
-    { id: 6, name: "Trà Đào", quantity: 2, size: "Vừa", price: 30000 },
+    {
+      cartDetailId: 2,
+      cartId: 101,
+      itemId: 2,
+      quantity: 1,
+      notes: "Thêm sữa",
+      adjustments: "Đường ít",
+      size: "Small",
+      item: {
+        itemName: "Cà Phê Đen 250g",
+        price: 120000,
+        picture: null,
+      },
+    },
+    // Add more items as necessary...
   ]);
 
   const totalAmount = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+    (acc, item) => acc + item.item.price * item.quantity,
     0
   );
   const shippingFee = 25000;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editMode, setEditMode] = useState(null); // Track which item is being edited
+  const [isFormOpen, setIsFormOpen] = useState(false); // Track the form visibility
 
   const removeItem = (itemId) => {
-    setCartItems(cartItems.filter((item) => item.id !== itemId));
+    setCartItems(cartItems.filter((item) => item.itemId !== itemId));
   };
 
   const clearCart = () => {
@@ -41,22 +60,56 @@ const CartInfo = () => {
     setIsModalOpen(false);
   };
 
+  const handleEditToggle = (itemId) => {
+    setEditMode(editMode === itemId ? null : itemId); // Toggle edit mode for the specific item
+  };
+
+  const handleSaveEdit = (itemId, updatedItem) => {
+    setCartItems(
+      cartItems.map((item) =>
+        item.itemId === itemId ? { ...item, ...updatedItem } : item
+      )
+    );
+    setEditMode(null); // Exit edit mode after saving
+  };
+
+  const handleAddItem = (newItem) => {
+    const newCartItem = {
+      cartDetailId: cartItems.length + 1,
+      cartId: 101,
+      itemId: newItem.itemId,
+      quantity: newItem.quantity,
+      notes: newItem.notes,
+      adjustments: newItem.adjustments,
+      size: newItem.size,
+      item: {
+        itemName: "New Item", // Replace with actual item selection
+        price: 100000, // Replace with the selected price
+        picture: null,
+      },
+    };
+    setCartItems([...cartItems, newCartItem]);
+    setIsFormOpen(false); // Close the form after adding the item
+  };
+
   return (
     <div className="cart-info">
       <div className="cart-header">
         <h3>Các món đã chọn</h3>
-        <button className="add-more">Thêm món</button>
+        <button className="add-more" onClick={() => setIsFormOpen(true)}>
+          Thêm món
+        </button>
       </div>
 
       <div className="cart-items-list">
         {cartItems.map((item) => (
           <MenuItem
-            key={item.id}
-            name={item.name}
-            quantity={item.quantity}
-            size={item.size}
-            price={item.price}
-            onRemove={() => removeItem(item.id)}
+            key={item.itemId}
+            item={item}
+            editMode={editMode === item.itemId}
+            onRemove={() => removeItem(item.itemId)}
+            onEditToggle={() => handleEditToggle(item.itemId)}
+            onSaveEdit={handleSaveEdit}
           />
         ))}
       </div>
@@ -89,12 +142,20 @@ const CartInfo = () => {
         <button className="confirm-order">Đặt hàng</button>
       </div>
 
-      {/* Sử dụng PromoModal ở đây */}
+      {/* Promo Modal */}
       <PromoModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onApply={handlePromoCodeApply}
       />
+
+      {/* Show AddItemForm if isFormOpen is true */}
+      {isFormOpen && (
+        <AddItemForm
+          onAddItem={handleAddItem}
+          onCancel={() => setIsFormOpen(false)}
+        />
+      )}
     </div>
   );
 };
