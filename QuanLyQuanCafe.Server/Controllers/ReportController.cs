@@ -12,10 +12,12 @@ namespace QuanLyQuanCafe.Server.Controllers
         private readonly IOrderRepository _orderRepository;
         private readonly IMonthSalaryRepository _monthSalaryRepository;
 
-        public ReportController(IOrderRepository orderRepository, IMonthSalaryRepository monthSalaryRepository)
+        private readonly IStaffRepository _staffRepository;
+        public ReportController(IOrderRepository orderRepository, IMonthSalaryRepository monthSalaryRepository, IStaffRepository staffRepository)
         {
             _orderRepository = orderRepository;
             _monthSalaryRepository = monthSalaryRepository;
+            _staffRepository = staffRepository;
         }
 
         [HttpGet("sale-statistics")]
@@ -42,6 +44,17 @@ namespace QuanLyQuanCafe.Server.Controllers
                 .ToList();
             
             return Ok(saleFigures);
+        }
+
+        [HttpGet("staffs")]
+        public async Task<IActionResult> getAllEmployees()
+        {
+            var staffs = await _staffRepository.GetAllAsync();
+            if (staffs == null || !staffs.Any())
+            {
+                return NotFound("No employees found.");
+            }
+            return Ok(staffs);
         }
     }
 }

@@ -7,8 +7,15 @@ import { TableDetailType } from "../../constant/TableDetailType";
 import { RoundedComboBox } from "../../components/combobox/RoundedComboBox"
 import { CircleButton } from "../../components/buttons/CircleButton";
 import { OverviewTableLayoutWithTab } from "../../components/tables/OverviewTableLayoutWithTab";
+import { useState } from "react";
+import { useEffect } from "react";
+import { Table } from "antd";
 
 export const ManagerDashboard = () => {
+    const [saleStatistic, setSaleStatistic] = useState();
+    const [shiftStatistic, setShiftStatistic] = useState();
+    const [ingredients, setIngredients] = useState();
+    const [lineData , setLineData] = useState();
     const doughnutChartData = {
         labels: ['6AM-12AM', '12AM-6PM', '6PM-10PM'],
         values: [12, 19, 3],
@@ -72,20 +79,71 @@ export const ManagerDashboard = () => {
         { header: "Order Status", key: "status", type: TableDetailType.Badge },
     ];
 
+    const stockCol = [
+       {header: "Ingredient", key: "ingredientName", type: TableDetailType.Info},
+         {header: "Quantity in stock", key: "quantityInStock", type: TableDetailType.Info},
+            {header: "Unit", key: "unit", type: TableDetailType.Info},
+    ]
+
+    const fetchSaleStatistic = async () => {
+        try {
+            const response = await fetch("https://localhost:7087/api/reports/sale-statistics");
+            const data = await response.json();
+            setSaleStatistic(data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    
+    const fetchShiftStatistic = async () => {
+        try {
+            const response = await fetch("https://localhost:7087/api/shifts/shift-statistics");
+            const data = await response.json();
+            setShiftStatistic(data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const fetchIngredientsStock = async () => {
+        try {
+            const response = await fetch("https://localhost:7087/api/ingredient");
+            const data = await response.json();
+            setIngredients(data);
+
+            const sortedIngredients = data.sort((a, b) => b.quantityInStock - a.quantityInStock);
+            setIngredients(sortedIngredients.slice(0, 5));
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const handleLineData = () => {
+        setLineData(
+            {
+                labels: saleStatistic.map((item) => item.month),
+            }
+        )
+    }
+
+    useEffect(() => {
+        fetchSaleStatistic();
+        fetchShiftStatistic();
+        fetchIngredientsStock();
+    }, []);
 
     return (
         <div className="flex flex-col gap-y-4 overflow-y-auto h-full">
             <div className="flex justify-between items-center">
                 <h2 className="text-amber-500 font-medium text-3xl">Welcome,</h2>
-
             </div>
 
             <div className="flex gap-y-4 max-h-[calc(100vh-180px)]  min-h-[calc(100vh-180px)] w-full gap-x-4">
                 <div className="flex h-full flex-col gap-y-4 w-2/3">
                     <div className="flex gap-x-4 px-8 ">
-                        <MetricCard title="Total Net Profit" />
-                        <MetricCard title="Total Orders" />
-                        <MetricCard title="Total Expenses" />
+                        <MetricCard title="Total Net Profit" value={saleStatistic ? saleStatistic[0].totalNetProfit : 0} />
+                        <MetricCard title="Total Incomes" value={ saleStatistic ? saleStatistic[0].totalIncome : 0 } />
+                        <MetricCard title="Total Expenses" value={saleStatistic ? saleStatistic[0].totalExpense : 0} />
                     </div>
 
                     <div className="flex gap-x-4 h-3/5">
@@ -133,12 +191,10 @@ export const ManagerDashboard = () => {
                     </div>
                     <div className="flex flex-col gap-y-2 bg-gray-500/30 rounded-[20px] p-6 shadow-lg">
                         <p className="font-semibold text-xl">Inverntory Status</p>
-                        <OverviewTableLayoutWithTab tabs={[{ name: "In stock" }, { name: "Out stock" }]} columns={columnData} data={sampleData} />
+                        <OverviewTableLayoutWithTab tabs={[{ name: "In stock" }]} columns={stockCol} data={ingredients} />
                     </div>
                 </div>
             </div>
-
-
         </div>
     )
 }
