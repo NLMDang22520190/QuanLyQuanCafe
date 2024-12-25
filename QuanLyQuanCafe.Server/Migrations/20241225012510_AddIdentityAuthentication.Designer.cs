@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuanLyQuanCafe.Server.Models;
 
@@ -11,9 +12,11 @@ using QuanLyQuanCafe.Server.Models;
 namespace QuanLyQuanCafe.Server.Migrations
 {
     [DbContext(typeof(CoffeeManagementContext))]
-    partial class CoffeeManagementContextModelSnapshot : ModelSnapshot
+    [Migration("20241225012510_AddIdentityAuthentication")]
+    partial class AddIdentityAuthentication
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -750,21 +753,32 @@ namespace QuanLyQuanCafe.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StaffId"));
 
-                    b.Property<DateTime?>("DateEndWorking")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Address")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
-                    b.Property<DateTime>("DateStartedWorking")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("DateStartedWorking")
+                        .HasColumnType("date");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("StaffId")
                         .HasName("PK__Staffs__96D4AAF765015FDD");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Staff");
+                    b.ToTable("Staffs");
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.VoucherDetail", b =>
@@ -1015,20 +1029,6 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.Navigation("Shift");
 
                     b.Navigation("Staff");
-                });
-
-            modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Staff", b =>
-                {
-                    b.HasOne("QuanLyQuanCafe.Server.Models.ApplicationUser", "User")
-                        .WithMany("Staffs")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("QuanLyQuanCafe.Server.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("Staffs");
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Cart", b =>

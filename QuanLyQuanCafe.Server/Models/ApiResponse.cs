@@ -1,0 +1,11 @@
+﻿namespace QuanLyQuanCafe.Server.Models
+{
+    public class ApiResponse<T>
+    {
+        public int StatusCode { get; set; }
+        public required string Message { get; set; }
+        public T? Data { get; set; }
+        public  string? JwtToken { get; set; }
+    }
+
+}
