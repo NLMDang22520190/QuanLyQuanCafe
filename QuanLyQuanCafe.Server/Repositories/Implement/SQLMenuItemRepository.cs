@@ -42,23 +42,37 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             return mostSoldMenuItems;
         }
 
-        public Task<List<MenuItem>> GetMenuItemsByCategoryIdAsync(int categoryId)
-        {
-            var menuItems = dbContext.MenuItems
-                .Where(x => x.TypeOfFoodId == categoryId)
-                .ToListAsync();
+		// Get all menu items
+		public async Task<List<MenuItem>> GetAllMenuItemsAsync()
+		{
+			return await dbContext.MenuItems.ToListAsync();
+		}
 
-            return menuItems;
-        }
+		// Get menu item by ID
+		public async Task<MenuItem?> GetMenuItemByIdAsync(int ItemId)
+		{
+			return await dbContext.MenuItems.FirstOrDefaultAsync(x => x.ItemId == ItemId);
+		}
 
-        public async Task<List<MenuItem>> GetFeatureMenuItemAsync()
-        {
-            var randomMenuItems = await dbContext.MenuItems
-                .OrderBy(x => Guid.NewGuid()) // Sắp xếp ngẫu nhiên
-                .Take(8) // Lấy 8 món ăn ngẫu nhiên
-                .ToListAsync();
+		// Get menu items by category ID
+		public Task<List<MenuItem>> GetMenuItemsByCategoryIdAsync(int categoryId)
+		{
+			var menuItems = dbContext.MenuItems
+				.Where(x => x.TypeOfFoodId == categoryId)
+				.ToListAsync();
 
-            return randomMenuItems;
-        }
-    }
+			return menuItems;
+		}
+
+		// Get feature menu items (random 8 items)
+		public async Task<List<MenuItem>> GetFeatureMenuItemAsync()
+		{
+			var randomMenuItems = await dbContext.MenuItems
+				.OrderBy(x => Guid.NewGuid()) // Randomly order
+				.Take(8) // Take 8 random menu items
+				.ToListAsync();
+
+			return randomMenuItems;
+		}
+	}
 }

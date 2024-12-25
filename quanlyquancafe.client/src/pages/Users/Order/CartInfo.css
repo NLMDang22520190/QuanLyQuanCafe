@@ -1,145 +1,233 @@
-/* CartInfo.css */
-
 /* Cấu trúc chính của giỏ hàng */
 .cart-info {
-    max-width: 800px;
-    margin: 20px auto;
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-  }
-  
-  /* Header giỏ hàng */
-  .cart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .cart-header h3 {
-    font-size: 20px;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  .add-more {
-    padding: 8px 12px;
-    background-color: #ff7f00;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  
-  .add-more:hover {
-    background-color: #e66f00;
-  }
-  
-  /* Danh sách các món đã chọn */
-.cart-items-list {
-    margin-bottom: 20px;
-    min-height: 400px;
-    max-height: 400px;
-    overflow-y: auto;
-    padding-right: 10px;
-  }
-  
-  /* Tùy chỉnh thanh cuộn */
-  .cart-items-list::-webkit-scrollbar {
-    width: 7px;
-    background-color: #f1f1f1;
-  }
-  
-  .cart-items-list::-webkit-scrollbar-thumb {
-    background-color: #ff7f00; 
-    border-radius: 5px; 
-    transition: background-color 0.3s ease;
-  }
-  
-  .cart-items-list::-webkit-scrollbar-thumb:hover {
-    background-color: #e66f00;
-  }
-  
-  .cart-items-list::-webkit-scrollbar-track {
-    background-color: #f1f1f1;
-    border-radius: 5px;
-  }
-  
-  
-  /* Summary thông tin giỏ hàng */
-  .cart-summary {
-    margin-top: 20px;
-  }
-  
-  .cart-summary h3 {
-    font-size: 18px;
-    color: #333;
-  }
-  
-  .summary-item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-  
-  .summary-item p {
-    font-size: 16px;
-    color: #333;
-  }
-  
-  .discount {
-    font-size: 14px;
-    color: #ff7f00;
-    cursor: pointer;
-  }
-  
-  .discount:hover {
-    color: #e66f00;
-  }
-  
-  /* Tổng giá trị của giỏ hàng */
-  .total-amount {
-    display: flex;
-    justify-content: space-between;
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 20px;
-    padding-top: 10px;
-    border-top: 1px solid #f1f1f1;
-  }
-  
-  /* Nút xác nhận đơn hàng */
-  .confirm-order {
-    padding: 10px 15px;
-    background-color: #ff7f00;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 20px;
-    width: 100%;
-  }
-  
-  /* Nút xóa đơn hàng */
-  .delete-order {
-    position: relative;
-    top: -10px;
-    color:#e66f00;
-    font-size: 12px;
-    float: right;
-  }
+  max-width: 800px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
 
-  .delete-order:hover {
-    color: #ffd0a5;
-  }
-  
-  /* Cấu trúc footer giỏ hàng */
-  .cart-footer {
-    margin-top: 20px;
-  }
+/* Header giỏ hàng */
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.cart-header h3 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.add-more {
+  padding: 8px 12px;
+  background-color: #ff7f00;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.add-more:hover {
+  background-color: #e66f00;
+}
+
+/* Danh sách các món đã chọn */
+.cart-items-list {
+  margin-bottom: 20px;
+  min-height: 400px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Tùy chỉnh thanh cuộn */
+.cart-items-list::-webkit-scrollbar {
+  width: 7px;
+  background-color: #f1f1f1;
+}
+
+.cart-items-list::-webkit-scrollbar-thumb {
+  background-color: #ff7f00;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.cart-items-list::-webkit-scrollbar-thumb:hover {
+  background-color: #e66f00;
+}
+
+.cart-items-list::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+  border-radius: 5px;
+}
+
+/* Summary thông tin giỏ hàng */
+.cart-summary {
+  margin-top: 20px;
+}
+
+.cart-summary h3 {
+  font-size: 18px;
+  color: #333;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.summary-item p {
+  font-size: 16px;
+  color: #333;
+}
+
+.discount {
+  font-size: 14px;
+  color: #ff7f00;
+  cursor: pointer;
+}
+
+.discount:hover {
+  color: #e66f00;
+}
+
+/* Tổng giá trị của giỏ hàng */
+.total-amount {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f1f1;
+}
+
+/* Nút xác nhận đơn hàng */
+.confirm-order {
+  padding: 10px 15px;
+  background-color: #ff7f00;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+  width: 100%;
+}
+
+/* Nút xóa đơn hàng */
+.delete-order {
+  position: relative;
+  top: -10px;
+  color: #e66f00;
+  font-size: 12px;
+  float: right;
+}
+
+.delete-order:hover {
+  color: #ffd0a5;
+}
+
+/* Cấu trúc footer giỏ hàng */
+.cart-footer {
+  margin-top: 20px;
+}
+
+/* MenuItem - Tùy chỉnh cho các món trong giỏ hàng */
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #f1f1f1;
+  background-color: #fafafa;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.cart-item:hover {
+  background-color: #f0f0f0; /* Màu nền khi hover */
+}
+
+.item-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 70%; /* Dành phần lớn cho tên món ăn */
+}
+
+.item-details p {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.item-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.item-options span {
+  font-size: 14px;
+  color: #888;
+}
+
+.remove-item {
+  padding: 5px 10px;
+  background-color: #ff7f00;
+  color: white;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.remove-item:hover {
+  background-color: #e66f00;
+}
+
+.item-price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Adjust quantity buttons */
+.quantity-controls {
+  display: flex;
+  align-items: center;
+}
+
+.quantity-button {
+  padding: 5px 10px;
+  background-color: #ff7f00;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 0 5px;
+}
+
+.quantity-button:hover {
+  background-color: #e66f00;
+}
+
+.quantity-display {
+  font-size: 16px;
+  color: #333;
+  margin: 0 10px;
+}
   
