@@ -100,10 +100,10 @@ public partial class CoffeeManagementContext : IdentityDbContext<ApplicationUser
             entity.Property(e => e.ItemId).HasColumnName("ItemID");
             entity.Property(e => e.Notes).HasMaxLength(255);
 
-            entity.HasOne(d => d.Cart).WithMany(p => p.CartDetails)
-                .HasForeignKey(d => d.CartId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CartDetai__CartI__6EF57B66");
+            //entity.HasOne(d => d.Cart).WithMany(p => p.CartDetails)
+            //    .HasForeignKey(d => d.CartId)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK__CartDetai__CartI__6EF57B66");
 
             entity.HasOne(d => d.Item).WithMany(p => p.CartDetails)
                 .HasForeignKey(d => d.ItemId)

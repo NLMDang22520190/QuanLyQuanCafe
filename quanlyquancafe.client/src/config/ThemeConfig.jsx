@@ -2,9 +2,9 @@ import {theme} from 'antd';
 
 export const themeConfig = {
     token: {
-      colorPrimary: '#FEBA39', 
+      colorPrimary: '#ffc107', 
       colorPrimaryText: "#ffffff",
-      colorLink: '##FEBA39', 
+      colorLink: '#FEBA39', 
       colorSuccess: '#52c41a', 
       colorWarning: '#faad14', 
       colorError: '#f5222d', 
@@ -13,6 +13,7 @@ export const themeConfig = {
       backgroundColor: '#212121',
       colorBorder: '#FEBA39', // Set the border color to amber-500
       colorText: '#FFFFFF',
+      colorPrimaryHover: "#e0a806", 
 
       //Input
       colorInputBorder: '#FEBA39',
@@ -28,7 +29,7 @@ export const themeConfig = {
       optionSelectedBg: '#FEBA39',
       optionSelectedColor: '#FEBA39',
       optionHoverBg: '#FEBA39',
-    colorSelectBorder: '#FEBA39', // Set the border color of select to amber-500
+      colorSelectBorder: '#FEBA39', // Set the border color of select to amber-500
 
       //Table
       colorTable: '#FEBA39', 
@@ -52,6 +53,9 @@ export const themeConfig = {
     //Popover
     colorPopoverText: '#FEBA39',
 
+    //Button
+    solidTextColor: '#000000',
+    defaultTextColor: '#000000',
     },
     algorithm: theme.darkAlgorithm,
   };

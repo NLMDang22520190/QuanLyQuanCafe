@@ -16,4 +16,10 @@ public partial class VoucherDetail
     public DateOnly VoucherEndDate { get; set; }
 
     public int PercentDiscount { get; set; }
+
+    // Thuộc tính MinOrderAmount
+    public double MinOrderAmount { get; set; }
+
+    // Thuộc tính điểm áp dụng
+    public int PointsRequired { get; set; } 
 }
