@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
 using AutoMapper;
+using QuanLyQuanCafe.Server.Models.DTO.ADD;
 using QuanLyQuanCafe.Server.Models.DTO.GET;
+using QuanLyQuanCafe.Server.Models.DTO.UPDATE;
 using QuanLyQuanCafe.Server.Repositories;
 using QuanLyQuanCafe.Server.Mapping;
 
@@ -114,31 +116,77 @@ namespace QuanLyQuanCafe.Server.Controllers
             }
         }
 
-        //[HttpGet("FeatureProducts")]
-        //public async Task<IActionResult> GetFeatureProducts()
-        //{
-        //    var menuItemDomain = await _menuItemRepo.GetFeatureMenuItemAsync();
-        //    if (menuItemDomain == null)
-        //    {
-        //        return NotFound($"No feature prods found");
-        //    }
+        [HttpGet("FeatureProducts")]
+        public async Task<IActionResult> GetFeatureProducts()
+        {
+            var menuItemDomain = await _menuItemRepository.GetFeatureMenuItemAsync();
+            if (menuItemDomain == null)
+            {
+                return NotFound($"No feature prods found");
+            }
 
-        //    return Ok(_mapper.Map<List<FeatureMenuItemDTO>>(menuItemDomain));
-        //}
+            return Ok(_mapper.Map<List<FeatureMenuItemDTO>>(menuItemDomain));
+        }
 
-        //[HttpGet("GetProdByCategoryId/{categoryId}")]
-        //public async Task<IActionResult> GetProdsByCategoryId(int categoryId)
-        //{
-        //    var menuItemDomain = await _menuItemRepo.GetMenuItemsByCategoryIdAsync(categoryId);
-        //    if (menuItemDomain == null)
-        //    {
-        //        return NotFound($"No prods by {categoryId} found");
-        //    }
+        [HttpGet("GetProdByCategoryId/{categoryId}")]
+        public async Task<IActionResult> GetProdsByCategoryId(int categoryId)
+        {
+            var menuItemDomain = await _menuItemRepository.GetMenuItemsByCategoryIdAsync(categoryId);
+            if (menuItemDomain == null)
+            {
+                return NotFound($"No prods by {categoryId} found");
+            }
 
-        //    return Ok(_mapper.Map<List<ItemOnMenuPageDTO>>(menuItemDomain));
+            return Ok(_mapper.Map<List<ItemOnMenuPageDTO>>(menuItemDomain));
+        }
+
+        [HttpPost("AddProduct")]
+        public async Task<IActionResult> AddProduct([FromBody] AddItemRequestDTO requestDto)
+        {
+            try
+            {
+                var menuItemDomain = _mapper.Map<MenuItem>(requestDto);
+                menuItemDomain = await _menuItemRepository.CreateAsync(menuItemDomain);
+
+                if(menuItemDomain == null)
+                {
+                    return BadRequest("Error adding product");
+                }
+                return Ok("Product added successfully!" + menuItemDomain.ItemId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error adding product: {ex.Message}");
+            }
+        }
+
+        [HttpPut("UpdateProduct")]
+        public async Task<IActionResult> UpdateProduct([FromBody] UpdateItemRequestDTO requestDto)
+        {
+            try
+            {
+                var menuItemDomain = _mapper.Map<MenuItem>(requestDto);
+                menuItemDomain = await _menuItemRepository.UpdateAsync(f => f.ItemId == requestDto.ItemId, m =>
+                {
+                    m.ItemName = requestDto.ItemName;
+                    m.Description = requestDto.Description;
+                    m.Price = requestDto.Price;
+                    m.Picture = requestDto.Picture;
+                    m.TypeOfFoodId = requestDto.TypeOfFoodId;
+                });
+                if (menuItemDomain == null)
+                {
+                    return NotFound($"Product with ID {requestDto.ItemId} not found.");
+                }
+                return Ok("Product updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while updating product:" + ex.Message });
+            }
+        }
     }
+}
 
-
-
-    }
 

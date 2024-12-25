@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Collections.Generic;
 using QuanLyQuanCafe.Server.Models.DTOs;
 using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Repositories;
@@ -14,7 +16,6 @@ namespace QuanLyQuanCafe.Server.Controllers
 	{
 		private readonly IOrderRepository _orderRepository;
 
-
 		public OrderController(IOrderRepository orderRepository)
 		{
 			_orderRepository = orderRepository;
@@ -27,8 +28,6 @@ namespace QuanLyQuanCafe.Server.Controllers
 			return Ok(orderSummaries);
 		}
 
-
-
 		[HttpGet("{orderId}")]
 		public async Task<IActionResult> GetOrderById(int orderId)
 		{
@@ -39,6 +38,14 @@ namespace QuanLyQuanCafe.Server.Controllers
 			}
 			return Ok(order);
 		}
+
+		[HttpGet("pending")]
+		public async Task<IActionResult> GetPendingOrders()
+		{
+			var orders = await _orderRepository.GetPendingOrdersAsync();
+			return Ok(orders);
+		}
+		
 
 		[HttpGet("user/{userId}")]
 		public async Task<IActionResult> GetOrdersByUserId(string userId)
@@ -73,5 +80,8 @@ namespace QuanLyQuanCafe.Server.Controllers
 			return NoContent();
 		}
 
+
+
 	}
 }
+

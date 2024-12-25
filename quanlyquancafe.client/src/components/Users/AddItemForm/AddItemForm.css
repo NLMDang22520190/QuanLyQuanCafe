@@ -1,0 +1,93 @@
+/* Styling for the AddItemForm */
+.add-item-form {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Dark background overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .add-item-form form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .add-item-form h3 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .add-item-form label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #555;
+  }
+  
+  .add-item-form input,
+  .add-item-form textarea,
+  .add-item-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+  
+  .add-item-form input[type="number"] {
+    max-width: 100px;
+  }
+  
+  .add-item-form textarea {
+    min-height: 80px;
+  }
+  
+  .add-item-form select {
+    max-width: 200px;
+  }
+  
+  .add-item-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #ff7f00;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+  }
+  
+  .add-item-form button:hover {
+    background-color: #e66f00;
+  }
+  
+  .add-item-form .cancel-btn {
+    background-color: #ccc;
+    margin-top: 10px;
+  }
+  
+  .add-item-form .cancel-btn:hover {
+    background-color: #bbb;
+  }
+  
+  /* Styling for the form controls to be well aligned */
+  .add-item-form form label,
+  .add-item-form form input,
+  .add-item-form form textarea,
+  .add-item-form form select {
+    font-family: Arial, sans-serif;
+  }
+  

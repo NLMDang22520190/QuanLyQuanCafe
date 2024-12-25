@@ -63,10 +63,11 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                     ms => ms.SalaryId,
                     s => s.SalaryId,
                     (ms, s) => new { ms.Month, s.HourWage, ms.TotalHours })
-                .GroupBy(ms => ms.Month)
+                .GroupBy(ms => new { ms.Month, Period = 0 })
                 .Select(ms => new MonthSalaryStatisticDTO
                 {
-                    Month = ms.Key,
+                    Day = (ms.Key.Period * 5 + 1).ToString(),
+                    Month = ms.Key.Month,
                     TotalHours = ms.Sum(m => m.TotalHours),
                     TotalSalaryPayed = ms.Sum(s => s.HourWage * s.TotalHours)
                 })

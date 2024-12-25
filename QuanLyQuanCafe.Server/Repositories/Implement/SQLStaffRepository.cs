@@ -9,6 +9,9 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         public SQLStaffRepository(CoffeeManagementContext dbContext) : base(dbContext)
         {
         }
+
+        
+
         public async Task<List<Staff>> GetStaffNotInShiftAsync(int shiftId, DateOnly startDate, DateOnly endDate)
         {
             var staffInShift = await dbContext.Schedules
@@ -24,6 +27,18 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             return staffNotInShift;
         }
+
+        public Task<List<Staff>> GetNewestStaffAsync(int count)
+        {
+            var newestStaffs = dbContext.Staffs
+                .OrderByDescending(s => s.DateStartedWorking)
+                .Take(count)
+                .ToListAsync();
+
+            return newestStaffs;
+        }
+
+        
 
     }
 }
