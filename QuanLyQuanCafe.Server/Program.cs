@@ -16,6 +16,7 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader());
 });
 
+
 // Đọc ConnectionString từ appsettings.json
 Console.WriteLine("connection string: " + builder.Configuration.GetConnectionString("se100-db"));
 builder.Services.AddDbContext<CoffeeManagementContext>(options =>
@@ -32,12 +33,13 @@ builder.Services.AddScoped<IScheduleRepository, SQLScheduleRepository>();
 builder.Services.AddScoped<IStaffRepository, SQLStaffRepository>();
 builder.Services.AddScoped<IMonthSalaryRepository, SQLMonthSalaryRepository>();
 builder.Services.AddScoped<IAttendanceRepository, SQLAttendanceRepository>();
+builder.Services.AddScoped<IIngredientRepository, SQLIngredientRepository>();
+builder.Services.AddScoped<IImportRecordRepository, SQLImportRecordRepository>();
 builder.Services.AddScoped<IFoodTypeRepository, SQLFoodTypeRepository>();
 builder.Services.AddScoped<IMenuItemRepository, SQLMenuItemRepository>();
 builder.Services.AddScoped<IVoucherDetailRepository, SQLVoucherDetailRepository>();
 builder.Services.AddScoped<IOrderDetailRepository, SQLOrderDetailRepository>();
 builder.Services.AddScoped<IOrderRepository, SQLOrderRepository>();
-builder.Services.AddScoped<IIngredientRepository, SQLIngredientRepository>();
 
 var app = builder.Build();
 
@@ -54,8 +56,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+
 app.UseHttpsRedirection();
 app.Urls.Add("https://localhost:7087");
+app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();

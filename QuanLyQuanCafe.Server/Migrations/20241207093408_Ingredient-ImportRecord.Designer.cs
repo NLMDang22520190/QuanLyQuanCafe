@@ -12,8 +12,8 @@ using QuanLyQuanCafe.Server.Models;
 namespace QuanLyQuanCafe.Server.Migrations
 {
     [DbContext(typeof(CoffeeManagementContext))]
-    [Migration("20241206023358_month-salary-2")]
-    partial class monthsalary2
+    [Migration("20241207093408_Ingredient-ImportRecord")]
+    partial class IngredientImportRecord
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -247,12 +247,6 @@ namespace QuanLyQuanCafe.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IngredientId"));
 
-                    b.Property<DateOnly>("DateImported")
-                        .HasColumnType("date");
-
-                    b.Property<DateOnly>("ExpiryDate")
-                        .HasColumnType("date");
-
                     b.Property<double>("ImportPrice")
                         .HasColumnType("float");
 
@@ -276,7 +270,7 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.HasKey("IngredientId")
                         .HasName("PK__Ingredie__BEAEB27AD332FD81");
 
-                    b.ToTable("Ingredients");
+                    b.ToTable("Ingredient");
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.ItemRecipe", b =>
