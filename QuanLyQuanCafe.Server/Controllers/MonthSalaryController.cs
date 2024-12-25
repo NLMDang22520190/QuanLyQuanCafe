@@ -35,5 +35,25 @@ namespace QuanLyQuanCafe.Server.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while processing your request.", details = ex.Message });
             }
         }
+
+        [HttpGet("statistics")]
+        public async Task<IActionResult> GetMonthSalaryStatistics()
+        {
+            try
+            {
+                var monthSalaryStatistics = await _monthSalaryRepos.GetTotalMonthSalariesByMonthsAsync();
+
+                if (monthSalaryStatistics == null || monthSalaryStatistics.Count == 0)
+                {
+                    return NotFound(new { message = "No month salary statistics found." });
+                }
+
+                return Ok(monthSalaryStatistics);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while processing your request.", details = ex.Message });
+            }
+        }
     }
 }
