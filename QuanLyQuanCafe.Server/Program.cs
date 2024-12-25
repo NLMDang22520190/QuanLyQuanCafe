@@ -10,6 +10,19 @@ var builder = WebApplication.CreateBuilder(args);
 Console.WriteLine("connection string: "+ builder.Configuration.GetConnectionString("se100-db"));
 builder.Services.AddDbContext<CoffeeManagementContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("se100-db")));
+
+// Thêm CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        policy =>
+        {
+            policy.AllowAnyOrigin() // Hoặc chỉ định cụ thể: .WithOrigins("https://localhost:5173")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -44,6 +57,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowAllOrigins");
 
 app.UseHttpsRedirection();
 app.Urls.Add("https://localhost:7087");
