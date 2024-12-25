@@ -27,5 +27,6 @@ public partial class CustomerDetail
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    
+    public virtual ApplicationUser? User { get; set; }
 }

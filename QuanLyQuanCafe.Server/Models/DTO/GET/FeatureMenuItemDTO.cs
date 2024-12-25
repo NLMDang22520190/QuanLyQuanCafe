@@ -6,7 +6,8 @@
 
         public string ItemName { get; set; } = null!;
 
-       
+        public string Description { get; set; } = null!;
+
         public double Price { get; set; }
 
         public string? Picture { get; set; }

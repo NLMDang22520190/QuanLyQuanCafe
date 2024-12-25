@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -22,6 +23,6 @@ public partial class ImportRecord
     [Required]
     public double ImportPrice { get; set; }
 
-    public virtual Ingredient Ingredient { get; set; } = null!;
+    public virtual Ingredient? Ingredient { get; set; }
 
 }

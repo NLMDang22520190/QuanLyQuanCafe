@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTOs;
 
 namespace QuanLyQuanCafe.Server.Repositories.Implement
 {
@@ -28,7 +29,12 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 								   .ToListAsync();
 		}
 
-		public async Task<bool> UpdateOrderStateAsync(int orderId, string newState)
+        public Task<List<OrderStatisticDTO>> GetTotalOrderAmountByMonths()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> UpdateOrderStateAsync(int orderId, string newState)
 		{
 			var order = await _dbContext.Orders.FindAsync(orderId);
 			if (order != null)
@@ -53,5 +59,20 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 			}
 			return false;
 		}
+    
+    Task<List<OrderStatisticDTO>> IOrderRepository.GetTotalOrderAmountByMonths()
+        {
+            var totalOrderAmountByMonth = dbContext.Orders
+                .GroupBy(o => new { o.OrderTime.Year, o.OrderTime.Month })
+                .Select(g => new OrderStatisticDTO
+                {
+                    Month = g.Key.Year + "-" + g.Key.Month,
+                    TotalIncome = g.Sum(o => o.TotalPrice)
+                })
+                .ToListAsync();
+
+            return totalOrderAmountByMonth;
+        }
+        
 	}
 }
