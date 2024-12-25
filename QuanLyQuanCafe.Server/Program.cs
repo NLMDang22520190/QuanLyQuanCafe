@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
+using QuanLyQuanCafe.Server.Mapping;
 using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Repositories;
 using QuanLyQuanCafe.Server.Repositories.Implement;
@@ -35,11 +36,21 @@ builder.Services.AddScoped<IMonthSalaryRepository, SQLMonthSalaryRepository>();
 builder.Services.AddScoped<IAttendanceRepository, SQLAttendanceRepository>();
 builder.Services.AddScoped<IIngredientRepository, SQLIngredientRepository>();
 builder.Services.AddScoped<IImportRecordRepository, SQLImportRecordRepository>();
+
 builder.Services.AddScoped<IFoodTypeRepository, SQLFoodTypeRepository>();
 builder.Services.AddScoped<IMenuItemRepository, SQLMenuItemRepository>();
 builder.Services.AddScoped<IVoucherDetailRepository, SQLVoucherDetailRepository>();
 builder.Services.AddScoped<IOrderDetailRepository, SQLOrderDetailRepository>();
 builder.Services.AddScoped<IOrderRepository, SQLOrderRepository>();
+builder.Services.AddScoped<ICartRepository, SQLCartRepository>();
+
+builder.Services.AddScoped<ICartDetailRepository, SQLCartDetailRepository>();
+builder.Services.AddScoped<IVoucherDetailRepository, SQLVoucherDetailRepository>();
+
+builder.Services.AddScoped(typeof(ICoffeeManagementRepository<>), typeof(CoffeeManagementRepository<>));
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
 
 var app = builder.Build();
 
