@@ -8,8 +8,8 @@
 
         public int Quantity { get; set; }
 
-        public virtual MenuItemDTO Item { get; set; } = null!;
+        public virtual MenuItemInRecipeDTO Item { get; set; } = null!;
 
-        public virtual IngredientDTO Ingredient { get; set; } = null!;
+        public virtual IngredientInRecipeDTO Ingredient { get; set; } = null!;
     }
 }
