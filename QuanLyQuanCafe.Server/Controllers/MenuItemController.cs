@@ -6,6 +6,7 @@ using QuanLyQuanCafe.Server.Models;
 using AutoMapper;
 using QuanLyQuanCafe.Server.Models.DTO.GET;
 using QuanLyQuanCafe.Server.Repositories;
+using QuanLyQuanCafe.Server.Mapping;
 
 namespace QuanLyQuanCafe.Server.Controllers
 {
@@ -14,11 +15,14 @@ namespace QuanLyQuanCafe.Server.Controllers
     [ApiController]
     public class MenuItemController : ControllerBase
     {
-        private readonly IMenuItemRepository _menuItemRepo;
 
-        public MenuItemController(IMenuItemRepository menuItemRepo)
+        private readonly IMenuItemRepository _menuItemRepository;
+        private readonly IMapper _mapper;
+
+        public MenuItemController(IMenuItemRepository menuItemRepo, IMapper mapper)
         {
-            _menuItemRepo = menuItemRepo;
+            _menuItemRepository = menuItemRepo;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -26,7 +30,7 @@ namespace QuanLyQuanCafe.Server.Controllers
         {
             try
             {
-                var menuItems = await _menuItemRepo.GetAllAsync();
+                var menuItems = await _menuItemRepository.GetAllAsync();
 
                 if (menuItems == null || !menuItems.Any())
                 {
@@ -47,7 +51,7 @@ namespace QuanLyQuanCafe.Server.Controllers
         {
             try
             {
-                var menuItem = await _menuItemRepo.GetByIdAsync(f => f.ItemId == id);
+                var menuItem = await _menuItemRepository.GetByIdAsync(f => f.ItemId == id);
                 if (menuItem == null)
                 {
                     return NotFound($"Menu item with ID {id} not found.");
@@ -67,7 +71,7 @@ namespace QuanLyQuanCafe.Server.Controllers
         {
             try
             {
-                var menuItem = await _menuItemRepo.GetByIdAsync(f => f.ItemId == id);
+                var menuItem = await _menuItemRepository.GetByIdAsync(f => f.ItemId == id);
                 if (menuItem == null)
                 {
                     return NotFound($"Menu item with ID {id} not found.");
@@ -82,7 +86,7 @@ namespace QuanLyQuanCafe.Server.Controllers
                     menuItem.State = "Available";
                 }
 
-                await _menuItemRepo.UpdateAsync(f => f.ItemId == menuItem.ItemId, m => m.State = menuItem.State);
+                await _menuItemRepository.UpdateAsync(f => f.ItemId == menuItem.ItemId, m => m.State = menuItem.State);
 
                 return Ok("Product availability changed successfully.");
             }
@@ -98,8 +102,8 @@ namespace QuanLyQuanCafe.Server.Controllers
         {
             try
             {
-                var mostSoldMenuItems = await _menuItemRepo.GetMostSoldMenuItems().ToListAsync();
-                var leastSoldMenuItems = await _menuItemRepo.GetLeastSoldMenuItems().ToListAsync();
+                var mostSoldMenuItems = await _menuItemRepository.GetMostSoldMenuItems().ToListAsync();
+                var leastSoldMenuItems = await _menuItemRepository.GetLeastSoldMenuItems().ToListAsync();
 
                 return Ok(new { mostSoldMenuItems, leastSoldMenuItems });
             }

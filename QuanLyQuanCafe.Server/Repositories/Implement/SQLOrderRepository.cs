@@ -29,7 +29,12 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 								   .ToListAsync();
 		}
 
-		public async Task<bool> UpdateOrderStateAsync(int orderId, string newState)
+        public Task<List<OrderStatisticDTO>> GetTotalOrderAmountByMonths()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> UpdateOrderStateAsync(int orderId, string newState)
 		{
 			var order = await _dbContext.Orders.FindAsync(orderId);
 			if (order != null)

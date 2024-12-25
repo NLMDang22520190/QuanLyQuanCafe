@@ -18,6 +18,10 @@ namespace QuanLyQuanCafe.Server.Controllers
 		{
 			_orderRepository = orderRepository;
 		}
+		public OrderController(IOrderRepository orderRepository)
+		{
+			_orderRepository = orderRepository;
+		}
 
 		[HttpGet("statistics")]
 		public async Task<ActionResult<List<OrderStatisticDTO>>> GetOrderStatistics()
@@ -30,6 +34,7 @@ namespace QuanLyQuanCafe.Server.Controllers
 		public async Task<IActionResult> GetOrderById(int orderId)
 		{
 			var order = await _orderRepository.GetOrderByIdAsync(orderId);
+			var order = await _orderRepository.GetOrderByIdAsync(orderId);
 			if (order == null)
 			{
 				return NotFound($"No order found with OrderId {orderId}");
@@ -40,6 +45,7 @@ namespace QuanLyQuanCafe.Server.Controllers
 		[HttpGet("user/{userId}")]
 		public async Task<IActionResult> GetOrdersByUserId(string userId)
 		{
+			var orders = await _orderRepository.GetOrdersByUserIdAsync(userId);
 			var orders = await _orderRepository.GetOrdersByUserIdAsync(userId);
 			if (orders == null || !orders.Any())
 			{
@@ -52,6 +58,7 @@ namespace QuanLyQuanCafe.Server.Controllers
 		public async Task<IActionResult> UpdateOrderState(int orderId, [FromBody] string newState)
 		{
 			var updated = await _orderRepository.UpdateOrderStateAsync(orderId, newState);
+			var updated = await _orderRepository.UpdateOrderStateAsync(orderId, newState);
 			if (!updated)
 			{
 				return NotFound($"Order with OrderId {orderId} not found.");
@@ -63,6 +70,7 @@ namespace QuanLyQuanCafe.Server.Controllers
 		public async Task<IActionResult> UpdatePaymentMethod(int orderId, [FromBody] string paymentMethod)
 		{
 			var updated = await _orderRepository.UpdatePaymentMethodAsync(orderId, paymentMethod);
+			var updated = await _orderRepository.UpdatePaymentMethodAsync(orderId, paymentMethod);
 			if (!updated)
 			{
 				return NotFound($"Order with OrderId {orderId} not found.");
@@ -70,5 +78,6 @@ namespace QuanLyQuanCafe.Server.Controllers
 			return NoContent();
 		}
 
+	}
 	}
 }

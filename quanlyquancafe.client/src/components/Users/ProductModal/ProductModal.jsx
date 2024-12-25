@@ -1,9 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Radio, Button } from "flowbite-react";
+import { Modal, Radio, Button, Checkbox } from "flowbite-react";
 
 const ProductModal = ({ product, open, onClose }) => {
   const [modalSize, setModalSize] = useState("sm");
   const [quantity, setQuantity] = useState(1); // Số lượng món
+  const [selectedToppings, setSelectedToppings] = useState([]);
+
+  const handleToppingChange = (e) => {
+    const { value, checked } = e.target;
+
+    if (checked) {
+      setSelectedToppings((prev) => [...prev, value]); // Thêm topping
+    } else {
+      setSelectedToppings((prev) =>
+        prev.filter((topping) => topping !== value)
+      ); // Xóa topping
+    }
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -171,7 +184,7 @@ const ProductModal = ({ product, open, onClose }) => {
               </label>
             </div>
             <div className="flex items-center ">
-              <input
+              <Radio
                 type="radio"
                 name="size"
                 id="size-large"
@@ -187,6 +200,47 @@ const ProductModal = ({ product, open, onClose }) => {
             <span className="text-justify text-sm text-gray-800 pl-4">
               Chọn topping (Tuỳ chọn)
             </span>
+          </div>
+          <div className="flex px-4 justify-between">
+            <div className="flex items-center">
+              <Checkbox
+                type="checkbox"
+                name="topping"
+                onChange={handleToppingChange}
+                id="topping-cream"
+                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200"
+              />
+              <label htmlFor="topping-cream" className="flex-1 text-gray-700">
+                Thêm kem
+                <span className="inline-block w-full">+ 5.000đ</span>
+              </label>
+            </div>
+            <div className="flex items-center">
+              <Checkbox
+                type="checkbox"
+                onChange={handleToppingChange}
+                name="topping"
+                id="topping-boba"
+                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200"
+              />
+              <label htmlFor="topping-boba" className="flex-1 text-gray-700">
+                Trân châu
+                <span className="inline-block w-full">+ 10.000đ</span>
+              </label>
+            </div>
+            <div className="flex items-center">
+              <Checkbox
+                type="checkbox"
+                name="topping"
+                onChange={handleToppingChange}
+                id="topping-almond"
+                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200"
+              />
+              <label htmlFor="topping-almond" className="flex-1 text-gray-700">
+                Hạnh nhân
+                <span className="inline-block w-full">+ 7.000đ</span>
+              </label>
+            </div>
           </div>
         </div>
       </Modal.Body>
