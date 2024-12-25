@@ -24,7 +24,7 @@ public partial class CoffeeManagementContext : IdentityDbContext<ApplicationUser
 
     public virtual DbSet<CartDetail> CartDetails { get; set; }
 
-    public virtual DbSet<CustomerDetail> CustomerDetails { get; set; }
+    //public virtual DbSet<CustomerDetail> CustomerDetails { get; set; }
 
     public virtual DbSet<FoodType> FoodTypes { get; set; }
 
@@ -82,13 +82,13 @@ public partial class CoffeeManagementContext : IdentityDbContext<ApplicationUser
             entity.ToTable("Cart");
 
             entity.Property(e => e.CartId).HasColumnName("CartID");
-            entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
+            //entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.LastUpdated).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Customer).WithMany(p => p.Carts)
-                .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Cart__CustomerID__6C190EBB");
+            //entity.HasOne(d => d.Customer).WithMany(p => p.Carts)
+            //    .HasForeignKey(d => d.CustomerId)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK__Cart__CustomerID__6C190EBB");
         });
 
         modelBuilder.Entity<CartDetail>(entity =>
@@ -111,25 +111,25 @@ public partial class CoffeeManagementContext : IdentityDbContext<ApplicationUser
                 .HasConstraintName("FK__CartDetai__ItemI__6FE99F9F");
         });
 
-        modelBuilder.Entity<CustomerDetail>(entity =>
-        {
-            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64B89610DD0D");
+        //modelBuilder.Entity<CustomerDetail>(entity =>
+        //{
+        //    entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64B89610DD0D");
 
-            entity.HasIndex(e => e.UserId, "UQ__Customer__1788CCADA42D5552").IsUnique();
+        //    entity.HasIndex(e => e.UserId, "UQ__Customer__1788CCADA42D5552").IsUnique();
 
-            entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
-            entity.Property(e => e.AccountStatus)
-                .HasMaxLength(20)
-                .HasDefaultValue("Active");
-            entity.Property(e => e.CustomerAddress).HasMaxLength(255);
-            entity.Property(e => e.CustomerName).HasMaxLength(100);
-            entity.Property(e => e.CustomerPhone).HasMaxLength(15);
-            entity.Property(e => e.CustomerPoint).HasDefaultValue(0);
-            entity.Property(e => e.CustomerStatus)
-                .HasMaxLength(20)
-                .HasDefaultValue("Normal");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
-        });
+        //    entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
+        //    entity.Property(e => e.AccountStatus)
+        //        .HasMaxLength(20)
+        //        .HasDefaultValue("Active");
+        //    entity.Property(e => e.CustomerAddress).HasMaxLength(255);
+        //    entity.Property(e => e.CustomerName).HasMaxLength(100);
+        //    entity.Property(e => e.CustomerPhone).HasMaxLength(15);
+        //    entity.Property(e => e.CustomerPoint).HasDefaultValue(0);
+        //    entity.Property(e => e.CustomerStatus)
+        //        .HasMaxLength(20)
+        //        .HasDefaultValue("Normal");
+        //    entity.Property(e => e.UserId).HasColumnName("UserID");
+        //});
 
         modelBuilder.Entity<FoodType>(entity =>
         {
@@ -201,15 +201,15 @@ public partial class CoffeeManagementContext : IdentityDbContext<ApplicationUser
             entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BAFC52D5F48");
 
             entity.Property(e => e.OrderId).HasColumnName("OrderID");
-            entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
+            entity.Property(e => e.UserId).HasColumnName("UserId");
             entity.Property(e => e.OrderState).HasMaxLength(20);
             entity.Property(e => e.OrderTime).HasColumnType("datetime");
             entity.Property(e => e.PaymentMethod).HasMaxLength(50);
 
-            entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
-                .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Orders__Customer__628FA481");
+            //entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
+            //    .HasForeignKey(d => d.CustomerId)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK__Orders__Customer__628FA481");
         });
 
         modelBuilder.Entity<OrderDetail>(entity =>

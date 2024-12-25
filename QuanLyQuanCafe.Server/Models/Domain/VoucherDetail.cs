@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyQuanCafe.Server.Models;
-
 public partial class VoucherDetail
 {
     public int VoucherId { get; set; }

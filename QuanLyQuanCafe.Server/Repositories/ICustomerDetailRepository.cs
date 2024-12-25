@@ -1,8 +1,8 @@
-﻿using QuanLyQuanCafe.Server.Models;
+﻿//using QuanLyQuanCafe.Server.Models;
 
-namespace QuanLyQuanCafe.Server.Repositories
-{
-    public interface ICustomerDetailRepository : ICoffeeManagementRepository<CustomerDetail>
-    {
-    }
-}
+//namespace QuanLyQuanCafe.Server.Repositories
+//{
+//    public interface ICustomerDetailRepository : ICoffeeManagementRepository<CustomerDetail>
+//    {
+//    }
+//}

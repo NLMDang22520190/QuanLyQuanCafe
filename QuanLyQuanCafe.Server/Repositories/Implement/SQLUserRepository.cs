@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using QuanLyQuanCafe.Server.Helpers;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTOs;
 using QuanLyQuanCafe.Server.Models.RequestModels;
 using QuanLyQuanCafe.Server.Repositories;
 using System.IdentityModel.Tokens.Jwt;
@@ -63,7 +65,8 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             var user = new ApplicationUser
             {
                 Email = model.Email,
-                UserName = model.Email
+                UserName = model.Email,
+                isActive=true
             };
 
             var result = await userManager.CreateAsync(user, model.Password);
@@ -79,5 +82,55 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             }
             return result;
         }
+        public async Task<bool> ActivateAccountAsync(string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+
+            user.isActive = true;
+            var result = await userManager.UpdateAsync(user);
+
+            return result.Succeeded;
+        }
+
+        public async Task<bool> DisableAccountAsync(string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+
+            user.isActive = false; 
+            var result = await userManager.UpdateAsync(user);
+
+            return result.Succeeded;
+        }
+        public async Task<List<UserModel>> GetUsersAsync(int pageIndex, int pageSize)
+        {
+
+            var users = await userManager.Users
+                                          .Skip((pageIndex - 1) * pageSize) 
+                                          .Take(pageSize)                  
+                                          .ToListAsync();
+
+            var userWithRoles = new List<UserModel>();
+
+            foreach (var user in users)
+            {
+                var roles = await userManager.GetRolesAsync(user); 
+                var role = roles.FirstOrDefault();
+
+                userWithRoles.Add(new UserModel
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    UserName = user.UserName,
+                    IsActive = user.isActive,
+                    Role = role 
+                });
+            }
+
+            return userWithRoles;
+        }
+
     }
+
 }
