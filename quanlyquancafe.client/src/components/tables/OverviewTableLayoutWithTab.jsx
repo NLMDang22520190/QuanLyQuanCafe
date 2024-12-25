@@ -6,8 +6,15 @@ import { StatusBadge } from "../badges/StatusBadge";
 import { CircleButton } from '../buttons/CircleButton'
 import { useState } from "react";
 
-export const OverviewTableLayoutWithTab = ({ columns = [], data = [], tabs = [{name: "Tab 1"}, {name: "Tab 2"}] }) => {
+export const OverviewTableLayoutWithTab = ({ columns = [], data = [], tabs = [{name: "Tab 1"}, {name: "Tab 2"}], onTabChange }) => {
     const [currentTab, setCurrentTab] = useState(0);
+
+    const handleTabChange = (index) => {
+        setCurrentTab(index);
+        if (onTabChange) {
+            onTabChange(index);
+        }
+    };
 
     const displayedData = data.slice(0,5);
     
@@ -23,10 +30,7 @@ export const OverviewTableLayoutWithTab = ({ columns = [], data = [], tabs = [{n
                         {tabs.map((tab, index) => (
                             <li key={tab.name} role="presentation">
                                 <button
-                                    onClick={() => {
-                                       
-                                        setCurrentTab(index);
-                                    }}
+                                    onClick={() => handleTabChange(index)}
                                     className={`inline-block p-4 border-b-2 rounded-t-lg ${
                                         currentTab === index ? 'border-amber-500 text-amber-500' : ''
                                     }`}
@@ -76,7 +80,7 @@ export const OverviewTableLayoutWithTab = ({ columns = [], data = [], tabs = [{n
                                         </td>
                                     ) : (
                                         <td key={`col-${index}-${colIndex}`} className="px-4 justify-items-start">
-                                            <p>{row[column.key]}</p>
+                                            <p className="text-lg">{row[column.key]}</p>
                                         </td>
                                     )
 

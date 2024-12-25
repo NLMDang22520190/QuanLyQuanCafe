@@ -38,7 +38,21 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
         public IQueryable<MenuItem> GetMostSoldMenuItems()
         {
-            var mostSoldMenuItems = this.GetLeastSoldMenuItems().Reverse();
+            var mostSoldMenuItems = (
+            from menuItem in _dbContext.MenuItems
+            join orderDetail in _dbContext.OrderDetails on menuItem.ItemId equals orderDetail.ItemId into menuItemOrderDetails
+            let totalQuantitySold = menuItemOrderDetails.Sum(od => od.Quantity)
+            orderby totalQuantitySold descending
+            select new MenuItem
+            {
+                ItemId = menuItem.ItemId,
+                ItemName = menuItem.ItemName,
+                Price = menuItem.Price,
+                Picture = menuItem.Picture,
+                TypeOfFoodId = menuItem.TypeOfFoodId,
+                TypeOfFood = menuItem.TypeOfFood,
+                OrderDetails = menuItem.OrderDetails,
+            }).Take(10).AsQueryable();
             return mostSoldMenuItems;
         }
 
