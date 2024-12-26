@@ -104,7 +104,7 @@ const StaffDetail = ({ staff, visible, onCancel }) => {
           columns={hourlyWageHistoryColumns}
           dataSource={salaryHistoryData}
           rowKey="date"
-          pagination={3}
+          pagination={{ pageSize: 2 }}
           bordered
           title={() => <span className="custom-table-title">Hourly Wage History</span>}
         />
@@ -114,7 +114,7 @@ const StaffDetail = ({ staff, visible, onCancel }) => {
           columns={monthlySalaryColumns}
           dataSource={monthlySalaryData}
           rowKey="month"
-          pagination={3}
+          pagination={{ pageSize: 2 }}
           bordered
           
           title={() => <span className="custom-table-title">Monthly Salary</span>}

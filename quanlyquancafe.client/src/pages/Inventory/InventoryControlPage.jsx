@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { RoundedButton } from "../../components/buttons/RoundedButton";
-import { Table } from "antd";
+import { Modal, Table, Input, Select, Switch, Button, Checkbox, Pagination } from 'antd';
 import { RoundedTextField } from "../../components/textfields/RoundedTextField";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -8,14 +8,19 @@ import { StatusBadge } from "../../components/badges/StatusBadge";
 
 export const InventoryControlPage = () => {
     const navigate = useNavigate();
+
     const [searchQuery, setSearchQuery] = useState("");
     const [rowMaterialsData, setRowMaterialsData] = useState([]);
     const [importRecordsData, setImportRecordsData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [currentTab, setCurrentTab] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(7);
+    const [totalItems, setTotalItems] = useState(0);
 
     const rowMaterialColumns = [
         {
+
             title: "Item Code",
             dataIndex: "id",
             key: "id",
@@ -42,17 +47,14 @@ export const InventoryControlPage = () => {
             render: (text) => <StatusBadge status={text} label={text} />,
         },
         {
-            title: "Action",
-            key: "action",
-            render: (_, record) => (
-                <button
-                    onClick={() => navigate(`/inventory/edit/${record.id}`)}
-                    className="text-blue-500 underline"
-                >
-                    Edit
-                </button>
-            ),
-        },
+            title: '',
+            dataIndex: 'action',
+            key: 'action',
+            render: (text, record) => <Button onClick={() => setIsProductDetailModalVisible(true)} type="text"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            </Button>
+        }
     ];
 
    
@@ -88,24 +90,29 @@ export const InventoryControlPage = () => {
     const fetchRowMaterials = async () => {
         try {
             const response = await axios.get("https://localhost:7087/api/ingredient");
-            const ingredients = response.data.map((item) => ({
+
+            const items = response.data || [];
+            const ingredients = items.map((item) => ({
                 id: item.ingredientId,
                 name: item.ingredientName,
                 stock: item.quantityInStock,
                 dom: item.unit,
                 status: item.quantityInStock > 0 ? "In Stock" : "Out of Stock",
             }));
-            setRowMaterialsData(ingredients);
-            if (currentTab === 0) setFilteredData(ingredients);
+    
+            setRowMaterialsData(ingredients); 
+            setTotalItems(ingredients.length); 
         } catch (error) {
             console.error("Failed to fetch ingredients", error);
         }
     };
+    
+    
+    
 
     
-    const fetchImportRecords = async () => {
+    const fetchImportRecords = async (page = 1, size = 5) => {
         try {
-            // Fetch Ingredient data
             const ingredientsResponse = await axios.get("https://localhost:7087/api/ingredient");
             const ingredientMapping = ingredientsResponse.data.reduce((map, item) => {
                 map[item.ingredientId] = item.ingredientName;
@@ -113,7 +120,10 @@ export const InventoryControlPage = () => {
             }, {});
     
           
-            const importRecordsResponse = await axios.get("https://localhost:7087/api/import-record");
+            const importRecordsResponse = await axios.get("https://localhost:7087/api/import-record", {
+                params: {page, pageSize: size},
+            });
+            const { items, total } = importRecordsResponse.data;
             const records = importRecordsResponse.data.map((record) => ({
                 importRecordId: record.importRecordId,
                 ingredientId: record.ingredientId,
@@ -123,6 +133,7 @@ export const InventoryControlPage = () => {
                 importPrice: record.importPrice,
             }));
             setImportRecordsData(records);
+            setTotalItems(total);
         } catch (error) {
             console.error("Failed to fetch import records or ingredients", error);
         }
@@ -130,21 +141,27 @@ export const InventoryControlPage = () => {
     
   
     useEffect(() => {
-        fetchRowMaterials();
-        fetchImportRecords();
-    }, []);
+        if (currentTab === 0) {
+            fetchRowMaterials();
+        } else if (currentTab === 1) {
+            fetchImportRecords(currentPage, pageSize);
+        }
+    }, [currentTab]);
 
-    
     useEffect(() => {
         if (currentTab === 0) {
             const filtered = rowMaterialsData.filter((item) =>
                 item.name.toLowerCase().includes(searchQuery.toLowerCase())
             );
-            setFilteredData(filtered);
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            setFilteredData(filtered.slice(startIndex, endIndex));
+            setTotalItems(filtered.length);
         } else if (currentTab === 1) {
             setFilteredData(importRecordsData);
         }
-    }, [searchQuery, currentTab, rowMaterialsData, importRecordsData]);
+    }, [searchQuery, currentPage, pageSize, currentTab, rowMaterialsData, importRecordsData]);
+
 
     const categories = [
         { name: "Row Materials" },
@@ -162,11 +179,11 @@ export const InventoryControlPage = () => {
                         {categories.map((tab, index) => (
                             <li key={tab.name} role="presentation">
                                 <button
-                                    onClick={() => setCurrentTab(index)}
+                                    onClick={() => {setCurrentTab(index);  setCurrentPage(1);}}
                                     className={`inline-block p-4 border-b-2 rounded-t-lg ${
                                         currentTab === index ? "border-amber-500 text-amber-500" : ""
                                     }`}
-                                >
+                                >``
                                     {tab.name}
                                 </button>
                             </li>
@@ -174,6 +191,7 @@ export const InventoryControlPage = () => {
                     </ul>
                 </div>
                 <div className="flex gap-x-2">
+
              
                     <RoundedTextField
                         onValueChange={(value) => setSearchQuery(value)}
@@ -212,12 +230,20 @@ export const InventoryControlPage = () => {
             </div>
     
             <div className="max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)]">
-                {currentTab === 0 && (
-                    <Table columns={rowMaterialColumns} dataSource={filteredData} rowKey="id" />
-                )}
-                {currentTab === 1 && (
-                    <Table columns={importRecordColumns} dataSource={filteredData} rowKey="importRecordId" />
-                )}
+            <Table
+                    columns={currentTab === 0 ? rowMaterialColumns : importRecordColumns}
+                    dataSource={filteredData}
+                    rowKey={currentTab === 0 ? "id" : "importRecordId"}
+                    pagination={{
+                        current: currentPage,
+                        pageSize,
+                        total: totalItems,
+                        onChange: (page, size) => {
+                            setCurrentPage(page);
+                            setPageSize(size);
+                        },
+                    }}
+                />
             </div>
         </div>
     );
