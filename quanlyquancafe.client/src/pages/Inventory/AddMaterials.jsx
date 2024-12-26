@@ -1,171 +1,191 @@
 import React, { useState, useEffect } from "react";
-import { RoundedButton } from "../../components/buttons/RoundedButton";
-import { RoundedTextField } from "../../components/textfields/RoundedTextField";
-import { RoundedComboBox } from "../../components/combobox/RoundedComboBox";
+import { Input, Button, Select, DatePicker, Form, Row, Col, Typography, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import moment from "moment";
+
+const { Title, Text } = Typography;
 
 export const AddMaterials = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [form] = Form.useForm();
 
-    const [currentDateTime, setCurrentDateTime] = useState(""); 
-    const [materialName, setMaterialName] = useState(""); 
-    const [unit, setUnit] = useState(""); 
-    const [quantity, setQuantity] = useState(0); 
-    const [price, setPrice] = useState(0); 
-    const [totalPrice, setTotalPrice] = useState(0); 
+  const [currentDateTime, setCurrentDateTime] = useState(moment().format("YYYY-MM-DD")); 
+  const [totalPrice, setTotalPrice] = useState(0);
 
-    useEffect(() => {
-        const now = new Date();
-        const formattedDateTime = now.toISOString().split("T")[0]; 
-        setCurrentDateTime(formattedDateTime);
-    }, []);
+  const handleSave = async (values) => {
+    const { materialName, unit, quantity, price } = values;
 
-    useEffect(() => {
-        setTotalPrice(price * quantity);
-    }, [price, quantity]);
+    if (!materialName || !unit || quantity <= 0 || price <= 0) {
+      message.error("Vui lòng nhập đầy đủ thông tin bắt buộc.");
+      return;
+    }
 
-    const handleSave = async () => {
-        console.log("Tên mặt hàng:", materialName);
-        console.log("Đơn vị tính:", unit);
-        console.log("Số lượng:", quantity);
-        console.log("Giá:", price);
-
-        if (!materialName || !unit || quantity <= 0 || price <= 0) {
-            alert("Vui lòng nhập đầy đủ thông tin bắt buộc.");
-            return;
-        }
-
-        const newMaterial = {
-            newRecord: {
-                ingredientId: 0, 
-                dateImport: currentDateTime,
-                quantityImport: quantity,
-                importPrice: price,
-            },
-            ingredientName: materialName, 
-            unit: unit, 
-        };
-
-        console.log("Payload gửi đi:", newMaterial);
-
-        try {
-            const response = await axios.post("https://localhost:7087/api/import-record", newMaterial);
-
-            if (response.status === 201) {
-                alert("Nhập nguyên liệu thành công!");
-                navigate("/inventory");
-            }
-        } catch (error) {
-            console.error("Lỗi khi lưu nguyên liệu:", error.response?.data || error.message);
-            alert(error.response?.data?.error || "Không thể lưu nguyên liệu. Vui lòng thử lại.");
-        }
+    const newMaterial = {
+      newRecord: {
+        ingredientId: 0,
+        dateImport: currentDateTime,
+        quantityImport: quantity,
+        importPrice: price,
+      },
+      ingredientName: materialName,
+      unit: unit,
     };
 
-    return (
-        <div className="flex flex-col md:flex-row p-6 bg-gray-800 h-screen gap-8 text-gray-200">
-            <div className="w-full md:w-1/3 flex flex-col items-center gap-4">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 border-4 border-yellow-500">
-                        <img
-                            src="https://cdn-icons-png.flaticon.com/512/147/147144.png"
-                            alt="Default Profile"
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
-                    <p className="text-lg text-yellow-500 font-semibold">Name Admin</p>
-                </div>
+    try {
+      const response = await axios.post("https://localhost:7087/api/import-record", newMaterial);
+
+      if (response.status === 201) {
+        message.success("Nhập nguyên liệu thành công!");
+        navigate("/inventory");
+      }
+    } catch (error) {
+      console.error("Lỗi khi lưu nguyên liệu:", error.response?.data || error.message);
+      message.error(error.response?.data?.error || "Không thể lưu nguyên liệu. Vui lòng thử lại.");
+    }
+  };
+
+  const handleFormChange = (_, allValues) => {
+    const { price, quantity } = allValues;
+    const total = (price || 0) * (quantity || 0);
+    setTotalPrice(total);
+  };
+
+  return (
+    <div style={{ padding: "24px", backgroundColor: "#1f2937", minHeight: "100vh", color: "#fff" }}>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={8}>
+          <div style={{ textAlign: "center" }}>
+            <div
+              style={{
+                width: "128px",
+                height: "128px",
+                margin: "0 auto",
+                borderRadius: "50%",
+                overflow: "hidden",
+                backgroundColor: "#fff",
+                border: "4px solid #fadb14",
+              }}
+            >
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/147/147144.png"
+                alt="Default Profile"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
             </div>
+            <Text strong style={{ color: "#fadb14", fontSize: "16px" }}>
+              Name Admin
+            </Text>
+          </div>
+        </Col>
 
-            <div className="w-full md:w-2/3 bg-gray-900 p-6 rounded-lg shadow-md">
-                <h2 className="text-xl font-bold mb-6 text-yellow-500">Nhập nguyên liệu</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">   
-                    <RoundedTextField
-                        label="Tên mặt hàng (*)"
-                        value={materialName}
-                        onValueChange={(newValue) => setMaterialName(newValue)}
-                        textColor="text-gray-200"
-                        bgColor="bg-gray-800"
-                    />
+        <Col xs={24} md={16}>
+          <div style={{ backgroundColor: "#111827", padding: "24px", borderRadius: "8px" }}>
+            <Title level={4} style={{ color: "#fadb14" }}>
+              Nhập nguyên liệu
+            </Title>
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleSave}
+              onValuesChange={handleFormChange}
+              initialValues={{
+                materialName: "",
+                unit: "",
+                quantity: 0,
+                price: 0,
+                dateImport: moment(currentDateTime, "YYYY-MM-DD"),
+              }}
+            >
+              <Row gutter={[16, 16]}>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label="Tên mặt hàng (*)"
+                    name="materialName"
+                    rules={[{ required: true, message: "Vui lòng nhập tên mặt hàng." }]}
+                  >
+                    <Input placeholder="Tên mặt hàng" />
+                  </Form.Item>
+                </Col>
 
-               
-                    <RoundedTextField
-                        label="Ngày nhập"
-                        value={currentDateTime}
-                        readOnly={true}
-                        textColor="text-gray-200"
-                        style="border-gray-700 rounded-md"
-                        width="100%"
-                        height="40px"
+                <Col xs={24} md={12}>
+                  <Form.Item label="Ngày nhập" name="dateImport">
+                    <DatePicker
+                      style={{ width: "100%" }}
+                      format="YYYY-MM-DD"
+                      disabled
+                      value={moment(currentDateTime, "YYYY-MM-DD")}
                     />
+                  </Form.Item>
+                </Col>
 
-           
-                    <RoundedComboBox
-                        placeholder="--Chọn đơn vị--"
-                        label="Đơn vị tính (*)"
-                        options={[
-                            { value: "kg", label: "Kilogram" },
-                            { value: "pcs", label: "Piece" },
-                            { value: "ltr", label: "Liter" },
-                        ]}
-                        value={unit}
-                        onValueChange={(value) => setUnit(value)}
-                        textColor="text-gray-200"
-                        bgColor="bg-gray-800"
-                    />
-                </div>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label="Đơn vị tính (*)"
+                    name="unit"
+                    rules={[{ required: true, message: "Vui lòng chọn đơn vị tính." }]}
+                  >
+                    <Select placeholder="--Chọn đơn vị--">
+                      <Select.Option value="kg">Kilogram</Select.Option>
+                      <Select.Option value="pcs">Piece</Select.Option>
+                      <Select.Option value="ltr">Liter</Select.Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
 
-           
-                <div className="mt-6">
-                    <h3 className="font-semibold text-lg text-yellow-500">Giá nguyên liệu</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                        {/* Giá */}
-                        <RoundedTextField
-                            placeholder="Giá (*)"
-                            label="Giá (*)"
-                            value={price}
-                            onValueChange={(newValue) => setPrice(Number(newValue) || 0)}
-                            textColor="text-gray-200"
-                            bgColor="bg-gray-800"
-                        />
-             
-                        <RoundedTextField
-                            placeholder="Số lượng (*)"
-                            label="Số lượng (*)"
-                            value={quantity}
-                            onValueChange={(newValue) => setQuantity(Number(newValue) || 0)}
-                            textColor="text-gray-200"
-                            bgColor="bg-gray-800"
-                        />
-           
-                        <RoundedTextField
-                            placeholder="0 đ"
-                            label="Thành tiền (*)"
-                            value={totalPrice.toLocaleString("vi-VN", {
-                                style: "currency",
-                                currency: "VND",
-                            })}
-                            readOnly
-                            textColor="text-gray-200"
-                            bgColor="bg-gray-800"
-                        />
-                    </div>
-                </div>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label="Giá (*)"
+                    name="price"
+                    rules={[{ required: true, message: "Vui lòng nhập giá." }]}
+                  >
+                    <Input
+                      type="number"
+                      placeholder="Nhập giá"
+                      min={0}
+                    />
+                  </Form.Item>
+                </Col>
 
-       
-                <div className="flex justify-between items-center mt-8">
-                    <RoundedButton
-                        label="Quay lại"
-                        onClick={() => navigate("/inventory")}
-                        className="bg-gray-600 hover:bg-gray-700 text-gray-200 px-6 py-2 rounded-md"
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    label="Số lượng (*)"
+                    name="quantity"
+                    rules={[{ required: true, message: "Vui lòng nhập số lượng." }]}
+                  >
+                    <Input
+                      type="number"
+                      placeholder="Nhập số lượng"
+                      min={0}
                     />
-                    <RoundedButton
-                        label="Lưu lại"
-                        onClick={handleSave}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-black px-6 py-2 rounded-md"
+                  </Form.Item>
+                </Col>
+
+                <Col xs={24} md={12}>
+                  <Form.Item label="Thành tiền">
+                    <Input
+                      value={totalPrice.toLocaleString("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                      readOnly
                     />
-                </div>
-            </div>
-        </div>
-    );
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "16px" }}>
+                <Button onClick={() => navigate("/inventory")} style={{ backgroundColor: "#374151", color: "#fff" }}>
+                  Quay lại
+                </Button>
+                <Button type="primary" htmlType="submit" style={{ backgroundColor: "#fadb14", borderColor: "#fadb14" }}>
+                  Lưu lại
+                </Button>
+              </div>
+            </Form>
+          </div>
+        </Col>
+      </Row>
+    </div>
+  );
 };
