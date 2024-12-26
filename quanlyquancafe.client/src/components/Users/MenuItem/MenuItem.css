@@ -1,63 +1,135 @@
-/* MenuItem.css */
+/* MenuItem - Tùy chỉnh cho các món trong giỏ hàng */
 .cart-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    border-bottom: 1px solid #f1f1f1;
-    background-color: #fafafa;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .cart-item:hover {
-    background-color: #f0f0f0; /* Màu nền khi hover */
-  }
-  
-  .item-details {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 80%; /* Dành phần lớn cho tên món ăn */
-  }
-  
-  .item-details p {
-    margin: 5px 0;
-    font-size: 16px;
-    color: #333;
-  }
-  
-  .item-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 5px;
-  }
-  
-  .item-options span {
-    font-size: 14px;
-    color: #888;
-  }
-  
-  .remove-item {
-    padding: 5px 10px;
-    background-color: #ff7f00;
-    color: white;
-    font-size: 14px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .remove-item:hover {
-    background-color: #e66f00;
-  }
-  
-  .item-price {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-  }
-  
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Align items to the top */
+  padding: 15px;
+  border-bottom: 1px solid #f1f1f1;
+  background-color: #fafafa;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.cart-item:hover {
+  background-color: #f0f0f0; /* Màu nền khi hover */
+}
+
+.item-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 80%; /* Dành phần lớn cho tên món ăn và thông tin khác */
+}
+
+.item-details p {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.item-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.item-options span {
+  font-size: 14px;
+  color: #888;
+}
+
+.remove-item,
+.edit-item-button {
+  padding: 5px 10px;
+  background-color: #ff7f00;
+  color: white;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.remove-item:hover,
+.edit-item-button:hover {
+  background-color: #e66f00;
+}
+
+.item-price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Form for editing */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 50px;
+}
+
+select {
+  cursor: pointer;
+}
+
+button {
+  margin-top: 10px;
+}
+
+/* Container for the Remove and Edit buttons */
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Align buttons to the right */
+  justify-content: space-between;
+}
+
+/* Edit Item button */
+.edit-item-button {
+  background-color: transparent;
+  color: #ff7f00; /* Highlight color */
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-item-button:hover {
+  background-color: #f1f1f1; /* Light background on hover */
+}
+
+/* Size options styling */
+.size-options {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.size-options select {
+  width: 100%;
+  padding: 8px;
+}
+
+/* Style for labels */
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 5px;
+  display: block; /* Ensures the label is displayed above the input */
+}

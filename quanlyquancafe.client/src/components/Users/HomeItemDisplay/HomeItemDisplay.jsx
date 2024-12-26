@@ -1,19 +1,21 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const HomeItemDisplay = () => {
+const HomeItemDisplay = ({ product }) => {
   return (
     <Link className="">
       <div className="bg-white w-full rounded-lg shadow-2xl p-4">
         <img
-          src="https://placehold.co/300x300"
+          src={product.picture}
           alt="Strawberry drink with cheese"
           className="w-full rounded-lg"
         />
         <div className="mt-2">
-          <h3 className="text-lg font-bold mt-2">Dâu Phô Mai Tươi</h3>
+          <h3 className="text-lg font-bold mt-2 line-clamp-1">
+            {product.name}
+          </h3>
           <div className="flex justify-between items-center 0">
-            <p>55.000 đ</p>
+            <p>{product.price} đ</p>
             <div className=" flex items-center justify-center">
               <button className="p-2 rounded-full font-medium bg-primary-200 text-white w-fit transition-all shadow-[3px_3px_0px_black] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px]">
                 <svg

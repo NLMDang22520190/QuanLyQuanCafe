@@ -1,9 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Radio, Button } from "flowbite-react";
+import { Modal, Radio, Button, Checkbox } from "flowbite-react";
 
 const ProductModal = ({ product, open, onClose }) => {
   const [modalSize, setModalSize] = useState("sm");
   const [quantity, setQuantity] = useState(1); // Số lượng món
+  const [selectedToppings, setSelectedToppings] = useState([]);
+
+  const handleToppingChange = (e) => {
+    const { value, checked } = e.target;
+
+    if (checked) {
+      setSelectedToppings((prev) => [...prev, value]); // Thêm topping
+    } else {
+      setSelectedToppings((prev) =>
+        prev.filter((topping) => topping !== value)
+      ); // Xóa topping
+    }
+  };
+
+  const formatPrice = (price) => {
+    return price.toLocaleString("vi-VN") + "đ";
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -52,19 +69,16 @@ const ProductModal = ({ product, open, onClose }) => {
       <Modal.Body className="p-0">
         <div className="flex flex-col">
           <img
-            src={product.image}
+            src={product.picture}
             alt={product.alt}
             className="w-full object-cover rounded-3xl p-4"
           />
           <span className="font-semibold text-base px-4">{product.name}</span>
           <p className="text-gray-600 text-sm mt-2 px-4">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores
-            aliquam numquam voluptatem, iste exercitationem, vitae ullam earum
-            adipisci velit maxime quae dolorem ipsam animi. Sunt ducimus
-            assumenda officiis error rerum.
+            {product.description}
           </p>
           <div className="flex items-center justify-between mt-4 px-4">
-            <span className="text-base my-2">65.000đ</span>
+            <span className="text-base my-2">{formatPrice(product.price)}</span>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleDecrease}
@@ -171,7 +185,7 @@ const ProductModal = ({ product, open, onClose }) => {
               </label>
             </div>
             <div className="flex items-center ">
-              <input
+              <Radio
                 type="radio"
                 name="size"
                 id="size-large"
@@ -187,6 +201,47 @@ const ProductModal = ({ product, open, onClose }) => {
             <span className="text-justify text-sm text-gray-800 pl-4">
               Chọn topping (Tuỳ chọn)
             </span>
+          </div>
+          <div className="flex px-4 justify-between mb-8">
+            <div className="flex items-center">
+              <Checkbox
+                type="checkbox"
+                name="topping"
+                onChange={handleToppingChange}
+                id="topping-cream"
+                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200"
+              />
+              <label htmlFor="topping-cream" className="flex-1 text-gray-700">
+                Thêm kem
+                <span className="inline-block w-full">+ 5.000đ</span>
+              </label>
+            </div>
+            <div className="flex items-center">
+              <Checkbox
+                type="checkbox"
+                onChange={handleToppingChange}
+                name="topping"
+                id="topping-boba"
+                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200"
+              />
+              <label htmlFor="topping-boba" className="flex-1 text-gray-700">
+                Trân châu
+                <span className="inline-block w-full">+ 10.000đ</span>
+              </label>
+            </div>
+            <div className="flex items-center">
+              <Checkbox
+                type="checkbox"
+                name="topping"
+                onChange={handleToppingChange}
+                id="topping-almond"
+                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200"
+              />
+              <label htmlFor="topping-almond" className="flex-1 text-gray-700">
+                Hạnh nhân
+                <span className="inline-block w-full">+ 7.000đ</span>
+              </label>
+            </div>
           </div>
         </div>
       </Modal.Body>

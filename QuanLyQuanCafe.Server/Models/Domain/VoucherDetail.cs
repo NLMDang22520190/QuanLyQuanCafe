@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyQuanCafe.Server.Models;
-
 public partial class VoucherDetail
 {
     public int VoucherId { get; set; }
@@ -16,4 +16,10 @@ public partial class VoucherDetail
     public DateOnly VoucherEndDate { get; set; }
 
     public int PercentDiscount { get; set; }
+
+    // Thuộc tính MinOrderAmount
+    public double MinOrderAmount { get; set; }
+
+    // Thuộc tính điểm áp dụng
+    public int PointsRequired { get; set; } 
 }

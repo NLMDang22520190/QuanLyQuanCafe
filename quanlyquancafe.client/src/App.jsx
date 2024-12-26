@@ -17,10 +17,10 @@ function App() {
           <AllRoutes />
         </AppLayout>
 
-        /* <>
+        {/* <>
           <Navbar />
           <AllUserRoutes />
-        </> */
+        </>  */}
       </div>
     </ConfigProvider>
   );

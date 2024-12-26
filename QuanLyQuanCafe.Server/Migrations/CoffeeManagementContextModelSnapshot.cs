@@ -22,6 +22,222 @@ namespace QuanLyQuanCafe.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("QuanLyQuanCafe.Server.Models.ApplicationUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CustomerPoint")
+                        .HasColumnType("int");
+
+                    b.Property<string>("District")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PhotoUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Ward")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("isActive")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Attendance", b =>
                 {
                     b.Property<int>("AttendanceId")
@@ -61,17 +277,16 @@ namespace QuanLyQuanCafe.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartId"));
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int")
-                        .HasColumnName("CustomerID");
-
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("datetime");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("CartId")
                         .HasName("PK__Cart__51BCD79719E1986C");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Cart", (string)null);
                 });
@@ -111,6 +326,7 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.HasIndex("ItemId");
 
                     b.ToTable("CartDetails");
+
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.CustomerDetail", b =>
@@ -167,6 +383,7 @@ namespace QuanLyQuanCafe.Server.Migrations
                         .IsUnique();
 
                     b.ToTable("CustomerDetails");
+
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Domain.MonthSalary", b =>
@@ -213,6 +430,7 @@ namespace QuanLyQuanCafe.Server.Migrations
                         .HasName("PK__FoodType__A86DA8FF9F87DB0B");
 
                     b.ToTable("FoodTypes");
+
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Image", b =>
@@ -234,6 +452,7 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.HasKey("ImageId");
 
                     b.ToTable("Image");
+
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.ImportRecord", b =>
@@ -391,10 +610,6 @@ namespace QuanLyQuanCafe.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int")
-                        .HasColumnName("CustomerID");
-
                     b.Property<string>("OrderState")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -411,13 +626,17 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.Property<double>("TotalPrice")
                         .HasColumnType("float");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)")
+                        .HasColumnName("UserId");
+
                     b.Property<int?>("VoucherApplied")
                         .HasColumnType("int");
 
                     b.HasKey("OrderId")
                         .HasName("PK__Orders__C3905BAFC52D5F48");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Orders");
                 });
@@ -554,27 +773,14 @@ namespace QuanLyQuanCafe.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StaffId"));
 
-                    b.Property<string>("Address")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                    b.Property<DateTime?>("DateEndWorking")
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateOnly>("DateStartedWorking")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("DateStartedWorking")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("StaffId")
                         .HasName("PK__Staffs__96D4AAF765015FDD");
@@ -619,6 +825,7 @@ namespace QuanLyQuanCafe.Server.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.VoucherDetail", b =>
@@ -630,7 +837,13 @@ namespace QuanLyQuanCafe.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VoucherId"));
 
+                    b.Property<double>("MinOrderAmount")
+                        .HasColumnType("float");
+
                     b.Property<int>("PercentDiscount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PointsRequired")
                         .HasColumnType("int");
 
                     b.Property<string>("VoucherCode")
@@ -656,6 +869,59 @@ namespace QuanLyQuanCafe.Server.Migrations
                         .IsUnique();
 
                     b.ToTable("VoucherDetails");
+
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("QuanLyQuanCafe.Server.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("QuanLyQuanCafe.Server.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QuanLyQuanCafe.Server.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("QuanLyQuanCafe.Server.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Attendance", b =>
@@ -671,22 +937,20 @@ namespace QuanLyQuanCafe.Server.Migrations
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Cart", b =>
                 {
-                    b.HasOne("QuanLyQuanCafe.Server.Models.CustomerDetail", "Customer")
-                        .WithMany("Carts")
-                        .HasForeignKey("CustomerId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Cart__CustomerID__6C190EBB");
+                    b.HasOne("QuanLyQuanCafe.Server.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
-                    b.Navigation("Customer");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.CartDetail", b =>
                 {
                     b.HasOne("QuanLyQuanCafe.Server.Models.Cart", "Cart")
-                        .WithMany("CartDetails")
+                        .WithMany()
                         .HasForeignKey("CartId")
-                        .IsRequired()
-                        .HasConstraintName("FK__CartDetai__CartI__6EF57B66");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("QuanLyQuanCafe.Server.Models.MenuItem", "Item")
                         .WithMany("CartDetails")
@@ -753,13 +1017,11 @@ namespace QuanLyQuanCafe.Server.Migrations
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Order", b =>
                 {
-                    b.HasOne("QuanLyQuanCafe.Server.Models.CustomerDetail", "Customer")
-                        .WithMany("Orders")
-                        .HasForeignKey("CustomerId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Orders__Customer__628FA481");
+                    b.HasOne("QuanLyQuanCafe.Server.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
-                    b.Navigation("Customer");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.OrderDetail", b =>
@@ -811,28 +1073,18 @@ namespace QuanLyQuanCafe.Server.Migrations
                     b.Navigation("Staff");
                 });
 
-            modelBuilder.Entity("QuanLyQuanCafe.Server.Models.User", b =>
+            modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Staff", b =>
                 {
-                    b.HasOne("QuanLyQuanCafe.Server.Models.CustomerDetail", "Customer")
-                        .WithMany("Users")
-                        .HasForeignKey("CustomerId")
-                        .HasConstraintName("FK__Users__CustomerI__4222D4EF");
+                    b.HasOne("QuanLyQuanCafe.Server.Models.ApplicationUser", "User")
+                        .WithMany("Staffs")
+                        .HasForeignKey("UserId");
 
-                    b.Navigation("Customer");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("QuanLyQuanCafe.Server.Models.Cart", b =>
+            modelBuilder.Entity("QuanLyQuanCafe.Server.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("CartDetails");
-                });
-
-            modelBuilder.Entity("QuanLyQuanCafe.Server.Models.CustomerDetail", b =>
-                {
-                    b.Navigation("Carts");
-
-                    b.Navigation("Orders");
-
-                    b.Navigation("Users");
+                    b.Navigation("Staffs");
                 });
 
             modelBuilder.Entity("QuanLyQuanCafe.Server.Models.FoodType", b =>

@@ -1,33 +1,118 @@
-// MenuItem.jsx
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
-import "./MenuItem.css"; // Import CSS
+import "./MenuItem.css";
 
-const MenuItem = ({ name, quantity, size, price, onRemove }) => {
+const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
+  const [quantity, setQuantity] = useState(item.quantity);
+  const [notes, setNotes] = useState(item.notes || "");
+  const [size, setSize] = useState(item.size || "Medium");
+
+  const handleSave = () => {
+    if (quantity < 1) {
+      alert("Số lượng phải lớn hơn 0!");
+      return;
+    }
+
+    onSaveEdit(item.itemId, { quantity, notes, size });
+  };
+
   return (
     <div className="cart-item">
       <div className="item-details">
-        <p>
-          {quantity} x {name}
-        </p>
-        <div className="item-options">
-          <span>{size}</span>
-          <p className="item-price">{price.toLocaleString()}đ</p>
-        </div>
+        {editMode ? (
+          <div className="edit-mode">
+            {/* Quantity */}
+            <div className="form-group">
+              <label htmlFor={`quantity-${item.itemId}`}>Số lượng:</label>
+              <input
+                id={`quantity-${item.itemId}`}
+                type="number"
+                value={quantity}
+                min="1"
+                onChange={(e) => setQuantity(Number(e.target.value))}
+              />
+            </div>
+
+            {/* Notes */}
+            <div className="form-group">
+              <label htmlFor={`notes-${item.itemId}`}>Ghi chú:</label>
+              <textarea
+                id={`notes-${item.itemId}`}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Ghi chú đặc biệt"
+              />
+            </div>
+
+            {/* Size */}
+            <div className="form-group">
+              <label htmlFor={`size-${item.itemId}`}>Kích thước:</label>
+              <select
+                id={`size-${item.itemId}`}
+                value={size}
+                onChange={(e) => setSize(e.target.value)}
+              >
+                <option value="Small">Nhỏ</option>
+                <option value="Medium">Vừa</option>
+                <option value="Large">Lớn</option>
+              </select>
+            </div>
+
+            {/* Buttons */}
+            <div className="edit-buttons">
+              <button className="save-button" onClick={handleSave}>
+                Lưu
+              </button>
+              <button className="cancel-button" onClick={onEditToggle}>
+                Hủy
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p>
+              {quantity} x {item.item.itemName}
+            </p>
+            <div className="item-options">
+              <span>Kích thước: {size}</span>
+              <p className="item-price">{item.item.price.toLocaleString()}đ</p>
+              <p>Ghi chú: {notes || "Không có"}</p>
+            </div>
+          </>
+        )}
       </div>
-      <button className="remove-item" onClick={onRemove}>
-        Xóa
-      </button>
+
+      <div className="button-container">
+        {!editMode && (
+          <>
+            <button className="remove-item" onClick={onRemove}>
+              Xóa
+            </button>
+            <button className="edit-item-button" onClick={onEditToggle}>
+              Sửa
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 };
 
 MenuItem.propTypes = {
-  name: PropTypes.string.isRequired,
-  quantity: PropTypes.number.isRequired,
-  size: PropTypes.string.isRequired,
-  price: PropTypes.number.isRequired,
+  item: PropTypes.shape({
+    itemId: PropTypes.number.isRequired,
+    quantity: PropTypes.number.isRequired,
+    notes: PropTypes.string,
+    size: PropTypes.string,
+    item: PropTypes.shape({
+      itemName: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired,
+    }).isRequired,
+  }).isRequired,
+  editMode: PropTypes.bool.isRequired,
   onRemove: PropTypes.func.isRequired,
+  onEditToggle: PropTypes.func.isRequired,
+  onSaveEdit: PropTypes.func.isRequired,
 };
 
 export default MenuItem;

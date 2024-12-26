@@ -4,6 +4,7 @@ using QuanLyQuanCafe.Server.Models;
 
 namespace QuanLyQuanCafe.Server.Repositories
 {
+
     public interface IOrderDetailRepository : ICoffeeManagementRepository<OrderDetail>
     {
         Task<IEnumerable<OrderDetail>> GetOrderDetailsByOrderIdAsync(int orderId);
@@ -13,3 +14,5 @@ namespace QuanLyQuanCafe.Server.Repositories
         Task<bool> DeleteOrderDetailsByOrderIdAsync(int orderId);
     }
 }
+
+	

@@ -6,6 +6,7 @@ using QuanLyQuanCafe.Server.Models;
 
 namespace QuanLyQuanCafe.Server.Repositories.Implement
 {
+
     public class SQLOrderDetailRepository : CoffeeManagementRepository<OrderDetail>, IOrderDetailRepository
     {
         private readonly CoffeeManagementContext _dbContext;
@@ -65,3 +66,4 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         }
     }
 }
+
