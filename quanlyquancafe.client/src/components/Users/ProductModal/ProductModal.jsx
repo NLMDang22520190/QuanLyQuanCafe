@@ -1,20 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Radio, Button, Checkbox } from "flowbite-react";
 
-const ProductModal = ({ product, open, onClose }) => {
+const ProductModal = ({ product, open, onClose, onAddToCart, cartID }) => {
   const [modalSize, setModalSize] = useState("sm");
-  const [quantity, setQuantity] = useState(1); // Số lượng món
+  const [quantity, setQuantity] = useState(1);
   const [selectedToppings, setSelectedToppings] = useState([]);
+  const [note, setNote] = useState("");
+
+  useEffect(() => {
+    if (open) {
+      setSelectedToppings([]); // Reset topping khi modal mở
+      setQuantity(1); // Reset số lượng khi modal mở
+      setNote(""); // Reset ghi chú khi modal mở
+    }
+  }, [open]);
+
+  const sizeOptions = [
+    { id: "size-small", label: "Nhỏ", price: "+ 0đ" },
+    { id: "size-medium", label: "Vừa", price: "+ 4.000đ" },
+    { id: "size-large", label: "Lớn", price: "+ 10.000đ" },
+  ];
+
+  const toppingOptions = [
+    { id: "topping-cream", label: "Thêm kem", price: "+ 5.000đ" },
+    { id: "topping-boba", label: "Trân châu", price: "+ 10.000đ" },
+    { id: "topping-almond", label: "Hạnh nhân", price: "+ 7.000đ" },
+  ];
 
   const handleToppingChange = (e) => {
-    const { value, checked } = e.target;
-
+    const { id, checked } = e.target;
     if (checked) {
-      setSelectedToppings((prev) => [...prev, value]); // Thêm topping
+      setSelectedToppings((prev) => [...prev, id]);
     } else {
-      setSelectedToppings((prev) =>
-        prev.filter((topping) => topping !== value)
-      ); // Xóa topping
+      setSelectedToppings((prev) => prev.filter((topping) => topping !== id));
     }
   };
 
@@ -25,21 +43,17 @@ const ProductModal = ({ product, open, onClose }) => {
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
-        setModalSize("sm"); // màn hình lg
+        setModalSize("sm");
       } else if (window.innerWidth >= 768) {
-        setModalSize("lg"); // màn hình md
+        setModalSize("lg");
       } else {
-        setModalSize("xl"); // màn hình sm
+        setModalSize("xl");
       }
     };
 
-    // Gọi ngay lập tức để thiết lập kích thước ban đầu
     handleResize();
-
-    // Lắng nghe sự kiện thay đổi kích thước màn hình
     window.addEventListener("resize", handleResize);
 
-    // Xóa sự kiện khi component bị unmount
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -53,6 +67,39 @@ const ProductModal = ({ product, open, onClose }) => {
     if (quantity > 1) {
       setQuantity((prevQuantity) => prevQuantity - 1);
     }
+  };
+
+  const handleAddToCart = () => {
+    const sizeSelection = document.querySelector(
+      'input[name="size"]:checked'
+    )?.id;
+    const selectedSize = sizeOptions.find((size) => size.id === sizeSelection);
+
+    const selectedToppingsDetails = selectedToppings.map((toppingId) => {
+      const topping = toppingOptions.find((t) => t.id === toppingId);
+      return { label: topping.label, price: topping.price };
+    });
+
+    const adjustments = {
+      size: selectedSize
+        ? { label: selectedSize.label, price: selectedSize.price }
+        : { label: "Nhỏ", price: "+ 0đ" },
+      toppings:
+        selectedToppingsDetails.length > 0
+          ? selectedToppingsDetails
+          : "Không có",
+    };
+
+    const cartItem = {
+      cartId: cartID,
+      itemId: product.id,
+      quantity,
+      notes: note,
+      adjustments: JSON.stringify(adjustments),
+    };
+
+    onAddToCart(cartItem);
+    onClose();
   };
 
   return (
@@ -128,28 +175,29 @@ const ProductModal = ({ product, open, onClose }) => {
             </div>
           </div>
 
-          <div class="w-full mt-4 px-4">
-            <div class="relative">
+          <div className="w-full mt-4 px-4">
+            <div className="relative">
               <input
                 type="text"
                 className="focus:border-primary-200 placeholder:text-gray-300 w-full pl-10 pr-3 focus:ring-primary-200"
                 placeholder="Ghi chú món ăn..."
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
               />
 
               <svg
-                class="absolute w-5 h-5 top-2.5 left-2.5 text-slate-600"
+                className="absolute w-5 h-5 top-2.5 left-2.5 text-slate-600"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                {" "}
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />{" "}
-                <polyline points="14 2 14 8 20 8" />{" "}
-                <line x1="16" y1="13" x2="8" y2="13" />{" "}
-                <line x1="16" y1="17" x2="8" y2="17" />{" "}
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
                 <polyline points="10 9 9 9 8 9" />
               </svg>
             </div>
@@ -162,86 +210,42 @@ const ProductModal = ({ product, open, onClose }) => {
           </div>
 
           <div className="flex px-4 justify-between">
-            <div className="flex items-center">
-              <Radio
-                name="size"
-                id="size-small"
-                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200 "
-              />
-              <label htmlFor="size-small" className="flex-1 text-gray-700">
-                Nhỏ
-                <span className="inline-block w-full">+ 0đ</span>
-              </label>
-            </div>
-            <div className="flex items-center ">
-              <Radio
-                name="size"
-                id="size-medium"
-                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200 "
-              />
-              <label htmlFor="size-medium" className="flex-1 text-gray-700">
-                Vừa
-                <span className="inline-block w-full">+ 4.000đ</span>
-              </label>
-            </div>
-            <div className="flex items-center ">
-              <Radio
-                type="radio"
-                name="size"
-                id="size-large"
-                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200 "
-              />
-              <label htmlFor="size-large" className="flex-1 text-gray-700">
-                Lớn
-                <span className="inline-block w-full">+ 10.000đ</span>
-              </label>
-            </div>
+            {sizeOptions.map((size) => (
+              <div key={size.id} className="flex items-center">
+                <Radio
+                  name="size"
+                  id={size.id}
+                  className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200"
+                />
+                <label htmlFor={size.id} className="flex-1 text-gray-700">
+                  {size.label}
+                  <span className="inline-block w-full">{size.price}</span>
+                </label>
+              </div>
+            ))}
           </div>
+
           <div className="h-12 bg-gray-200 items-center flex my-4">
             <span className="text-justify text-sm text-gray-800 pl-4">
               Chọn topping (Tuỳ chọn)
             </span>
           </div>
           <div className="flex px-4 justify-between mb-8">
-            <div className="flex items-center">
-              <Checkbox
-                type="checkbox"
-                name="topping"
-                onChange={handleToppingChange}
-                id="topping-cream"
-                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200"
-              />
-              <label htmlFor="topping-cream" className="flex-1 text-gray-700">
-                Thêm kem
-                <span className="inline-block w-full">+ 5.000đ</span>
-              </label>
-            </div>
-            <div className="flex items-center">
-              <Checkbox
-                type="checkbox"
-                onChange={handleToppingChange}
-                name="topping"
-                id="topping-boba"
-                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200"
-              />
-              <label htmlFor="topping-boba" className="flex-1 text-gray-700">
-                Trân châu
-                <span className="inline-block w-full">+ 10.000đ</span>
-              </label>
-            </div>
-            <div className="flex items-center">
-              <Checkbox
-                type="checkbox"
-                name="topping"
-                onChange={handleToppingChange}
-                id="topping-almond"
-                className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200 focus:bg-primary-200 checked:bg-primary-200"
-              />
-              <label htmlFor="topping-almond" className="flex-1 text-gray-700">
-                Hạnh nhân
-                <span className="inline-block w-full">+ 7.000đ</span>
-              </label>
-            </div>
+            {toppingOptions.map((topping) => (
+              <div key={topping.id} className="flex items-center">
+                <Checkbox
+                  type="checkbox"
+                  name="topping"
+                  onChange={handleToppingChange}
+                  id={topping.id}
+                  className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200"
+                />
+                <label htmlFor={topping.id} className="flex-1 text-gray-700">
+                  {topping.label}
+                  <span className="inline-block w-full">{topping.price}</span>
+                </label>
+              </div>
+            ))}
           </div>
         </div>
       </Modal.Body>
@@ -249,7 +253,7 @@ const ProductModal = ({ product, open, onClose }) => {
         <Button
           className="rounded-xl w-full text-white"
           gradientDuoTone="redToYellow"
-          onClick={onClose}
+          onClick={handleAddToCart}
         >
           Thêm vào giỏ hàng
         </Button>
