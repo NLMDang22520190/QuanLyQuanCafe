@@ -44,7 +44,7 @@ namespace QuanLyQuanCafe.Server.Controllers
 
         [HttpGet("GetVoucherByCustomerId/{customerId}")]
 
-        public async Task<IActionResult> GetVoucherByCustomerId(int customerId)
+        public async Task<IActionResult> GetVoucherByCustomerId(string customerId)
         {
             var voucherDetailDomain = await _voucherDetailRepository.GetVoucherDetailByCustomerId(customerId);
             if (voucherDetailDomain == null)

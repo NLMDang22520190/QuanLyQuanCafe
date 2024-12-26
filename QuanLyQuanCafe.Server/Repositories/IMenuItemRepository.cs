@@ -11,5 +11,6 @@ namespace QuanLyQuanCafe.Server.Repositories
         Task<MenuItem?> GetMenuItemWithRecipesByIdAsync(int itemId);
         Task<List<MenuItem>> GetMenuItemsByCategoryIdAsync(int categoryId);
         Task<List<MenuItem>> GetFeatureMenuItemAsync();
+
     }
 }

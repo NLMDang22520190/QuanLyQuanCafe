@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
 using AutoMapper;
+using QuanLyQuanCafe.Server.Models.DTO.ADD;
 using QuanLyQuanCafe.Server.Models.DTO.GET;
+using QuanLyQuanCafe.Server.Models.DTO.UPDATE;
 using QuanLyQuanCafe.Server.Repositories;
 using QuanLyQuanCafe.Server.Mapping;
 
@@ -160,6 +162,52 @@ namespace QuanLyQuanCafe.Server.Controllers
             return Ok(menuItem);
         }
 
+        [HttpPost("AddProduct")]
+        public async Task<IActionResult> AddProduct([FromBody] AddItemRequestDTO requestDto)
+        {
+            try
+            {
+                var menuItemDomain = _mapper.Map<MenuItem>(requestDto);
+                menuItemDomain = await _menuItemRepository.CreateAsync(menuItemDomain);
+
+                if(menuItemDomain == null)
+                {
+                    return BadRequest("Error adding product");
+                }
+                return Ok("Product added successfully!" + menuItemDomain.ItemId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error adding product: {ex.Message}");
+            }
+        }
+
+        [HttpPut("UpdateProduct")]
+        public async Task<IActionResult> UpdateProduct([FromBody] UpdateItemRequestDTO requestDto)
+        {
+            try
+            {
+                var menuItemDomain = _mapper.Map<MenuItem>(requestDto);
+                menuItemDomain = await _menuItemRepository.UpdateAsync(f => f.ItemId == requestDto.ItemId, m =>
+                {
+                    m.ItemName = requestDto.ItemName;
+                    m.Description = requestDto.Description;
+                    m.Price = requestDto.Price;
+                    m.Picture = requestDto.Picture;
+                    m.TypeOfFoodId = requestDto.TypeOfFoodId;
+                });
+                if (menuItemDomain == null)
+                {
+                    return NotFound($"Product with ID {requestDto.ItemId} not found.");
+                }
+                return Ok("Product updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while updating product:" + ex.Message });
+            }
+        }
     }
 }
 

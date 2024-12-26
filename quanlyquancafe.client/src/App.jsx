@@ -8,18 +8,26 @@ import "./assets/themes/material-dark.min.css";
 import { themeConfig } from "./config/ThemeConfig";
 import AllUserRoutes from "./routes/AllUserRoutes";
 import Navbar from "./components/Users/Navbar/Navbar";
+import { getAuthCookies } from "./features/Cookies/CookiesHelper";
+import { useSelector } from "react-redux";
 
 function App() {
+  const userRole = useSelector((state) => state.auth.userRole); // Lấy từ trạng thái Redux
+
   return (
     <ConfigProvider theme={themeConfig}>
       <div className="App ">
-        <AppLayout>
-          <AllRoutes />
-        </AppLayout>
-         {/* <>
-          <Navbar />
-          <AllUserRoutes />
-        </>  */}
+
+        {userRole === "Admin" || userRole === "Staff" ? (
+          <AppLayout>
+            <AllRoutes />
+          </AppLayout>
+        ) : (
+          <>
+            <Navbar />
+            <AllUserRoutes />
+          </>
+        )}
       </div>
     </ConfigProvider>
   );

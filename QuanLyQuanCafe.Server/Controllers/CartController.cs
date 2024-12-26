@@ -25,7 +25,7 @@ namespace QuanLyQuanCafe.Server.Controllers
         }
 
         [HttpGet("GetCartDetailsByCustomerId/{customerId}")]
-        public async Task<IActionResult> GetCartDetailsByCustomerId(int customerId)
+        public async Task<IActionResult> GetCartDetailsByCustomerId(string customerId)
         {
             var cartDomain = await _cartRepository.GetCartByCustomerId(customerId);
             if (cartDomain == null)

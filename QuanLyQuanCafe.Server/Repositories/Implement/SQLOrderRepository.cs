@@ -25,7 +25,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 		public async Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId)
 		{
 			return await _dbContext.Orders
-								   .Where(o => o.CustomerId.ToString() == userId)
+								   .Where(o => o.UserId== userId)
 								   .ToListAsync();
 		}
 
@@ -79,6 +79,5 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 			return pendingOrders;
         }
     }
-
 
 }

@@ -2,27 +2,52 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import { Button, TextInput, Label } from "flowbite-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../../../features/Auth/Auth";
+import { getAuthCookies } from "../../../features/Cookies/CookiesHelper";
+
+const loginBgImage =
+  "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&w=800&q=75";
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const authState = useSelector((state) => state.auth);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    // ... keep existing code
+    dispatch(login({ email, password }));
   };
+
+  useEffect(() => {
+    if (authState.isAuthenticated) {
+      // console.log(authState.user);
+      // console.log(authState.userRole);
+      // console.log(authState.token);
+      // console.log(authState.isAuthenticated);
+      navigate("/"); // Đường dẫn trang Chủ
+    }
+  }, [authState.isAuthenticated, navigate]);
 
   return (
     <div className="min-h-screen flex relative">
       {/* Background Image */}
       <div className="hidden lg:block lg:w-1/2 relative">
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-coffee-200 animate-pulse" />
+        )}
         <img
-          src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
+          src={loginBgImage}
           alt="Login background"
-          loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          onLoad={() => setImageLoaded(true)}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+            imageLoaded ? "opacity-100" : "opacity-0"
+          }`}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/25" />
       </div>
@@ -111,6 +136,19 @@ const Login = () => {
                 Đăng nhập
               </button>
             </motion.div>
+
+            {/* Display login status or error message */}
+            {authState.status === "loading" && (
+              <div className="text-center mt-4 text-sm text-primary-600">
+                Đang đăng nhập...
+              </div>
+            )}
+
+            {authState.status === "failed" && authState.error && (
+              <div className="text-center mt-4 text-sm text-red-600">
+                {authState.error.message || "Có lỗi xảy ra, vui lòng thử lại!"}
+              </div>
+            )}
 
             <motion.p
               initial={{ opacity: 0 }}

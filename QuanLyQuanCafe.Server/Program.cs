@@ -42,6 +42,7 @@ builder.Services.AddScoped<IMonthSalaryRepository, SQLMonthSalaryRepository>();
 builder.Services.AddScoped<IAttendanceRepository, SQLAttendanceRepository>();
 builder.Services.AddScoped<IIngredientRepository, SQLIngredientRepository>();
 builder.Services.AddScoped<IImportRecordRepository, SQLImportRecordRepository>();
+builder.Services.AddScoped<IImageRepository, SQLImageRepository>();
 builder.Services.AddScoped<IUserRepository, SQLUserRepository>();
 builder.Services.AddScoped<IStaffRepository, SQLStaffRepository>();
 
@@ -52,15 +53,18 @@ builder.Services.AddScoped<IOrderDetailRepository, SQLOrderDetailRepository>();
 builder.Services.AddScoped<IOrderRepository, SQLOrderRepository>();
 builder.Services.AddScoped<ICartRepository, SQLCartRepository>();
 
+
 builder.Services.AddScoped<IOrderRepository, SQLOrderRepository>();
 
 builder.Services.AddScoped<ICartDetailRepository, SQLCartDetailRepository>();
 builder.Services.AddScoped<IVoucherDetailRepository, SQLVoucherDetailRepository>();
+builder.Services.AddScoped<IItemRecipeRepository, SQLItemRecipeRepository>();
 
 builder.Services.AddScoped(typeof(ICoffeeManagementRepository<>), typeof(CoffeeManagementRepository<>));
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
+builder.Services.AddMemoryCache();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<CoffeeManagementContext>().AddDefaultTokenProviders();

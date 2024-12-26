@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import "./MenuItem.css"; // Import CSS
+import "./MenuItem.css";
 
 const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
   const [quantity, setQuantity] = useState(item.quantity);
-  const [notes, setNotes] = useState(item.notes);
-  const [size, setSize] = useState(item.size || "Medium"); // Default to 'Medium' if size is not provided
+  const [notes, setNotes] = useState(item.notes || "");
+  const [size, setSize] = useState(item.size || "Medium");
 
   const handleSave = () => {
+    if (quantity < 1) {
+      alert("Số lượng phải lớn hơn 0!");
+      return;
+    }
+
     onSaveEdit(item.itemId, { quantity, notes, size });
   };
 
@@ -15,11 +20,12 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
     <div className="cart-item">
       <div className="item-details">
         {editMode ? (
-          <div>
+          <div className="edit-mode">
+            {/* Quantity */}
             <div className="form-group">
-              <label htmlFor="quantity">Quantity</label>
+              <label htmlFor={`quantity-${item.itemId}`}>Số lượng:</label>
               <input
-                id="quantity"
+                id={`quantity-${item.itemId}`}
                 type="number"
                 value={quantity}
                 min="1"
@@ -27,30 +33,40 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
               />
             </div>
 
+            {/* Notes */}
             <div className="form-group">
-              <label htmlFor="notes">Notes</label>
+              <label htmlFor={`notes-${item.itemId}`}>Ghi chú:</label>
               <textarea
-                id="notes"
+                id={`notes-${item.itemId}`}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Ghi chú"
+                placeholder="Ghi chú đặc biệt"
               />
             </div>
 
+            {/* Size */}
             <div className="form-group">
-              <label htmlFor="size">Size</label>
+              <label htmlFor={`size-${item.itemId}`}>Kích thước:</label>
               <select
-                id="size"
+                id={`size-${item.itemId}`}
                 value={size}
                 onChange={(e) => setSize(e.target.value)}
               >
-                <option value="Small">Small</option>
-                <option value="Medium">Medium</option>
-                <option value="Large">Large</option>
+                <option value="Small">Nhỏ</option>
+                <option value="Medium">Vừa</option>
+                <option value="Large">Lớn</option>
               </select>
             </div>
 
-            <button onClick={handleSave}>Lưu</button>
+            {/* Buttons */}
+            <div className="edit-buttons">
+              <button className="save-button" onClick={handleSave}>
+                Lưu
+              </button>
+              <button className="cancel-button" onClick={onEditToggle}>
+                Hủy
+              </button>
+            </div>
           </div>
         ) : (
           <>
@@ -58,14 +74,14 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
               {quantity} x {item.item.itemName}
             </p>
             <div className="item-options">
-              <span>{size}</span> {/* Display selected size */}
+              <span>Kích thước: {size}</span>
               <p className="item-price">{item.item.price.toLocaleString()}đ</p>
+              <p>Ghi chú: {notes || "Không có"}</p>
             </div>
           </>
         )}
       </div>
 
-      {/* Button container (Remove and Edit buttons) */}
       <div className="button-container">
         {!editMode && (
           <>
@@ -83,7 +99,16 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
 };
 
 MenuItem.propTypes = {
-  item: PropTypes.object.isRequired,
+  item: PropTypes.shape({
+    itemId: PropTypes.number.isRequired,
+    quantity: PropTypes.number.isRequired,
+    notes: PropTypes.string,
+    size: PropTypes.string,
+    item: PropTypes.shape({
+      itemName: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired,
+    }).isRequired,
+  }).isRequired,
   editMode: PropTypes.bool.isRequired,
   onRemove: PropTypes.func.isRequired,
   onEditToggle: PropTypes.func.isRequired,

@@ -3,6 +3,7 @@ import HomeItemDisplay from "../../HomeItemDisplay/HomeItemDisplay";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import api from "../../../../features/AxiosInstance/AxiosInstance";
 import ProductModal from "../../ProductModal/ProductModal";
 
 const FeatureProductsSection = () => {
@@ -11,9 +12,7 @@ const FeatureProductsSection = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get(
-          "https://localhost:7087/api/MenuItem/FeatureProducts"
-        );
+        const response = await api.get("api/menu-items/FeatureProducts");
         const mappedData = response.data.map((item) => ({
           id: item.itemId,
           name: item.itemName,
@@ -50,7 +49,7 @@ const FeatureProductsSection = () => {
       {products.length === 0 ? (
         // Hiển thị thông báo nếu không có sản phẩm
         <div className="text-center text-primary-600 mt-6">
-          <p>Không có sản phẩm nào.</p>
+          <p>Thông tin đang được xử lý. Vui lòng chờ trong giây lát...</p>
         </div>
       ) : (
         // Hiển thị danh sách sản phẩm nếu có

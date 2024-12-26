@@ -18,6 +18,10 @@ const ProductModal = ({ product, open, onClose }) => {
     }
   };
 
+  const formatPrice = (price) => {
+    return price.toLocaleString("vi-VN") + "đ";
+  };
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
@@ -65,19 +69,16 @@ const ProductModal = ({ product, open, onClose }) => {
       <Modal.Body className="p-0">
         <div className="flex flex-col">
           <img
-            src={product.image}
+            src={product.picture}
             alt={product.alt}
             className="w-full object-cover rounded-3xl p-4"
           />
           <span className="font-semibold text-base px-4">{product.name}</span>
           <p className="text-gray-600 text-sm mt-2 px-4">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores
-            aliquam numquam voluptatem, iste exercitationem, vitae ullam earum
-            adipisci velit maxime quae dolorem ipsam animi. Sunt ducimus
-            assumenda officiis error rerum.
+            {product.description}
           </p>
           <div className="flex items-center justify-between mt-4 px-4">
-            <span className="text-base my-2">65.000đ</span>
+            <span className="text-base my-2">{formatPrice(product.price)}</span>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleDecrease}
@@ -201,7 +202,7 @@ const ProductModal = ({ product, open, onClose }) => {
               Chọn topping (Tuỳ chọn)
             </span>
           </div>
-          <div className="flex px-4 justify-between">
+          <div className="flex px-4 justify-between mb-8">
             <div className="flex items-center">
               <Checkbox
                 type="checkbox"

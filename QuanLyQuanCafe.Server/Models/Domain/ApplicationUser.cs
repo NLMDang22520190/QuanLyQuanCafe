@@ -10,8 +10,9 @@ public partial class ApplicationUser:IdentityUser
     public string? City { get; set; }
     public string? PhotoUrl { get; set; }
     public string? Ward { get; set; }
-    public int? CustomerId { get; set; }
+    public int? CustomerPoint { get; set; }
 
-    public virtual CustomerDetail? Customer { get; set; }
+
     public virtual ICollection<Staff>? Staffs { get; set; } = new List<Staff>();
+    public bool isActive { get; set; }
 }

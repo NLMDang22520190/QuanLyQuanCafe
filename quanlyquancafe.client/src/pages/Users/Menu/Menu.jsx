@@ -2,68 +2,59 @@ import React from "react";
 import MenuItemTypeDisplay from "../../../components/Users/MenuItemTypeDisplay/MenuItemTypeDisplay";
 import MenuItemDisplay from "../../../components/Users/MenuItemDisplay/MenuItemDisplay";
 import ProductModal from "../../../components/Users/ProductModal/ProductModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const Menu = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [categoryProducts, setCategoryProducts] = useState([]); // Danh sách sản phẩm theo loại món ăn
+  const [activeCategoryId, setActiveCategoryId] = useState(null);
 
-  const categories = [
-    {
-      name: "Món Mới Phải Thử",
-      image: "https://placehold.co/100x100",
-      alt: "Món Mới Phải Thử",
-    },
-    {
-      name: "Trái Cây Xay 0°C",
-      image: "https://placehold.co/100x100",
-      alt: "Trái Cây Xay 0°C",
-    },
-    {
-      name: "Trà Trái Cây - HiTea",
-      image: "https://placehold.co/100x100",
-      alt: "Trà Trái Cây - HiTea",
-    },
-    {
-      name: "Trà Sữa",
-      image: "https://placehold.co/100x100",
-      alt: "Trà Sữa",
-      active: true,
-    },
-    {
-      name: "Trà Xanh - Chocolate",
-      image: "https://placehold.co/100x100",
-      alt: "Trà Xanh - Chocolate",
-    },
-    {
-      name: "Đá Xay Frosty",
-      image: "https://placehold.co/100x100",
-      alt: "Đá Xay Frosty",
-    },
-    { name: "Cà Phê", image: "https://placehold.co/100x100", alt: "Cà Phê" },
-    { name: "Cơm Nhà", image: "https://placehold.co/100x100", alt: "Cơm Nhà" },
-    {
-      name: "Bánh Mặn",
-      image: "https://placehold.co/100x100",
-      alt: "Bánh Mặn",
-    },
-    {
-      name: "Món Nóng",
-      image: "https://placehold.co/100x100",
-      alt: "Món Nóng",
-    },
-    {
-      name: "Bánh Ngọt",
-      image: "https://placehold.co/100x100",
-      alt: "Bánh Ngọt",
-    },
-    { name: "Topping", image: "https://placehold.co/100x100", alt: "Topping" },
-    {
-      name: "Cà Phê - Trà Đóng Gói",
-      image: "https://placehold.co/100x100",
-      alt: "Cà Phê - Trà Đóng Gói",
-    },
-  ];
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(
+          "https://localhost:7087/api/food-types"
+        );
+        const mappedData = response.data.map((item) => ({
+          id: item.typeOfFoodId, // Giả sử API trả về thuộc tính 'id'
+          name: item.typeOfFoodName, // Giả sử API trả về thuộc tính 'name'
+          image: "https://placehold.co/100x100", // Giả sử API trả về thuộc tính 'image'
+        }));
+        setCategories(mappedData);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []); // Chỉ gọi một lần khi component mount
+
+  // Fetch products by categoryId
+  const fetchProductsByCategoryId = async (categoryId) => {
+    try {
+      const response = await axios.get(
+        `https://localhost:7087/api/menu-items/GetProdByCategoryId/${categoryId}`
+      );
+      const mappedData = response.data.map((item) => ({
+        id: item.itemId,
+        name: item.itemName,
+        description: item.description,
+        price: item.price,
+        picture: "https://placehold.co/600x400", // Thay thế null bằng hình mặc định nếu cần
+      }));
+      setCategoryProducts(mappedData); // Cập nhật danh sách sản phẩm
+    } catch (error) {
+      console.error("Error fetching products by category:", error);
+    }
+  };
+
+  const handleCategoryClick = (categoryId) => {
+    setActiveCategoryId(categoryId); // Đặt loại món ăn được chọn
+    fetchProductsByCategoryId(categoryId);
+  };
 
   const products = [
     {
@@ -106,7 +97,6 @@ const Menu = () => {
   ];
 
   const handleProductClick = (product) => {
-    console.log(product);
     setSelectedProduct(product);
     setOpenModal(true);
   };
@@ -139,18 +129,38 @@ const Menu = () => {
         <span className="text-primary-300">Sản phẩm</span>
       </h1>
       <div className="flex overflow-x-auto md:flex-wrap justify-stretch md:justify-center space-x-6 mb-8">
-        {categories.map((category, index) => (
-          <MenuItemTypeDisplay key={index} category={category} />
-        ))}
+        {categories.length === 0 ? (
+          // Hiển thị thông báo nếu không có sản phẩm
+          <div className="text-center text-primary-600 mt-6">
+            <p>Thông tin đang được xử lý. Vui lòng chờ trong giây lát...</p>
+          </div>
+        ) : (
+          categories.map((category, index) => (
+            <MenuItemTypeDisplay
+              onClick={() => handleCategoryClick(category.id)}
+              key={index}
+              category={category}
+              isActive={activeCategoryId === category.id} // So sánh ID để xác định trạng thái
+            />
+          ))
+        )}
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {products.map((product, index) => (
-          <MenuItemDisplay
-            key={index}
-            product={product}
-            onClick={() => handleProductClick(product)}
-          />
-        ))}
+        {categoryProducts.length === 0 ? (
+          // Hiển thị thông báo nếu không có sản phẩm
+          <div className="text-center col-span-6  text-primary-600 mt-6">
+            <p>Thông tin đang được xử lý. Vui lòng chờ trong giây lát...</p>
+          </div>
+        ) : (
+          categoryProducts.map((product, index) => (
+            <MenuItemDisplay
+              key={index}
+              product={product}
+              onClick={() => handleProductClick(product)} // Mở modal khi chọn sản phẩm
+            />
+          ))
+        )}
       </div>
       {/* Sử dụng ProductModal */}
       <ProductModal
