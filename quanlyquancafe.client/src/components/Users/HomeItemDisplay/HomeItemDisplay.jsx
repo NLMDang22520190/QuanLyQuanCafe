@@ -11,7 +11,9 @@ const HomeItemDisplay = ({ product }) => {
           className="w-full rounded-lg"
         />
         <div className="mt-2">
-          <h3 className="text-lg font-bold mt-2">{product.name}</h3>
+          <h3 className="text-lg font-bold mt-2 line-clamp-1">
+            {product.name}
+          </h3>
           <div className="flex justify-between items-center 0">
             <p>{product.price} đ</p>
             <div className=" flex items-center justify-center">

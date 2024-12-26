@@ -12,7 +12,7 @@ const FeatureProductsSection = () => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
-          "https://localhost:7087/api/MenuItem/FeatureProducts"
+          "https://localhost:7087/api/menu-items/FeatureProducts"
         );
         const mappedData = response.data.map((item) => ({
           id: item.itemId,
@@ -50,7 +50,7 @@ const FeatureProductsSection = () => {
       {products.length === 0 ? (
         // Hiển thị thông báo nếu không có sản phẩm
         <div className="text-center text-primary-600 mt-6">
-          <p>Không có sản phẩm nào.</p>
+          <p>Thông tin đang được xử lý. Vui lòng chờ trong giây lát...</p>
         </div>
       ) : (
         // Hiển thị danh sách sản phẩm nếu có

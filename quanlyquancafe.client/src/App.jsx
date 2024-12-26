@@ -16,10 +16,9 @@ function App() {
         <AppLayout>
           <AllRoutes />
         </AppLayout>
-        /* <>
-          <Navbar />
-          <AllUserRoutes />
-        </> */
+
+        <Navbar />
+        <AllUserRoutes />
       </div>
     </ConfigProvider>
   );
