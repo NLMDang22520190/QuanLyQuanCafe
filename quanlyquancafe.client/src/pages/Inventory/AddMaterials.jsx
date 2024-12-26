@@ -74,7 +74,7 @@ export const AddMaterials = () => {
               />
             </div>
             <Text strong style={{ color: "#fadb14", fontSize: "16px" }}>
-              Name Admin
+              Admin
             </Text>
           </div>
         </Col>
