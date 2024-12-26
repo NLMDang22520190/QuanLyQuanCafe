@@ -1,18 +1,23 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTO;
 using QuanLyQuanCafe.Server.Models.DTOs;
 using QuanLyQuanCafe.Server.Models.RequestModels;
 using QuanLyQuanCafe.Server.Repositories;
+using QuanLyQuanCafe.Server.Services;
 
 namespace QuanLyQuanCafe.Server.Controllers
 {
     [Route("api/account")]
     [ApiController]
-    public class AccountController(IUserRepository userRepository,IOrderRepository orderRepository) : ControllerBase
+    public class AccountController(IUserRepository userRepository,IOrderRepository orderRepository, IMemoryCache cache) : ControllerBase
     {
         private readonly IUserRepository userRepository = userRepository;
         private readonly IOrderRepository orderRepository = orderRepository;
+        private readonly IMemoryCache _cache = cache;
+        private readonly EmailService _emailService = new EmailService();
 
         [HttpPost("create-user")]
         public async Task<IActionResult> CreateUser(CreateUserModel createUserModel )
@@ -159,5 +164,121 @@ namespace QuanLyQuanCafe.Server.Controllers
             });
         }
 
+
+        [HttpPost("send-verification-code/{email}")]
+        public async Task<IActionResult> SendVerificationCode(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Email không được để trống."
+                });
+            }
+
+            try
+            {
+                var code = await _emailService.SendVerificationCodeAsync(email);
+                cache.Set(email, code, TimeSpan.FromMinutes(5));
+
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Mã xác nhận đã được gửi đến email của bạn."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = "Đã xảy ra lỗi khi gửi mã xác nhận.",
+                    details = ex.Message // (tuỳ chọn)
+                });
+            }
+        }
+
+        [HttpPost("verify-code")]
+        public IActionResult VerifyCode([FromBody] VerifyCodeRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Code))
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Email và mã xác nhận không được để trống."
+                });
+            }
+
+            if (cache.TryGetValue(request.Email, out string storedCode))
+            {
+                if (storedCode == request.Code)
+                {
+                    cache.Remove(request.Email);
+                    return Ok(new
+                    {
+                        status = "success",
+                        message = "Mã xác nhận chính xác. Bạn có thể tiếp tục."
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        status = "error",
+                        message = "Mã xác nhận không đúng. Vui lòng thử lại."
+                    });
+                }
+            }
+
+            return BadRequest(new
+            {
+                status = "expired",
+                message = "Mã xác nhận đã hết hạn hoặc không tồn tại."
+            });
+        }
+
+        [HttpPost("changepassword")]
+        public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.NewPassword))
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Email và mật khẩu mới không được để trống."
+                });
+            }
+
+            try
+            {
+                var userToChangePassword = await userRepository.GetUserByEmail(request.Email);
+
+                if (userToChangePassword == null)
+                {
+                    return NotFound(new
+                    {
+                        status = "error",
+                        message = "Không tìm thấy người dùng với email đã cung cấp."
+                    });
+                }
+
+                //await userRepository.UpdatePassword(userToChangePassword, request.NewPassword);
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Đổi mật khẩu thành công."
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = ex.Message
+                });
+            }
+        }
     }
 }

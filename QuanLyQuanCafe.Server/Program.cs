@@ -62,6 +62,7 @@ builder.Services.AddScoped(typeof(ICoffeeManagementRepository<>), typeof(CoffeeM
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
+builder.Services.AddMemoryCache();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<CoffeeManagementContext>().AddDefaultTokenProviders();

@@ -131,6 +131,11 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             return userWithRoles;
         }
 
+        public Task<ApplicationUser> GetUserByEmail(string email)
+        {
+            var user = userManager.FindByEmailAsync(email);
+            return user;
+        }
     }
 
 }

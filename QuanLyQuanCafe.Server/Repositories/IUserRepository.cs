@@ -13,5 +13,6 @@ namespace QuanLyQuanCafe.Server.Repositories
         Task<bool> DisableAccountAsync(string userId);
         Task<List<UserModel>> GetUsersAsync(int pageNumber, int pageSize);
 
+        Task<ApplicationUser> GetUserByEmail(string email);
     }
 }
