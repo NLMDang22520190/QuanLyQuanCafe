@@ -9,7 +9,7 @@ const { Option } = Select;
 const CreateProduct = ({ onSubmit }) => {
     const [typeOfFoods, setTypeOfFoods] = useState([]);
     const [ingredients, setIngredients] = useState([]);
-    const [recipes, setRecipes] = useState([]);
+    const [fileList, setFileList] = useState([]);
 
     const handleSubmit = (values) => {
         createNewProduct(values);
@@ -80,6 +80,7 @@ const CreateProduct = ({ onSubmit }) => {
                 <Upload
                     name="image"
                     listType="picture"
+                    fileList={fileList}
                     beforeUpload={() => false}
                     onChange={handleImageChange}
                 >

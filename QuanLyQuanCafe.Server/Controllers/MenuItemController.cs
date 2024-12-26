@@ -138,7 +138,27 @@ namespace QuanLyQuanCafe.Server.Controllers
             return Ok(_mapper.Map<List<ItemOnMenuPageDTO>>(menuItemDomain));
         }
 
+        [HttpGet("all-with-recipies")]
+        public async Task<IActionResult> GetAllMenuItemsWithRecipes()
+        {
+            var menuItems = await _menuItemRepository.GetAllWithRecipesAsync();
+            if (menuItems == null || !menuItems.Any())
+            {
+                return NotFound("No menu items found.");
+            }
+            return Ok(menuItems);
+        }
 
+        [HttpGet("with-recipies/{id}")]
+        public async Task<IActionResult> GetMenuItemWithRecipesById(int id)
+        {
+            var menuItem = await _menuItemRepository.GetMenuItemWithRecipesByIdAsync(id);
+            if (menuItem == null)
+            {
+                return NotFound($"Menu item with ID {id} not found.");
+            }
+            return Ok(menuItem);
+        }
 
     }
 }
