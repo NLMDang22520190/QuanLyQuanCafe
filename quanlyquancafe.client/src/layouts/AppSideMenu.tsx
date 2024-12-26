@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { Layout, theme, Menu, Button } from 'antd';
 import UserRole from '../constant/UserRole';
 import { logout } from "../features/Auth/Auth";
+import { clearCart } from "../features/Cart/Cart";
 import { useDispatch } from "react-redux";
 
 
@@ -79,6 +80,7 @@ export const AppSideMenu = () => {
 
     const handleLogout = () => {
         dispatch(logout());
+        dispatch(clearCart());
     };
 
     const userRole = UserRole.ADMIN; 

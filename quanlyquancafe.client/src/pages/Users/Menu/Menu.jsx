@@ -149,7 +149,7 @@ const Menu = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {categoryProducts.length === 0 ? (
           // Hiển thị thông báo nếu không có sản phẩm
-          <div className="text-center text-primary-600 mt-6">
+          <div className="text-center col-span-6  text-primary-600 mt-6">
             <p>Thông tin đang được xử lý. Vui lòng chờ trong giây lát...</p>
           </div>
         ) : (

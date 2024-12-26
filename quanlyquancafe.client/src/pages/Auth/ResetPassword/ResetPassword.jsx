@@ -5,6 +5,7 @@ import { Button, TextInput, Label } from "flowbite-react";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import api from "../../../features/AxiosInstance/AxiosInstance";
+import { Link } from "react-router-dom";
 
 const resetPasswordBgImage =
   "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&w=800&q=75";
@@ -179,7 +180,7 @@ const ResetPassword = () => {
               Mật khẩu của bạn đã được cập nhật.
             </p>
             <Link
-              to="auth/login"
+              to="/auth/login"
               className="inline-block mt-4 text-white bg-blue-600 px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
             >
               Quay lại đăng nhập
