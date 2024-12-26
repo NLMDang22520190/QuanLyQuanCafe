@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { RoundedButton } from "../../components/buttons/RoundedButton";
-import { Table } from "antd";
+import { Modal, Table, Input, Select, Switch, Button, Checkbox, Pagination } from 'antd';
 import { RoundedTextField } from "../../components/textfields/RoundedTextField";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -15,7 +15,7 @@ export const InventoryControlPage = () => {
     const [filteredData, setFilteredData] = useState([]);
     const [currentTab, setCurrentTab] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(7);
     const [totalItems, setTotalItems] = useState(0);
 
     const rowMaterialColumns = [
@@ -47,17 +47,14 @@ export const InventoryControlPage = () => {
             render: (text) => <StatusBadge status={text} label={text} />,
         },
         {
-            title: "Action",
-            key: "action",
-            render: (_, record) => (
-                <button
-                    onClick={() => navigate(`/inventory/edit/${record.id}`)}
-                    className="text-blue-500 underline"
-                >
-                    Edit
-                </button>
-            ),
-        },
+            title: '',
+            dataIndex: 'action',
+            key: 'action',
+            render: (text, record) => <Button onClick={() => setIsProductDetailModalVisible(true)} type="text"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            </Button>
+        }
     ];
 
    
@@ -93,8 +90,7 @@ export const InventoryControlPage = () => {
     const fetchRowMaterials = async () => {
         try {
             const response = await axios.get("https://localhost:7087/api/ingredient");
-            console.log("API Response:", response.data);
-    
+
             const items = response.data || [];
             const ingredients = items.map((item) => ({
                 id: item.ingredientId,
@@ -117,7 +113,6 @@ export const InventoryControlPage = () => {
     
     const fetchImportRecords = async (page = 1, size = 5) => {
         try {
-            // Fetch Ingredient data
             const ingredientsResponse = await axios.get("https://localhost:7087/api/ingredient");
             const ingredientMapping = ingredientsResponse.data.reduce((map, item) => {
                 map[item.ingredientId] = item.ingredientName;
