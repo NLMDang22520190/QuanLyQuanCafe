@@ -264,7 +264,17 @@ namespace QuanLyQuanCafe.Server.Controllers
                     });
                 }
 
-                //await userRepository.UpdatePassword(userToChangePassword, request.NewPassword);
+                var result =  await userRepository.UpdateUserPasswordAsync(userToChangePassword, request.NewPassword);
+
+                if (!result)
+                {
+                    return BadRequest(new
+                    {
+                        status = "error",
+                        message = "Đã xảy ra lỗi khi cập nhật mật khẩu."
+                    });
+                }
+
                 return Ok(new
                 {
                     status = "success",
@@ -279,6 +289,17 @@ namespace QuanLyQuanCafe.Server.Controllers
                     message = ex.Message
                 });
             }
+        }
+
+        [HttpGet("CheckEmailHasRegistered")]
+        public async Task<bool> CheckEmailHasRegistered(string email)
+        {
+            var user = await userRepository.GetUserByEmail(email);
+            if (user != null)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
