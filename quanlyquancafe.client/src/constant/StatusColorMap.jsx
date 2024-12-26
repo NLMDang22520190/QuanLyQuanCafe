@@ -7,7 +7,7 @@ const statusColorMap = {
     [Status.Pending]: { badgeStyle: 'bg-gray-500', textColor: 'text-gray-300' },
     [Status.Payed]: { badgeStyle: 'bg-yellow-500', textColor: 'text-yellow-600' },
     [Status.Cancelled]: { badgeStyle: 'bg-red-500', textColor: 'text-red-900' },
-    [Status.OutOfStock]: { badgeStyle: 'bg-red-500', textColor: 'text-red-900' },
+    [Status.OutOfStock]: { badgeStyle: 'bg-red-500', textColor: 'text-red-600' },
     [Status.InStock]: { badgeStyle: 'bg-yellow-500', textColor: 'text-yellow-600' },
     [Status.LowStock]: { badgeStyle: 'bg-gray-500', textColor: 'text-gray-300' },
     [Status.InProgress]: { badgeStyle: 'bg-yellow-500', textColor: 'text-yellow-600' },

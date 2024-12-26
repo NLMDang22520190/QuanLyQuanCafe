@@ -16,10 +16,11 @@ function App() {
         <AppLayout>
           <AllRoutes />
         </AppLayout>
-        <>
+
+        /* <>
           <Navbar />
           <AllUserRoutes />
-        </>
+        </> */
       </div>
     </ConfigProvider>
   );

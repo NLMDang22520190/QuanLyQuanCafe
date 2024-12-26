@@ -2,8 +2,9 @@
 
 namespace QuanLyQuanCafe.Server.Repositories
 {
-    public interface IImportRecordRepository: ICoffeeManagementRepository<ImportRecord>
+    public interface IImageRepository : ICoffeeManagementRepository<Image>
     {
-        
+
     }
 }
+

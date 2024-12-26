@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using QuanLyQuanCafe.Server.Repositories;
+using System.Drawing;
 
 namespace QuanLyQuanCafe.Server.Controllers
 {
@@ -8,82 +11,73 @@ namespace QuanLyQuanCafe.Server.Controllers
     public class ImageController : ControllerBase
     {
 
-        [HttpGet("{imageName}")]
-        public IActionResult GetImage(string imageName)
+        private readonly IImageRepository _imageRepository;
+
+        public ImageController(IImageRepository imageRepository)
         {
-           
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Image");
-
-          
-            var filePath = Path.Combine(folderPath, imageName);
-
-            if (!System.IO.File.Exists(filePath))
-            {
-                return NotFound("Image not found.");
-            }
-
-      
-            var fileBytes = System.IO.File.ReadAllBytes(filePath);
-            var contentType = GetContentType(filePath); 
-            return File(fileBytes, contentType);
+            _imageRepository = imageRepository;
         }
 
-
-
-        [HttpPut("{imageName}")]
-        public async Task<IActionResult> UpdateImage(string imageName, IFormFile file)
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
-                return BadRequest("File is required.");
+                return BadRequest("No file uploaded.");
             }
 
             try
             {
-               
-                var fileExtension = Path.GetExtension(file.FileName);
-                if (string.IsNullOrEmpty(fileExtension))
+                using (var memoryStream = new MemoryStream())
                 {
-                    return BadRequest("Invalid file format. File must have an extension.");
-                }
-
-                var fileNameWithExtension = $"{imageName}{fileExtension}";
+                    await file.CopyToAsync(memoryStream);
 
                
-                var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "Image");
+                    var base64Data = Convert.ToBase64String(memoryStream.ToArray());
 
-              
-                Directory.CreateDirectory(folderPath);
+                 
+                    var newImage = new Models.Image
+                    {
+                        ImageName = file.FileName,
+                        ImageData = base64Data 
+                    };
 
-              
-                var newFilePath = Path.Combine(folderPath, fileNameWithExtension);
-
-              
-                using (var stream = new FileStream(newFilePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
+                  
+                    await _imageRepository.CreateAsync(newImage);
                 }
 
-                return Ok(new { message = "Image updated successfully.", fileName = fileNameWithExtension });
+                return Ok("File uploaded successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving file: {ex.Message}");
-                return StatusCode(500, "Internal server error while saving the file.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
 
 
 
-        private string GetContentType(string filePath)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetImage(int id)
         {
-            var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
-            if (!provider.TryGetContentType(filePath, out var contentType))
-            {
-                contentType = "application/octet-stream";
-            }
-            return contentType;
+      
+            var image = await _imageRepository.GetByIdAsync(img => img.ImageId == id);
+            if (image == null)
+                return NotFound("Image not found");
+
+           
+            var imageBytes = Convert.FromBase64String(image.ImageData);
+
+        
+            return File(imageBytes, "image/jpeg");
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllImages()
+        {
+            var images = await _imageRepository.GetAllAsync();
+            return Ok(images.Select(img => new { img.ImageId, img.ImageName }));
         }
 
     }

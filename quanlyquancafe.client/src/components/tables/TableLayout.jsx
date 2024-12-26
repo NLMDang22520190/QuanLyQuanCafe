@@ -12,21 +12,21 @@ const { Option } = Select;
 export const TableLayout = ({ columns = [], data = [], pageLayout = true, hideHeader = false }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(pageLayout ? 15 : data.length);
-
-    const totalPages = Math.ceil(data.length / rowsPerPage);
-    const currentData = data.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
-
-    const [displayedData, setDisplayedData] = useState(currentData);
+    const [displayedData, setDisplayedData] = useState([]);
 
     const handlePageChange = (page, pageSize) => {
         setCurrentPage(page);
         setRowsPerPage(pageSize);
     };
 
+
     useEffect(() => {
-        const newData = data.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        const newData = data.slice(startIndex, endIndex);
         setDisplayedData(newData);
-    }, [currentPage, data, rowsPerPage]);
+    }, [currentPage, rowsPerPage, data]);
+
 
     const antdColumns = columns.map((column) => {
         const columnConfig = {
@@ -42,27 +42,26 @@ export const TableLayout = ({ columns = [], data = [], pageLayout = true, hideHe
                     case TableDetailType.CheckBox:
                         return <Checkbox />;
                     case TableDetailType.Action:
-                       
                         return <ActionPopover actions={column.actions} />;
-               
                     case TableDetailType.NumberField:
                         return <InputNumber defaultValue={row[column.key]} />;
                     case TableDetailType.ComboBox:
                         return (
                             <Select defaultValue={row[column.key]} style={{ width: '100%' }}>
                                 {column.options.map((option) => (
-                                    <Option key={option.label} value={option.value}>{option.label}</Option>
+                                    <Option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </Option>
                                 ))}
                             </Select>
                         );
-                    case TableDetailType.CheckSlider:
-                        return <Switch defaultChecked={row[column.key]} />;
                     default:
                         return <p>{row[column.key]}</p>;
                 }
-            }
+            },
         };
 
+        // Thêm khả năng sắp xếp nếu không phải Checkbox hoặc Action
         if (column.type !== TableDetailType.CheckBox && column.type !== TableDetailType.Action) {
             columnConfig.sorter = (a, b) => {
                 if (typeof a[column.key] === 'number' && typeof b[column.key] === 'number') {
@@ -85,7 +84,7 @@ export const TableLayout = ({ columns = [], data = [], pageLayout = true, hideHe
                     columns={antdColumns}
                     dataSource={displayedData}
                     pagination={false}
-                    rowKey={(record) => record.id}
+                    rowKey={(record) => record.id || record.key || Math.random()} // Đảm bảo `rowKey` duy nhất
                     sticky
                 />
             </div>
