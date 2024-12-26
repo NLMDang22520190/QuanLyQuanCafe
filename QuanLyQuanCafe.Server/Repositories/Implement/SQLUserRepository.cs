@@ -136,6 +136,28 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             var user = userManager.FindByEmailAsync(email);
             return user;
         }
+
+        public async Task<bool> UpdateUserPasswordAsync(ApplicationUser user, string newPassword)
+        {
+            var result = await userManager.HasPasswordAsync(user);
+
+            if (result)
+            {
+                var removeResult = await userManager.RemovePasswordAsync(user);
+                if (!removeResult.Succeeded)
+                {
+                    return false;
+                }
+            }
+
+            var addResult = await userManager.AddPasswordAsync(user, newPassword);
+            if (!addResult.Succeeded)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 
 }
