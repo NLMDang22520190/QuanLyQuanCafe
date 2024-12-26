@@ -1,8 +1,30 @@
 import React from "react";
 import logo from "../../../assets/radlogo.png";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useState, useEffect } from "react";
+import { fetchCartDetailsByCustomerId } from "../../../features/Cart/Cart";
 
 const Navbar = () => {
+  const [itemsCount, setItemsCount] = useState(0);
+  const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart);
+  const auth = useSelector((state) => state.auth);
+
+  // Fetch cart details when the component renders or when auth or cart.items change
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      // Fetch cart items only when the user is authenticated
+      dispatch(fetchCartDetailsByCustomerId(auth.user));
+    }
+  }, [auth.isAuthenticated, cart.items, dispatch]); // Dependencies: khi cart.items hoặc auth.isAuthenticated thay đổi
+
+  useEffect(() => {
+    if (cart.items.length !== itemsCount) {
+      setItemsCount(cart.items.length);
+      console.log("Cart items changed:", cart.items.length);
+    }
+  }, [cart.items, itemsCount]);
   return (
     <nav className="bg-primary-50 opacity-90 shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
@@ -67,7 +89,7 @@ const Navbar = () => {
                 />
               </svg>
               <span class="absolute -top-2 left-6 rounded-full bg-red-500 p-0.5 px-2 text-sm text-red-50">
-                4
+                {itemsCount}
               </span>
             </div>
           </Link>

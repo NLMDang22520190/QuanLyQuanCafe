@@ -7,7 +7,7 @@ const HomeItemDisplay = ({ product }) => {
   };
 
   return (
-    <Link className="">
+    <Link to="/MenuAll" className="">
       <div className="bg-white w-full rounded-lg shadow-2xl p-4">
         <img
           src={product.picture}
