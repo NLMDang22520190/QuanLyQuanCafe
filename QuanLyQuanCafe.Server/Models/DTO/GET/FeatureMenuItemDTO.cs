@@ -12,5 +12,7 @@
 
         public string? Picture { get; set; }
 
+        public string? State { get; set; }
+
     }
 }

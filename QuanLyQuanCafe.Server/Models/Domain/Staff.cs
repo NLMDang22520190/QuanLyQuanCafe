@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyQuanCafe.Server.Models;
-
+[Table("Staff")]
 public partial class Staff
 {
-    public int StaffId { get; set; }
+    [Key]
+    public  int StaffId { get; set; }
 
-    public string FullName { get; set; } = null!;
 
-    public string Role { get; set; } = null!;
+    public required string? UserId { get; set; } 
 
-    public DateOnly DateStartedWorking { get; set; }
+    [ForeignKey("UserId")]
+    public virtual required ApplicationUser User { get; set; }
 
-    public string PhoneNumber { get; set; } = null!;
+    [Required]
+    public DateTime DateStartedWorking { get; set; } 
 
-    public string? Address { get; set; }
+    public DateTime? DateEndWorking { get; set; }
 
     public virtual ICollection<Salary> Salaries { get; set; } = new List<Salary>();
 

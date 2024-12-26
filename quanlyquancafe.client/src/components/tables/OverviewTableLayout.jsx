@@ -50,7 +50,7 @@ export const OverviewTableLayout = ({ columns = [], data = [] }) => {
                                         </td>
                                     ) : (
                                         <td key={`col-${index}-${colIndex}`} className="px-4 justify-items-start">
-                                            <p>{row[column.key]}</p>
+                                            <p className="text-xl">{row[column.key]}</p>
                                         </td>
                                     )
 
