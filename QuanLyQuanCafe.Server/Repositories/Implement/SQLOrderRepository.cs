@@ -80,5 +80,4 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         }
     }
 
-
 }

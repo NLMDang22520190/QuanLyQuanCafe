@@ -51,6 +51,8 @@ public partial class CoffeeManagementContext : IdentityDbContext<ApplicationUser
 
     public virtual DbSet<ImportRecord> ImportRecords { get; set; }
 
+    
+
     public virtual DbSet<VoucherDetail> VoucherDetails { get; set; }
     public virtual DbSet<MonthSalary> MonthSalaries { get; set; }
 

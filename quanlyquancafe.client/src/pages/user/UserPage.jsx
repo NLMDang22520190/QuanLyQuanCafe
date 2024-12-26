@@ -37,10 +37,16 @@ const UserPage = () => {
       hourlyWageHistory: [
         { date: "2024-01", hourlyWage: "$14" },
         { date: "2024-02", hourlyWage: "$15" },
+        { date: "2024-02", hourlyWage: "$16" },
+        { date: "2024-02", hourlyWage: "$17" },
+        { date: "2024-02", hourlyWage: "$18" },
       ],
       monthlyWage: [
         { month: "January", hoursWorked: 160, hourlyWage: "$14", totalSalary: "$2240" },
         { month: "February", hoursWorked: 160, hourlyWage: "$15", totalSalary: "$2400" },
+        { month: "February", hoursWorked: 160, hourlyWage: "$16", totalSalary: "$2400" },
+        { month: "February", hoursWorked: 160, hourlyWage: "$17", totalSalary: "$2400" },
+        { month: "February", hoursWorked: 160, hourlyWage: "$18", totalSalary: "$2400" },
       ],
     },
     {
