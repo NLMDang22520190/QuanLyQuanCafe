@@ -66,7 +66,8 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             {
                 Email = model.Email,
                 UserName = model.Email,
-                isActive=true
+                isActive=true,
+                CustomerPoint = 0,
             };
 
             var result = await userManager.CreateAsync(user, model.Password);
@@ -79,6 +80,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 }
 
                 await userManager.AddToRoleAsync(user, AppRole.Customer);
+                
             }
             return result;
         }
