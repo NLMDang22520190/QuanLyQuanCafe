@@ -66,7 +66,8 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             {
                 Email = model.Email,
                 UserName = model.Email,
-                isActive=true
+                isActive=true,
+                CustomerPoint = 0,
             };
 
             var result = await userManager.CreateAsync(user, model.Password);
@@ -79,6 +80,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 }
 
                 await userManager.AddToRoleAsync(user, AppRole.Customer);
+                
             }
             return result;
         }
@@ -130,9 +132,34 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             return userWithRoles;
         }
-        public async Task<int> GetTotalUsersCountAsync()
+
+
+        public Task<ApplicationUser> GetUserByEmail(string email)
         {
-            return await userManager.Users.CountAsync();
+            var user = userManager.FindByEmailAsync(email);
+            return user;
+        }
+
+        public async Task<bool> UpdateUserPasswordAsync(ApplicationUser user, string newPassword)
+        {
+            var result = await userManager.HasPasswordAsync(user);
+
+            if (result)
+            {
+                var removeResult = await userManager.RemovePasswordAsync(user);
+                if (!removeResult.Succeeded)
+                {
+                    return false;
+                }
+            }
+
+            var addResult = await userManager.AddPasswordAsync(user, newPassword);
+            if (!addResult.Succeeded)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 

@@ -1,11 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const MenuItemTypeDisplay = ({ category }) => {
+const MenuItemTypeDisplay = ({ category, onClick, isActive }) => {
   return (
-    <Link
+    <button
+      onClick={onClick}
       className={`w-24 flex-none mb-2 ${
-        category.active ? "text-orange-500" : "text-gray-500"
+        isActive ? "text-orange-500" : "text-gray-500"
       }`}
     >
       <img
@@ -14,7 +15,7 @@ const MenuItemTypeDisplay = ({ category }) => {
         className="mb-2 rounded-full"
       />
       <p className="text-center text-sm">{category.name}</p>
-    </Link>
+    </button>
   );
 };
 
