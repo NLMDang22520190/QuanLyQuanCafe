@@ -1,64 +1,21 @@
-import { useState } from "react";
-import { Table, Select, Button, ConfigProvider, theme, Modal, Input } from "antd";
+import { useState,useEffect  } from "react";
+import { Table, Select, message, Button, ConfigProvider, theme, Modal, Input ,InputNumber,Popconfirm } from "antd";
 import "./user.css";
+import axios from "axios"; 
 import StaffDetail from "./StaffDetail";
 import OrderHistory from "./OrderHistory";
 import AddNewUser from "./AddNewUser";
 const UserPage = () => {
   const [currentTab, setCurrentTab] = useState(0);
-  const [usersData, setUsersData] = useState([
-    {
-      id: "U001",
-      name: "John Doe",
-      email: "john@example.com",
-      role: "Customer",
-      status: "Active",
-      action: "Edit",
-    },
-    {
-      id: "U002",
-      name: "Jane Smith",
-      email: "jane@example.com",
-      role: "Customer",
-      status: "Active",
-      action: "Edit",
-    },
-  ]);
+  const [usersData, setUsersData] = useState([]);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState(null);
-
-  const [staffData, setStaffData] = useState([
-    {
-      id: "S001",
-      name: "Tom Brown",
-      email: "tom@example.com",
-      hourlyWage: "$15",
-      status: "Active",
-      hourlyWageHistory: [
-        { date: "2024-01", hourlyWage: "$14" },
-        { date: "2024-02", hourlyWage: "$15" },
-      ],
-      monthlyWage: [
-        { month: "January", hoursWorked: 160, hourlyWage: "$14", totalSalary: "$2240" },
-        { month: "February", hoursWorked: 160, hourlyWage: "$15", totalSalary: "$2400" },
-      ],
-    },
-    {
-      id: "S002",
-      name: "Lucy Green",
-      email: "lucy@example.com",
-      hourlyWage: "$20",
-      status: "Active",
-      hourlyWageHistory: [
-        { date: "2024-01", hourlyWage: "$18" },
-        { date: "2024-02", hourlyWage: "$20" },
-      ],
-      monthlyWage: [
-        { month: "January", hoursWorked: 160, hourlyWage: "$18", totalSalary: "$2880" },
-        { month: "February", hoursWorked: 160, hourlyWage: "$20", totalSalary: "$3200" },
-      ],
-    },
-  ]);
+  const [isFormer,setIsFormer]=useState(false)
+  const [staffData, setStaffData] = useState([]);
+  const [formerStaff, setFormerStaff] = useState([]);
+  const [totalUser,setTotalUser]=useState(0);
+  const [totalStaff,setTotalStaff]=useState(0);
+  const [totalFStaff,setTotalFStaff]=useState(0);
   
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -70,41 +27,93 @@ const UserPage = () => {
     { name: "Staff" },
     { name: "Add New User" }
   ];
+  const [pageIndexUser,setPageIndexUser]=useState(1);
+  const [pageIndexStaff,setPageIndexStaff]=useState(1);
+  const [pageIndexFStaff,setPageIndexFStaff]=useState(1);
+  useEffect(() => {
+    fetchFStaffData();
+  }, [pageIndexFStaff])
+  useEffect(() => {   
+    fetchUsersData();
+  }, [pageIndexUser])
+  useEffect(() => {
+    fetchStaffData();
+  }, [pageIndexStaff])
+  const fetchFStaffData = async () => {
+    try {
+      const response = await axios.get(`https://localhost:7087/api/staff/former-staffs?pageIndex=${pageIndexFStaff}&pageSize=${10}`);
+
+      console.log(response.data)
+      setTotalFStaff(response.data.totalPages)
+      setFormerStaff(response.data.data);
+    } catch (error) {
+      console.error("Error fetching STAFF data:", error);
+    }
+  };
+  const fetchStaffData = async () => {
+    try {
+      const response = await axios.get(`https://localhost:7087/api/staff/current-staffs?pageIndex=${pageIndexStaff}&pageSize=${10}`);
+
+      console.log(response.data.data)
+      setTotalStaff(response.data.totalPages)
+      setStaffData(response.data.data);
+    } catch (error) {
+      console.error("Error fetching STAFF data:", error);
+    }
+  };
+  const fetchUsersData = async () => {
+    try {
+      const response = await axios.get(`https://localhost:7087/api/account/users?pageIndex=${pageIndexUser}&pageSize=${10}`);
+
+      console.log(response.data)
+      setTotalUser(response.data.totalPages)
+      setUsersData(response.data.data);
+    } catch (error) {
+      console.error("Error fetching users data:", error);
+    }
+  };
 
   // Cột bảng Users
   const userColumns = [
-    { title: "ID", dataIndex: "id", key: "id" },
-    { title: "Name", dataIndex: "name", key: "name" },
+    { title: "Name", dataIndex: "userName", key: "userName" },
     { title: "Email", dataIndex: "email", key: "email" },
     {
       title: "Role",
       dataIndex: "role",
       key: "role",
-      render: (text, record) => (
-        <Select
-          value={text}
-          onChange={(value) => handleRoleChange(value, record.id)}
-          style={{ width: 120 }}
-        >
-          <Select.Option value="Customer">Customer</Select.Option>
-          <Select.Option value="Staff">Staff</Select.Option>
-        </Select>
-      ),
+      render: (text, record) =>
+        text === "Customer" ? (
+          <Select
+            value={text}
+            onChange={(value) => handleRoleChange(value, record.id)}
+            style={{ width: 120 }}
+          >
+            <Select.Option value="Customer">Customer</Select.Option>
+            <Select.Option value="Staff">Staff</Select.Option>
+          </Select>
+        ) : (
+          <Button style={{ width: 120,textAlign: "left" }}>{text}</Button>
+        ),
     },
     {
       title: "Status",
-      dataIndex: "status",
+      dataIndex: "isActive",
       key: "status",
-      render: (text, record) => (
-        <Select
-          value={text}
-          onChange={(value) => handleStatusChange(value, record.id)}
-          style={{ width: 120 }}
-        >
-          <Select.Option value="Active">Active</Select.Option>
-          <Select.Option value="Disabled">Disabled</Select.Option>
-        </Select>
-      ),
+      render: (text, record) => {
+        if (record.role === "Admin") {
+          return null; 
+        }
+        return (
+          <Select
+            value={text ? "Active" : "Disabled"}
+            onChange={(value) => handleStatusChange(value === "Active", record.id)} 
+            style={{ width: 120 }}
+          >
+            <Select.Option value="Active">Active</Select.Option>
+            <Select.Option value="Disabled">Disabled</Select.Option>
+          </Select>
+        );
+      },
     },
     {
       title: "",
@@ -116,61 +125,147 @@ const UserPage = () => {
       ),
     },
   ];
-
-  // Cột bảng Staff
+  
   const staffColumns = [
-    { title: "ID", dataIndex: "id", key: "id" },
+    { title: "ID", dataIndex: "staffId", key: "id" },
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Email", dataIndex: "email", key: "email" },
-    { title: "Hourly Wage", dataIndex: "hourlyWage", key: "hourlyWage" },
+    {
+      title: "Start Date",
+      dataIndex: "dateStartedWorking",
+      key: "startDate",
+      render: (startDate) => {
+        const date = new Date(startDate);  
+        if (isNaN(date.getTime())) {  
+          console.error("Invalid date format: ", startDate);  
+          return "Invalid Date";  
+        }
+        return date.toLocaleDateString('en-GB');  
+      }
+    },
     {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <>
-          <Button type="primary" ghost onClick={() => handleViewDetail(record.id)}>
+          <Button
+            type="primary"
+            ghost
+            onClick={() => handleViewDetail(record.id)}
+          >
             View Detail
           </Button>
-          <Button
-            danger
-            onClick={() => handleDisableStaff(record.id)}
-            style={{ marginLeft: 8 }}
+          <Popconfirm
+            title="Are you sure to remove the staff role?"
+            description="This action cannot be undo."
+            onConfirm={() => handleDisableStaff(record.userId)}
+            okText="Yes"
+            cancelText="No"
           >
-            Remove Staff Role
+            <Button danger style={{ marginLeft: 8 }}>
+              Remove Staff Role
+            </Button>
+          </Popconfirm>
+        </>
+      ),
+    },
+  ];
+  const formerStaffColumn = [
+    { title: "ID", dataIndex: "staffId", key: "id" },
+    { title: "Name", dataIndex: "name", key: "name" },
+    { title: "Email", dataIndex: "email", key: "email" },
+    {
+      title: "Start Date",
+      dataIndex: "dateStartedWorking",
+      key: "startDate",
+      render: (startDate) => {
+        const date = new Date(startDate);  
+        if (isNaN(date.getTime())) {  
+          console.error("Invalid date format: ", startDate);  
+          return "Invalid Date";  
+        }
+        return date.toLocaleDateString('en-GB');  
+      }
+    },
+    {
+      title: "End Date",
+      dataIndex: "dateEndWorking",
+      key: "endtDate",
+      render: (endtDate) => {
+        const date = new Date(endtDate);  
+        if (isNaN(date.getTime())) {  
+          console.error("Invalid date format: ", endtDate);  
+          return "Invalid Date";  
+        }
+        return date.toLocaleDateString('en-GB');  
+      }
+    }
+    ,
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <>
+          <Button
+            type="primary"
+            ghost
+            onClick={() => handleViewDetail1(record.id)}
+          >
+            View Detail
           </Button>
         </>
       ),
     },
   ];
-
   const handleTabChange = (index) => {
     setCurrentTab(index);
   };
 
-  const handleRoleChange = (value, id) => {
+
+  const handleRoleChange = async (value, id) => {
     if (value === "Staff") {
-      // Lưu lại giá trị role hiện tại để phục hồi nếu cancel
       const currentUser = usersData.find((user) => user.id === id);
       setPreviousRole(currentUser.role);
-
-      // Chỉ hiển thị modal khi chuyển sang Staff
+  
       setSelectedUserId(id);
       setIsModalVisible(true);
     } else {
-      // Nếu không phải 'Staff', role sẽ được thay đổi ngay
-      const updatedData = usersData.map((user) =>
-        user.id === id ? { ...user, role: value } : user
-      );
-      setUsersData(updatedData);
+
+      try {
+        await axios.put(`https://localhost:7087/api/account/role`, {
+          userId: id,
+          role: "Customer",
+        });
+        const updatedData = usersData.map((user) =>
+          user.id === id ? { ...user, role: value } : user
+        );
+        setUsersData(updatedData);
+      } catch (error) {
+        console.error("Error updating role:", error);
+      }
     }
   };
-
-  const handleStatusChange = (value, id) => {
-    const updatedData = usersData.map((user) =>
-      user.id === id ? { ...user, status: value } : user
-    );
-    setUsersData(updatedData);
+  
+  const handleStatusChange = async (isActive, id) => {
+    try {
+      if (isActive) {
+        await axios.patch(`https://localhost:7087/api/account/active/${id}`);
+        message.success("User activated successfully!");
+      } else {
+        await axios.patch(`https://localhost:7087/api/account/disable/${id}`);
+        message.success("User disable successfully!");
+      }
+  
+      const updatedData = usersData.map((user) =>
+        user.id === id ? { ...user, isActive } : user
+      );
+      setUsersData(updatedData);
+    } catch (error) {
+      console.error("Error updating user status:", error);
+      message.error("Failed to update user status. Please try again.");
+    }
   };
+  
   const [isOrderModalVisible, setIsOrderModalVisible] = useState(false);
 
   const handleViewOrderList = (id) => {
@@ -185,6 +280,14 @@ const UserPage = () => {
   const handleViewDetail = (id) => {
     const staff = staffData.find((staff) => staff.id === id);
     setSelectedStaff(staff);
+    setIsFormer(false);
+    setIsDetailModalVisible(true);
+  };
+
+  const handleViewDetail1 = (id) => {
+    const staff = staffData.find((staff) => staff.id === id);
+    setSelectedStaff(staff);
+    setIsFormer(true);
     setIsDetailModalVisible(true);
   };
 
@@ -192,53 +295,76 @@ const UserPage = () => {
     setIsDetailModalVisible(false);
   };
 
-  const handleDisableStaff = (id) => {
-    // Chuyển role của staff thành Customer khi disable
-    const updatedData = staffData.map((staff) =>
-      staff.id === id ? { ...staff, status: "Disabled" } : staff
-    );
-
-    // Cập nhật lại dữ liệu Staff và User
-    const updatedUsersData = usersData.map((user) =>
-      user.id === id ? { ...user, role: "Customer" } : user
-    );
-
-    setStaffData(updatedData);
-    setUsersData(updatedUsersData);
+  const handleDisableStaff = async (userId) => {
+    try {
+      const response = await axios.post(`https://localhost:7087/api/staff/disable?userId=${userId}`);
+  
+      if (response.status !== 200) {
+        throw new Error("Failed to disable staff");
+      }
+      else 
+      {
+        message.success("Disable staff success")
+        setStaffData((prevStaffData) =>
+          prevStaffData.filter((staff) => staff.userId !== userId)
+        );
+  
+        fetchFStaffData();
+        fetchUsersData();
+      }
+    } catch (error) {
+      console.error("Error disabling staff:", error);
+    }
   };
 
-  const handleOk = () => {
-    if (!newSalary) {
-      // Hiển thị thông báo nếu không nhập lương cơ bản
-      alert("Please enter the salary!");
+
+  const [loadingRole,setLoadingRole]=useState(false);
+  const handleOk = async () => {
+    if (!newSalary || newSalary <= 0) {
+      message.error("Please enter the salary!");
       return;
     }
-
-    // Cập nhật role thành "Staff" và lưu lương cơ bản
-    const updatedData = usersData.map((user) =>
-      user.id === selectedUserId
-        ? { ...user, role: "Staff", hourlyWage: newSalary }
-        : user
-    );
-    setUsersData(updatedData);
-
-    // Đóng modal
-    setIsModalVisible(false);
-    setNewSalary(""); // Reset trường lương cơ bản
+  
+    setLoadingRole(true); 
+    try {
+      console.log("selectedUserId:", selectedUserId);
+      console.log("hourWage:", newSalary);
+  
+      const response = await axios.post(
+        `https://localhost:7087/api/staff/create?userId=${selectedUserId}&hourWage=${newSalary}`
+      );
+  
+      console.log("API Response:", response.data);
+      const updatedData = usersData.map((user) =>
+        user.id === selectedUserId
+          ? { ...user, role: "Staff", hourlyWage: newSalary }
+          : user
+      );
+      setUsersData(updatedData);
+  
+      setIsModalVisible(false);
+      setNewSalary("");
+      message.success("Staff created successfully!");
+      fetchStaffData();
+    } catch (error) {
+      console.error("Error creating staff:", error);
+      message.error("Failed to create staff. Please try again.");
+    } finally {
+      setLoadingRole(false); 
+    }
   };
-
+  
+  
   const handleCancel = () => {
-    // Phục hồi lại giá trị role cũ
     const updatedData = usersData.map((user) =>
       user.id === selectedUserId
-        ? { ...user, role: previousRole } // Gán lại role cũ
+        ? { ...user, role: previousRole } 
         : user
     );
     setUsersData(updatedData);
 
-    // Đóng modal và reset thông tin lương
     setIsModalVisible(false);
-    setNewSalary(""); // Reset trường lương cơ bản
+    setNewSalary(""); 
   };
   const handleAddNewUser = (values) => {
     const newUser = {
@@ -301,16 +427,44 @@ const UserPage = () => {
             columns={userColumns}
             dataSource={usersData}
             rowKey="id"
-            pagination={1}
+            pagination={{
+              current: pageIndexUser,
+              pageSize: 10,
+              total: totalUser, 
+              onChange: (page) => setPageIndexUser(page),
+            }}
           />
         )}
         {currentTab===1 && (
+          <>
           <Table
+          title={() => <span className="custom-table-title">Current Staffs</span>}
             columns={staffColumns}
             dataSource={staffData}
             rowKey="id"
-            pagination={1}
+            pagination={{
+              current: pageIndexStaff,
+              pageSize: 10,
+              total: totalStaff, 
+              onChange: (page) => setPageIndexStaff(page),
+            }}
           />
+
+          <Table
+          title={() => <span className="custom-table-title">Former Staffs</span>}
+            columns={formerStaffColumn}
+            dataSource={formerStaff}
+            rowKey="id"
+            pagination={{
+              current: pageIndexFStaff,
+              pageSize: 10,
+              total: totalFStaff, 
+              onChange: (page) => setPageIndexFStaff(page),
+            }}
+          
+          />
+          </>
+
         )}
 
         {currentTab === 2 && (
@@ -329,23 +483,28 @@ const UserPage = () => {
           open={isModalVisible}
           onOk={handleOk}
           onCancel={handleCancel}
+          confirmLoading={loadingRole}
         >
-          <Input
+          <InputNumber
             placeholder="Enter Wage Hour"
             value={newSalary}
-            onChange={(e) => setNewSalary(e.target.value)}
+            onChange={(value) => setNewSalary(value)}
+            style={{width:"100%"}}
+            prefix={<svg width={"0px"} height={"0px"}></svg>}
           />
         </Modal>
         <StaffDetail
             staff={selectedStaff}
             visible={isDetailModalVisible}
             onCancel={handleCancelDetailModal}
+            props={selectedStaff}
+            isFormer={isFormer}
         />
         <OrderHistory
           visible={isOrderModalVisible}
           onCancel={handleCloseOrderModal}
           userId={selectedUserId} 
-        />
+        />r
       </div>
     </ConfigProvider>
   );
