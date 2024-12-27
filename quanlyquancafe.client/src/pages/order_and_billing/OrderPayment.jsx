@@ -7,8 +7,11 @@ import { SelectedOrderProductCard } from '../../components/card/SelectedOrderPro
 import { RoundedComboBox } from "../../components/combobox/RoundedComboBox";
 import { PaymentMethod } from "../../constant/PaymentMethod";
 import { Currency } from '../../constant/Currency';
-import QRCode from "react-qr-code";
+import { Space, QRCode, Button } from "antd";
+import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 
+const MIN_SIZE = 48;
+const MAX_SIZE = 300;
 
 export const OrderPayment = () => {
     const [diningOption, setDiningOption] = useState(DiningOption.DineIn);
@@ -16,6 +19,27 @@ export const OrderPayment = () => {
     const [discount, setDiscount] = useState(0);
     const [paymentMethod, setPaymentMethod] = useState(PaymentMethod.Cash);
     const [currency, setCurrency] = useState()
+    const [size, setSize] = useState(160);
+
+    const increase = () => {
+        setSize((prevSize) => {
+            const newSize = prevSize + 10;
+            if (newSize >= MAX_SIZE) {
+                return MAX_SIZE;
+            }
+            return newSize;
+        });
+    };
+
+    const decline = () => {
+        setSize((prevSize) => {
+            const newSize = prevSize - 10;
+            if (newSize <= MIN_SIZE) {
+                return MIN_SIZE;
+            }
+            return newSize;
+        });
+    };
 
     const qrData = `
     000201010211
@@ -28,100 +52,6 @@ export const OrderPayment = () => {
     6304ABCD
 `.replace(/\s+/g, '');
 
-    const productData = [
-        {
-            id: 1,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-            name: "Product 1",
-            price: "$19.99"
-        },
-        {
-            id: 2,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-            name: "Product 2",
-            price: "$29.99"
-        },
-        {
-            id: 3,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-            name: "Product 3",
-            price: "$39.99"
-        },
-        {
-            id: 4,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-            name: "Product 4",
-            price: "$49.99"
-        },
-        {
-            id: 5,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-            name: "Product 5",
-            price: "$59.99"
-        },
-        {
-            id: 6,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Sandwich_with_beef.jpg/800px-Sandwich_with_beef.jpg",
-            name: "Product 6",
-            price: "$15.99"
-        },
-        {
-            id: 7,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Apple_banana.jpg/800px-Apple_banana.jpg",
-            name: "Product 7",
-            price: "$25.99"
-        },
-        {
-            id: 8,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Tacos_de_Carnitas.jpg/800px-Tacos_de_Carnitas.jpg",
-            name: "Product 8",
-            price: "$35.99"
-        },
-        {
-            id: 9,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Sushi_November_2006.jpg/800px-Sushi_November_2006.jpg",
-            name: "Product 9",
-            price: "$45.99"
-        },
-        {
-            id: 10,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Red_Apple.jpg/800px-Red_Apple.jpg",
-            name: "Product 10",
-            price: "$55.99"
-        },
-        {
-            id: 11,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Chocolate_ice_cream_with_sprinkles_and_syrup.jpg/800px-Chocolate_ice_cream_with_sprinkles_and_syrup.jpg",
-            name: "Product 11",
-            price: "$65.99"
-        },
-        {
-            id: 12,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Various_Cheese.jpg/800px-Various_Cheese.jpg",
-            name: "Product 12",
-            price: "$75.99"
-        },
-        {
-            id: 13,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Orange_juice_1.jpg/800px-Orange_juice_1.jpg",
-            name: "Product 13",
-            price: "$85.99"
-        },
-        {
-            id: 14,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Honey_and_jam.jpg/800px-Honey_and_jam.jpg",
-            name: "Product 14",
-            price: "$95.99"
-        },
-        {
-            id: 15,
-            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Dark_chocolate_bar.jpg/800px-Dark_chocolate_bar.jpg",
-            name: "Product 15",
-            price: "$105.99"
-        },
-    ];
-
-    const [selectedProducts, setSelectedProducts] = useState(productData)
 
     return (
         <div className="flex flex-col gap-y-4 overflow-hidden h-full">
@@ -142,8 +72,24 @@ export const OrderPayment = () => {
                 <div className="bg-gray-800/60 w-2/3 rounded-lg flex gap-x-8 p-4">
                     <div className="flex flex-col justify-between w-full py-14">
                         <div className="flex flex-col items-center" >
-                            
-                            <QRCode value={qrData} size={200} />
+
+                            <>
+                                <Button.Group style={{ marginBottom: 16 }}>
+                                    <Button onClick={decline} disabled={size <= MIN_SIZE} icon={<MinusOutlined />}>
+                                        Smaller
+                                    </Button>
+                                    <Button onClick={increase} disabled={size >= MAX_SIZE} icon={<PlusOutlined />}>
+                                        Larger
+                                    </Button>
+                                </Button.Group>
+                                <QRCode
+                                    errorLevel="H"
+                                    size={size}
+                                    iconSize={size / 4}
+                                    value="https://ant.design/"
+                                    icon="https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg"
+                                />
+                            </>
                             <p>Scan this code to initiate payment.</p>
                         </div>
 
@@ -236,12 +182,9 @@ export const OrderPayment = () => {
                             <p>$0</p>
                         </div>
 
-                        <RoundedButton
-                            onClick={() => { }}
-                            label="Submit"
-                            paddingX="100px"
-                            height="40px"
-                        />
+                        <div>
+                            <Button>Submit</Button>
+                        </div>
                     </div>
 
 
