@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTO;
 using QuanLyQuanCafe.Server.Repositories;
 
 namespace QuanLyQuanCafe.Server.Repositories.Implement
@@ -37,8 +39,83 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             return newestStaffs;
         }
+        public async Task<PagedResult<StaffDto>> GetAllCurrentStaffAsync(int pageIndex, int pageSize)
+        {
+            var query = dbContext.Staffs
+                   .Include(s => s.User)
+                   .Where(s => s.DateEndWorking == null); 
 
-        
+            var totalRecords = await query.CountAsync();
+
+            var staffs = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (staffs == null || !staffs.Any())
+            {
+                return null; 
+            }
+
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+
+            var staffDtos = staffs.Select(s => new StaffDto
+            {
+                StaffId = s.StaffId,
+                Name = s.User?.UserName ?? "Unknown",
+                Email = s.User?.Email ?? "No email", 
+                UserId=s.User?.Id ?? "",
+                DateStartedWorking = s.DateStartedWorking
+            }).ToList();
+
+            return new PagedResult<StaffDto>
+            {
+                TotalRecords = totalRecords,
+                TotalPages = totalPages,
+                CurrentPage = pageIndex,
+                PageSize = pageSize,
+                Data = staffDtos
+            };
+        }
+        public async Task<PagedResult<StaffDto>> GetFormerStaffAsync(int pageIndex, int pageSize)
+        {
+            var query = dbContext.Staffs
+                .Include(s => s.User)
+                .Where(s => s.DateEndWorking != null); 
+
+            var totalRecords = await query.CountAsync();
+
+            var staffs = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (staffs == null || !staffs.Any())
+            {
+                return null;
+            }
+
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+
+            var staffDtos = staffs.Select(s => new StaffDto
+            {
+                StaffId = s.StaffId,
+                Name = s.User?.UserName ?? "Unknown",
+                Email = s.User?.Email ?? "No email",
+                UserId = s.User?.Id ?? "",
+                DateStartedWorking = s.DateStartedWorking,
+                DateEndWorking = (DateTime)s.DateEndWorking
+            }).ToList();
+
+            return new PagedResult<StaffDto>
+            {
+                TotalRecords = totalRecords,
+                TotalPages = totalPages,
+                CurrentPage = pageIndex,
+                PageSize = pageSize,
+                Data = staffDtos
+            };
+        }
 
     }
 }

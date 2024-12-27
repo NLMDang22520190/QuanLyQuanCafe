@@ -150,12 +150,21 @@ namespace QuanLyQuanCafe.Server.Controllers
                     Data = null
                 });
             }
+            var totalRecords = await userRepository.GetTotalUsersCountAsync();
 
-            return Ok(new ApiResponse<List<UserModel>>
+            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+            return Ok(new 
             {
                 StatusCode = StatusCodes.Status200OK,
                 Message = "Users fetched successfully.",
-                Data = users
+                Data = users,
+                Pagination = new
+                {
+                    TotalRecords = totalRecords,
+                    TotalPages = totalPages,
+                    CurrentPage = pageIndex,
+                    PageSize = pageSize
+                }
             });
         }
 

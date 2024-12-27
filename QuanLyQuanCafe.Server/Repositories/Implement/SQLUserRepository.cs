@@ -130,7 +130,10 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             return userWithRoles;
         }
-
+        public async Task<int> GetTotalUsersCountAsync()
+        {
+            return await userManager.Users.CountAsync();
+        }
     }
 
 }
