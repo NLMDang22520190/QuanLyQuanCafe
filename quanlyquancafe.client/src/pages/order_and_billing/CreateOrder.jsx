@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RoundedButton } from "../../components/buttons/RoundedButton"
 import { OrderProductCard } from "../../components/card/OrderProductCard";
 import { RoundedTextField } from "../../components/textfields/RoundedTextField"
@@ -6,172 +6,68 @@ import { DiningOption } from '../../constant/DiningOption'
 import { SelectedOrderProductCard } from '../../components/card/SelectedOrderProductCard'
 import { RoundedComboBox } from "../../components/combobox/RoundedComboBox";
 import { useNavigate } from "react-router-dom";
+import api from "../../features/AxiosInstance/AxiosInstance";
 
 export const CreateOrder = () => {
-    const [loading, setLoading] = useState(true);  
-    const [currentTab, setCurrentTab] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [currentTypeOfFoodId, setCurrentTypeOfFoodId] = useState(0);
     const navigate = useNavigate();
     const [diningOption, setDiningOption] = useState(DiningOption.DineIn);
     const [totalAmount, setTotalAmount] = useState(0);
     const [discount, setDiscount] = useState(0);
     const [currentProducts, setCurrentProducts] = useState([]);
-
-    const sampleData = [
-        {
-            name: "Cafe",
-            products: [
-                {
-                    id: 1,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 1",
-                    price: "$19.99",
-                    inStock: 100,
-                },
-                {
-                    id: 2,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 2",
-                    price: "$29.99",
-                    inStock: 50,
-                },
-                {
-                    id: 3,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 3",
-                    price: "$39.99",
-                    inStock: 75,
-                },
-                {
-                    id: 4,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 4",
-                    price: "$49.99",
-                    inStock: 20,
-                },
-                {
-                    id: 5,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 5",
-                    price: "$59.99",
-                    inStock: 30,
-                },
-                {
-                    id: 6,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 6",
-                    price: "$69.99",
-                    inStock: 40,
-                },
-                {
-                    id: 7,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 7",
-                    price: "$79.99",
-                    inStock: 60,
-                },
-                {
-                    id: 8,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 8",
-                    price: "$89.99",
-                    inStock: 10,
-                },
-                {
-                    id: 9,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 9",
-                    price: "$99.99",
-                    inStock: 5,
-                },
-                {
-                    id: 10,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 10",
-                    price: "$109.99",
-                    inStock: 15,
-                },
-                {
-                    id: 11,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 11",
-                    price: "$119.99",
-                    inStock: 25,
-                },
-                {
-                    id: 12,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 12",
-                    price: "$129.99",
-                    inStock: 35,
-                },
-                {
-                    id: 13,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 13",
-                    price: "$139.99",
-                    inStock: 45,
-                },
-                {
-                    id: 14,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 14",
-                    price: "$149.99",
-                    inStock: 55,
-                },
-                {
-                    id: 15,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 15",
-                    price: "$159.99",
-                    inStock: 65,
-                },
-                {
-                    id: 16,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 16",
-                    price: "$169.99",
-                    inStock: 70,
-                },
-                {
-                    id: 17,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/800px-A_small_cup_of_coffee.JPG",
-                    name: "Product 17",
-                    price: "$179.99",
-                    inStock: 80,
-                },
-            ]
-        },
-        {
-            name: "Food",
-            products: [
-                {
-                    id: 6,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Sandwich_with_beef.jpg/800px-Sandwich_with_beef.jpg",
-                    name: "Product 6",
-                    price: "$15.99",
-                    inStock: 90,
-                },
-                {
-                    id: 7,
-                    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Apple_banana.jpg/800px-Apple_banana.jpg",
-                    name: "Product 7",
-                    price: "$25.99",
-                    inStock: 95,
-                }
-            ]
-        }
-    ]
-
-    const [categoryWithProducts, setCategoryWithProducts] = useState(sampleData);
-    const [selectedProducts, setSelectedProducts] = useState([]);
+    const [currentMenuItems, setCurrentMenuItems] = useState([]);
+    const [menuItems, setMenuItems] = useState([]);
+    const [typeOfFoods, setTypeOfFoods] = useState([]);
+    const [selectedMenuItems, setSelectedMenuItems] = useState([]);
 
     const handleAddProduct = (product) => {
-        setSelectedProducts([...selectedProducts, product]);
-        setTotalAmount(totalAmount + parseFloat(product.price.replace('$', '')));
+        const existingProduct = selectedMenuItems.find(item => item.id === product.id);
+        if (existingProduct) {
+            alert("This product is already added to the order.");
+            return;
+        }
+        setSelectedMenuItems([...selectedMenuItems, product]);
+        setTotalAmount(totalAmount + parseFloat(product.price));
     };
 
     const handlePlaceOrder = () => {
         navigate('/orderAndBilling/payment');
+    }
+
+    const fetchMenuItems = async () => {
+        setLoading(true);
+        api.get('api/menu-items').then(response => {
+            const data = response.data;
+            setMenuItems(data);
+        }).catch(error => { }).finally(() => setLoading(false));
+    }
+
+    const fetchTypeOfFoods = async () => {
+        try {
+            const response = await api.get('api/food-types');
+            const data = await response.data;
+            setTypeOfFoods(data);
+            setCurrentTypeOfFoodId(data[0].typeOfFoodId);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    useEffect(() => {
+        fetchTypeOfFoods();
+        fetchMenuItems();
+    }, []);
+    
+    useEffect(() => {
+        if (menuItems.length > 0) {
+           setCurrentMenuItems(menuItems.filter(item => item.typeOfFoodId === currentTypeOfFoodId));
+           console.log(currentMenuItems);
+        }   
+    }, [currentTypeOfFoodId, menuItems]); 
+    
+    if (menuItems.length === 0) {
+        return <div>Loading...</div>;
     }
 
     return (
@@ -201,42 +97,20 @@ export const CreateOrder = () => {
                         </svg>
                         } />
 
-                    <ul
-                        className="flex gap-x-2 -mb-px text-sm text-center max-w-full overflow-x-auto"
-                        id="default-tab"
-                        data-tabs-toggle="#default-tab-content"
-                        role="tablist"
-                    >
-                        <li role="presentation">
-                            <button
-                                onClick={() => {
-                                    setCurrentTab(0);
-                                    setCurrentProducts(categoryWithProducts.flatMap((category) => category.products));
-                                }}
-                                className={`inline-block p-4 border-b-2 rounded-t-lg ${currentTab === 0 ? 'border-amber-500 text-amber-500' : ''
-                                    }`}
-                            >
-                                All
-                            </button>
-                        </li>
-                        {categoryWithProducts.map((category, index) => (
-                            <li key={category.name} role="presentation">
-                                <button
-                                    onClick={() => {
-                                        setCurrentProducts(category.products);
-                                        setCurrentTab(index + 1);
-                                    }}
-                                    className={`inline-block p-4 border-b-2 rounded-t-lg ${currentTab === index + 1 ? 'border-amber-500 text-amber-500' : ''
-                                        }`}
-                                >
-                                    {category.name}
+                    <ul className="flex gap-x-2 -mb-px text-sm text-center max-w-full overflow-x-auto" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
+                        {typeOfFoods.map((type) => (
+                            <li key={type.typeOfFoodName} role="presentation">
+                                <button onClick={() => {
+                                    setCurrentTypeOfFoodId(type.typeOfFoodId);
+                                }} className={`inline-block p-4 border-b-2 rounded-t-lg ${currentTypeOfFoodId === type.typeOfFoodId ? 'border-amber-500 text-amber-500' : ''}`}>
+                                    <span className="text-sm line-clamp-1">{type.typeOfFoodName}</span>
                                 </button>
                             </li>
                         ))}
                     </ul>
                     <div className="grid grid-cols-2 gap-4 mt-8 max-h-[calc(100%-150px)] overflow-y-auto">
-                        {currentProducts.map((product) => (
-                            <OrderProductCard onClickAdd={() => handleAddProduct(product)} key={product.id} name={product.name} imageUrl={product.imageUrl} price={product.price} />
+                        {currentMenuItems.map((product) => (
+                            <OrderProductCard onClickAdd={() => handleAddProduct(product)} key={product.id} name={product.itemName} imageUrl={product.imageUrl} price={product.price} />
                         ))}
                     </div>
                 </div>
@@ -259,8 +133,8 @@ export const CreateOrder = () => {
                     </div>
 
                     <div className="flex flex-col overflow-y-auto grow gap-y-2">
-                        {selectedProducts.map((product) => (
-                            <SelectedOrderProductCard key={`selectedProduct-${product.id}`} inStock={product.inStock} name={product.name} imageUrl={product.imageUrl} price={product.price} />
+                        {selectedMenuItems.map((product) => (
+                            <SelectedOrderProductCard key={`selectedProduct-${product.itemId}`} inStock={product.stock} name={product.itemName} imageUrl={product.imageUrl} price={product.price} />
                         ))}
                     </div>
 

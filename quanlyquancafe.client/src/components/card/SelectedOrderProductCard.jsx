@@ -2,8 +2,9 @@ import { useState } from "react"
 import {CircleButton} from "../buttons/CircleButton"
 import { RoundedTextField } from "../textfields/RoundedTextField"
 import QuantityField from "../input_fields/QuantityField";
+import { Button, InputNumber } from "antd";
 
-export const SelectedOrderProductCard = ({ key, imageUrl, name, price, inStock = 0 }) => {
+export const SelectedOrderProductCard = ({ key, imageUrl, name, price }) => {
     const [quantity, setQuantity] = useState(1);
 
     return (
@@ -14,7 +15,7 @@ export const SelectedOrderProductCard = ({ key, imageUrl, name, price, inStock =
                 <p>{price}</p>
             </div>
             <div className="flex flex-col justify-end items-end w-1/3">  
-                <QuantityField max={inStock} min={1} onChange={(quantity) => setQuantity(quantity)}/>
+                <InputNumber min={1} defaultValue={1} onChange={setQuantity} />
             </div>
         </div>
     )

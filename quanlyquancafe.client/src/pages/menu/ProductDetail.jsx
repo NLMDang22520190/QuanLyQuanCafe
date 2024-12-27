@@ -1,46 +1,105 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, InputNumber, Button, Upload, Select, Space } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import api from '../../features/AxiosInstance/AxiosInstance';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import axios from 'axios';  
 
 
 const { Option } = Select;
 const CreateProduct = ({id, onSubmit }) => {
+    const [form] = Form.useForm();
     const [typeOfFoods, setTypeOfFoods] = useState([]);
     const [ingredients, setIngredients] = useState([]);
     const [menuItem, setMenuItem] = useState();
     const [fileList, setFileList] = useState([]);
-    
+    const [imageChanged, setImageChanged] = useState(false);
 
-    const handleSubmit = (values) => {
-        
+    const handleSubmit = async (values) => {        
+        if (imageChanged) {
+            await uploadMenuItemImage(fileList[0].originFileObj).then(
+                async (imageResponse) => {
+                    const imageId = imageResponse.imageId.toString();
+                    
+                    const product = {
+                        itemName: values.itemName,
+                        price: values.price,
+                        typeOfFoodId: values.typeOfFoodId,
+                        itemRecipes: values.itemRecipes,
+                        picture: imageId,
+                        description: values.description,
+                    };
+                    if (product) {
+                        console.log(product);
+                        await updateMenuItem(id, product);
+                    }
+                    
+                }
+            ).catch(error => {
+                console.error('There was an error!', error);
+            });
+        } else {
+            const product = {
+                itemName: values.itemName,
+                price: values.price,
+                typeOfFoodId: values.typeOfFoodId,
+                itemRecipes: values.itemRecipes,
+                picture: menuItem.picture,
+                description: values.description,
+            };
+            if (product) {
+                console.log(product);
+                await updateMenuItem(id, product);
+            }
+        }
     };
 
     const handleChange = (e) => {
 
     }
 
-    const fetchMenuItemById = async (id) => {
+    const fetchImageById = async (id) => {
         try {
-            const response = await fetch(`https://localhost:7087/api/menu-items/with-recipies/${id}`);
+            const response = await api.get(`api/Image/${id}`);
 
-            const data = await response.json();
-            setMenuItem(data);
-            console.log(data);
+            const data = response.data;
+            console.log(response);
+        const base64Image = `data:image/jpeg;base64,${data}`;
+        setFileList([
+            {
+            uid: '-1',
+            name: response.config.url,
+            status: 'done',
+            url: base64Image,
+            },
+        ]);
+
         } catch (error) {
             console.log(error.message);
         }
     }
 
+    const fetchMenuItemById = async (id) => {
+        await api.get(`api/menu-items/${id}`).then(async (response) => {
+            const data = response.data;
+            setMenuItem(data);
+            console.log(menuItem);
+            
+            if (data.picture){
+                fetchImageById(data.picture);
+            }
+        }).catch(error => {
+            console.error('There was an error!', error);
+        }).finally(() => {
+            
+        });
+    }
+
     const fetchTypeOfFoods = async () => {
         try {
-            const response = await fetch('https://localhost:7087/api/food-types');
-            if (!response.ok) {
-                throw new Error('Something went wrong!');
-            }
+            const response = await api.get('api/food-types')
 
-            const data = await response.json();
+            const data = await response.data;
             setTypeOfFoods(data);
         } catch (error) {
             console.log(error.message);
@@ -49,34 +108,60 @@ const CreateProduct = ({id, onSubmit }) => {
 
     const fetchIngredients = async () => {
         try {
-            const response = await fetch('https://localhost:7087/api/ingredient');
-            if (!response.ok) {
-                throw new Error('Something went wrong!');
-            }
+            const response = await api.get('api/ingredient')
 
-            const data = await response.json();
+            const data = await response.data;
             setIngredients(data);
         } catch (error) {
             console.log(error.message);
         }
     }
 
-    const handleImageChange = (info) => {
-        console.log(info.file);
+    const updateMenuItem = async (id, menuItem) => {
+        try {
+            menuItem.itemId = id;
+            const response = await api.put(`api/menu-items/UpdateProduct`, menuItem);
+            console.log(response);
+
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const uploadMenuItemImage = async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await axios.post('https://localhost:7087/api/Image/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
     }
 
     useEffect(() => {
         fetchTypeOfFoods();
         fetchIngredients();
-        fetchMenuItemById(id);
     }, []);
 
+    useEffect(() => {
+        fetchMenuItemById(id)
+    }, [id]);
+
+    useEffect(() => {
+        if (menuItem) {
+          form.resetFields();
+        }
+      }, [menuItem, form]);
+    
     if (!menuItem) {
         return <div>Loading...</div>;
     }
 
     return (
         <Form
+            form={form}
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 34 }}
             layout="horizontal"
@@ -86,14 +171,14 @@ const CreateProduct = ({id, onSubmit }) => {
             <Form.Item
                 label="Image"
                 name="image"
-                rules={[{ required: true, message: 'Please upload an image!' }]}
+               
             >
                 <Upload
                     name="image"
                     listType="picture"
                     fileList={fileList}
                     beforeUpload={() => false}
-                    onChange={handleImageChange}
+                    onChange={({ fileList }) => {setFileList(fileList), setImageChanged(true)}}
                 >
                     <Button icon={<UploadOutlined />}>Click to Upload</Button>
                 </Upload>
@@ -101,7 +186,6 @@ const CreateProduct = ({id, onSubmit }) => {
             <Form.Item
                 label="Product Name"
                 name="itemName"
-                initialValue={menuItem.itemName}
                 rules={[{ required: true, message: 'Please enter product name!' }]}
             >
                 <Input

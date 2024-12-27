@@ -168,7 +168,9 @@ export const MenuPage = () => {
                 <CreateProduct onSubmit={() => setIsAddProductModalVisible(false)} />
             </Modal>
             <Modal title="Menu item detail" open={isProductDetailModalVisible} onCancel={() => {setIsProductDetailModalVisible(false), setSelectedProductId(null)}} footer={null}>
-                <ProductDetail id={selectedProductId} onSubmit={()=>{}} />
+                {
+                    selectedProductId && <ProductDetail id={selectedProductId} onSubmit={() => {setIsProductDetailModalVisible(false), setSelectedProductId(null)}} />
+                }
             </Modal>
         </>
     )

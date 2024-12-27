@@ -3,6 +3,7 @@ import { Form, Input, InputNumber, Button, Upload, Select, Space } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import api from '../../features/AxiosInstance/AxiosInstance';
 
 
 const { Option } = Select;
@@ -11,13 +12,30 @@ const CreateProduct = ({ onSubmit }) => {
     const [ingredients, setIngredients] = useState([]);
     const [fileList, setFileList] = useState([]);
 
-    const handleSubmit = (values) => {
-        createNewProduct(values);
+    const handleSubmit = async (values) => {
+
+        await uploadMenuItemImage(fileList[0].originFileObj).then(
+            async (imageResponse) => {
+                const imageId = imageResponse.imageId.toString();
+
+                const product = {
+                    itemName: values.itemName,
+                    price: values.price,
+                    typeOfFoodId: values.typeOfFoodId,
+                    itemRecipes: values.itemRecipes,
+                    picture: imageId,   
+                    description: values.description,
+                };
+                if (product) {
+                    console.log(product);
+                    await createNewProduct(product);
+                }
+
+            }
+        ).catch(error => {
+            console.error('There was an error!', error);
+        });
     };
-
-    const handleChange = (e) => {
-
-    }
 
     const fetchTypeOfFoods = async () => {
         try {
@@ -48,16 +66,29 @@ const CreateProduct = ({ onSubmit }) => {
     }
 
     const handleImageChange = (info) => {
-        console.log(info.file);
+        setFileList(info.fileList);
     }
 
     const createNewProduct = async (product) => {
-        console.log(product);
-        axios.post('https://localhost:7087/api/menu-itemss/AddProduct', product).then(response => {
-            console.log(response);
-        }).catch(error => {
+        await api.post('api/menu-items/AddProduct', product).then(response => {
+            if (response.status === 201) {
+                onSubmit();
+            }
+        }).catch(error => {     
             console.error('There was an error!', error);
-        })
+        });
+    }
+
+    const uploadMenuItemImage = async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await axios.post('https://localhost:7087/api/Image/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
     }
 
     useEffect(() => {
@@ -116,7 +147,6 @@ const CreateProduct = ({ onSubmit }) => {
                             />
                         </svg>
                     }
-                    onChange={handleChange}
                 />
             </Form.Item>
             <Form.Item
@@ -144,7 +174,6 @@ const CreateProduct = ({ onSubmit }) => {
                             />
                         </svg>
                     }
-                    onChange={(value) => handleChange({ target: { name: 'price', value } })}
                 />
             </Form.Item>
             <Form.Item
@@ -179,53 +208,53 @@ const CreateProduct = ({ onSubmit }) => {
                     ))}
                 </Select>
             </Form.Item>
-            
+
             <Form.Item label="Ingredients" name="itemRecipes">
-            <Form.List name="itemRecipes">
-                {(fields, { add, remove }) => (
-                    <>
-                        {fields.map(({ key, name, ...restField }, index) => (
-                            <Space 
-                                key={key}
-                                style={{ display: 'flex', marginBottom: 8 }}
-                                align="baseline"
-                            >
-                                <Form.Item
-                                    {...restField}
-                                    name={[name, 'ingredientId']}
-                                    rules={[{ required: true, message: 'Please select an ingredient!' }]}
+                <Form.List name="itemRecipes">
+                    {(fields, { add, remove }) => (
+                        <>
+                            {fields.map(({ key, name, ...restField }, index) => (
+                                <Space
+                                    key={key}
+                                    style={{ display: 'flex', marginBottom: 8 }}
+                                    align="baseline"
                                 >
-                                    <Select placeholder="Select an ingredient">
-                                        {ingredients.map((ingredient) => (
-                                            <Option
-                                                key={ingredient.ingredientId}
-                                                value={ingredient.ingredientId}
-                                            >
-                                                {ingredient.ingredientName}
-                                            </Option>
-                                        ))}
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item
-                                    {...restField}
-                                    name={[name, 'quantity']}
-                                    rules={[{ required: true, message: 'Please enter quantity!' }]}
-                                >
-                                    <InputNumber placeholder="Quantity" />
-                                </Form.Item>
-                                <MinusCircleOutlined onClick={() => remove(name)} />
-                            </Space>
-                        ))}
-                        <Form.Item>
-                            <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                Add Ingredient
-                            </Button>
-                        </Form.Item>
-                    </>
-                )}
-            </Form.List>
+                                    <Form.Item
+                                        {...restField}
+                                        name={[name, 'ingredientId']}
+                                        rules={[{ required: true, message: 'Please select an ingredient!' }]}
+                                    >
+                                        <Select placeholder="Select an ingredient">
+                                            {ingredients.map((ingredient) => (
+                                                <Option
+                                                    key={ingredient.ingredientId}
+                                                    value={ingredient.ingredientId}
+                                                >
+                                                    {ingredient.ingredientName}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                    <Form.Item
+                                        {...restField}
+                                        name={[name, 'quantity']}
+                                        rules={[{ required: true, message: 'Please enter quantity!' }]}
+                                    >
+                                        <InputNumber placeholder="Quantity" />
+                                    </Form.Item>
+                                    <MinusCircleOutlined onClick={() => remove(name)} />
+                                </Space>
+                            ))}
+                            <Form.Item>
+                                <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                    Add Ingredient
+                                </Button>
+                            </Form.Item>
+                        </>
+                    )}
+                </Form.List>
             </Form.Item>
-            <Form.Item  label="Description" name="description">
+            <Form.Item label="Description" name="description">
                 <Input.TextArea name="description" placeholder="(Optional) Enter descriptions" />
             </Form.Item>
             <div className="flex justify-between">
@@ -252,7 +281,7 @@ const CreateProduct = ({ onSubmit }) => {
                         </svg>
                     </Button>
                 </Form.Item>
-                
+
             </div>
         </Form>
     );
