@@ -2,6 +2,9 @@ import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Layout, theme, Menu, Button } from 'antd';
 import UserRole from '../constant/UserRole';
+import { logout } from "../features/Auth/Auth";
+import { clearCart } from "../features/Cart/Cart";
+import { useDispatch } from "react-redux";
 
 
 const {Sider } = Layout;
@@ -73,6 +76,12 @@ export const AppSideMenu = () => {
     });
     const [collapsed, setCollapsed] = useState(false);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const handleLogout = () => {
+        dispatch(logout());
+        dispatch(clearCart());
+    };
 
     const userRole = UserRole.ADMIN; 
 
@@ -104,7 +113,7 @@ export const AppSideMenu = () => {
                     variant="text"
                     color="default"
                     onClick={() => {
-                        console.log("Sign out");
+                        handleLogout();
                     }}
                     className="px-4 py-2 rounded"
                 >

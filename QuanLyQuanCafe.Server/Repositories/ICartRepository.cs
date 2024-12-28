@@ -4,6 +4,7 @@ namespace QuanLyQuanCafe.Server.Repositories
 {
     public interface ICartRepository : ICoffeeManagementRepository<Cart>
     {
-        Task<Cart> GetCartByCustomerId(int customerId);
+        Task<Cart> GetCartByCustomerId(string customerId);
+
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using QuanLyQuanCafe.Server.Repositories;
 using QuanLyQuanCafe.Server.Models;
 using Microsoft.EntityFrameworkCore;
+using QuanLyQuanCafe.Server.Models.DTO;
 
 namespace QuanLyQuanCafe.Server.Controllers
 {
@@ -21,33 +22,31 @@ namespace QuanLyQuanCafe.Server.Controllers
         /// <summary>
         /// Create schedule with full field.
         /// </summary>
-        [HttpPost]
-        public async Task<IActionResult> CreateSchedule([FromBody] Schedule newSchedule)
+        [HttpPost("create-schedule")]
+        public async Task<IActionResult> CreateSchedule([FromBody] ScheduleDto scheduleDto)
         {
             try
             {
-                if (newSchedule == null)
+                var newScheduleDto = await _scheduleRepos.CreateScheduleAsync(scheduleDto);
+
+                if (newScheduleDto == null)
                 {
-                    return BadRequest(new { Message = "Invalid schedule data." });
+                    return BadRequest(new { message = "Failed to create schedule." });
                 }
 
-                // Additional validation can go here if needed.
-            
-
-                var createdSchedule = await _scheduleRepos.CreateAsync(newSchedule);
-
-                if (createdSchedule == null)
-                {
-                    return StatusCode(500, new { Message = "An error occurred while creating the schedule." });
-                }
-
-                return Ok(createdSchedule);
+                return Ok(newScheduleDto);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Error = ex.Message });
+                Console.WriteLine($"Error: {ex.Message}, {ex.StackTrace}");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while creating the schedule." });
             }
         }
+
         /// <summary>
         /// Update the end date of a specific schedule.
         /// </summary>
@@ -60,6 +59,15 @@ namespace QuanLyQuanCafe.Server.Controllers
             if (schedule == null)
             {
                 return null;
+            }
+            if (newEndDate <= schedule.StartDate)
+            {
+                return BadRequest(new { message = "The new end date must be greater than the start date." });
+            }
+
+            if (newEndDate <= DateOnly.FromDateTime(DateTime.Now))
+            {
+                return BadRequest(new { message = "The new end date must be greater than the current date." });
             }
 
             if (newEndDate < schedule.EndDate)

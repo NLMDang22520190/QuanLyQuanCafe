@@ -1,32 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿//using System;
+//using System.Collections.Generic;
 
-namespace QuanLyQuanCafe.Server.Models;
+//namespace QuanLyQuanCafe.Server.Models;
 
-public partial class CustomerDetail
-{
-    public int CustomerId { get; set; }
+//public partial class CustomerDetail
+//{
+//    public int CustomerId { get; set; }
 
-    public int UserId { get; set; }
+//    public int UserId { get; set; }
 
-    public string CustomerName { get; set; } = null!;
+//    public string CustomerName { get; set; } = null!;
 
-    public DateOnly? CustomerBirthday { get; set; }
+//    public DateOnly? CustomerBirthday { get; set; }
 
-    public string CustomerPhone { get; set; } = null!;
+//    public string CustomerPhone { get; set; } = null!;
 
-    public string? CustomerAddress { get; set; }
+//    public string? CustomerAddress { get; set; }
 
-    public int? CustomerPoint { get; set; }
+//    public int? CustomerPoint { get; set; }
 
-    public string? CustomerStatus { get; set; }
+//    public string? CustomerStatus { get; set; }
 
-    public string? AccountStatus { get; set; }
+//    public string? AccountStatus { get; set; }
 
-    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
+//    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
-    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+//    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
-    
-    public virtual ApplicationUser? User { get; set; }
-}
+
+//    public virtual ApplicationUser? User { get; set; }
+//}

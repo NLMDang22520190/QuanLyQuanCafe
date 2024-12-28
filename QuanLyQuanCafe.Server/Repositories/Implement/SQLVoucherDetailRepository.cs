@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Repositories;
 
@@ -7,10 +8,12 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
     public class SQLVoucherDetailRepository : CoffeeManagementRepository<VoucherDetail>, IVoucherDetailRepository
     {
         private readonly CoffeeManagementContext dbContext;
+        UserManager<ApplicationUser> userManager;
 
-        public SQLVoucherDetailRepository(CoffeeManagementContext dbContext) : base(dbContext)
+        public SQLVoucherDetailRepository(CoffeeManagementContext dbContext, UserManager<ApplicationUser> userManager) : base(dbContext)
         {
             this.dbContext = dbContext;
+            this.userManager= userManager;
         }
 
         public async Task<VoucherDetail> GetVoucherDetailByVoucherCode(string voucherCode)
@@ -19,11 +22,10 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             return voucherDetail;
         }
 
-        public async Task<List<VoucherDetail>> GetVoucherDetailByCustomerId(int customerId)
+        public async Task<List<VoucherDetail>> GetVoucherDetailByCustomerId(string userId)
         {
             // Lấy thông tin khách hàng
-            var customer = await dbContext.CustomerDetails
-                .FirstOrDefaultAsync(x => x.CustomerId == customerId);
+            var customer = await userManager.FindByIdAsync(userId);
 
             if (customer == null)
             {

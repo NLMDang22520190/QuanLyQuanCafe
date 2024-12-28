@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using QuanLyQuanCafe.Server.Helpers;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTOs;
 using QuanLyQuanCafe.Server.Models.RequestModels;
 using QuanLyQuanCafe.Server.Repositories;
 using System.IdentityModel.Tokens.Jwt;
@@ -63,7 +65,9 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             var user = new ApplicationUser
             {
                 Email = model.Email,
-                UserName = model.Email
+                UserName = model.Email,
+                isActive=true,
+                CustomerPoint = 0,
             };
 
             var result = await userManager.CreateAsync(user, model.Password);
@@ -76,8 +80,87 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 }
 
                 await userManager.AddToRoleAsync(user, AppRole.Customer);
+                
             }
             return result;
         }
+        public async Task<bool> ActivateAccountAsync(string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+
+            user.isActive = true;
+            var result = await userManager.UpdateAsync(user);
+
+            return result.Succeeded;
+        }
+
+        public async Task<bool> DisableAccountAsync(string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+
+            user.isActive = false; 
+            var result = await userManager.UpdateAsync(user);
+
+            return result.Succeeded;
+        }
+        public async Task<List<UserModel>> GetUsersAsync(int pageIndex, int pageSize)
+        {
+
+            var users = await userManager.Users
+                                          .Skip((pageIndex - 1) * pageSize) 
+                                          .Take(pageSize)                  
+                                          .ToListAsync();
+
+            var userWithRoles = new List<UserModel>();
+
+            foreach (var user in users)
+            {
+                var roles = await userManager.GetRolesAsync(user); 
+                var role = roles.FirstOrDefault();
+
+                userWithRoles.Add(new UserModel
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    UserName = user.UserName,
+                    IsActive = user.isActive,
+                    Role = role 
+                });
+            }
+
+            return userWithRoles;
+        }
+
+
+        public Task<ApplicationUser> GetUserByEmail(string email)
+        {
+            var user = userManager.FindByEmailAsync(email);
+            return user;
+        }
+
+        public async Task<bool> UpdateUserPasswordAsync(ApplicationUser user, string newPassword)
+        {
+            var result = await userManager.HasPasswordAsync(user);
+
+            if (result)
+            {
+                var removeResult = await userManager.RemovePasswordAsync(user);
+                if (!removeResult.Succeeded)
+                {
+                    return false;
+                }
+            }
+
+            var addResult = await userManager.AddPasswordAsync(user, newPassword);
+            if (!addResult.Succeeded)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
+
 }

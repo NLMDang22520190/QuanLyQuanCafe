@@ -9,12 +9,14 @@ import SignUp from "../pages/Auth/SignUp/SignUp";
 import ForgotPassword from "../pages/Auth/ForgotPassword/ForgotPassword";
 import VerifyCode from "../pages/Auth/VerifyCode/VerifyCode";
 import ResetPassword from "../pages/Auth/ResetPassword/ResetPassword";
+import UpdatePersonalData from "../pages/Users/UpdatePersonalData/UpdatePersonalData";
 
 const AllUserRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/menuAll" element={<Menu />} />
+      <Route path="/update-personal-data" element={<UpdatePersonalData />} />
       <Route path="/order-confirmation" element={<OrderConfirmation />} />
       <Route path="/auth/login" element={<Login />} />
       <Route path="/auth/signup" element={<SignUp />} />

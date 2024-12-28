@@ -9,6 +9,7 @@ namespace QuanLyQuanCafe.Server.Repositories
     {
         Task<List<OrderStatisticDTO>> GetTotalOrderAmountByMonths();
         Task<Order?> GetOrderByIdAsync(int orderId);
+        Task<List<Order>> GetPendingOrdersAsync();
 		Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId);
 		Task<bool> UpdateOrderStateAsync(int orderId, string newState);
 		Task<bool> UpdatePaymentMethodAsync(int orderId, string paymentMethod);

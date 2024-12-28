@@ -24,8 +24,19 @@ namespace QuanLyQuanCafe.Server.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet("GetCartIdByCustomerId/{customerId}")]
+        public async Task<IActionResult> GetCartIdByCustomerId(string customerId)
+        {
+            var cartDomain = await _cartRepository.GetCartByCustomerId(customerId);
+            if (cartDomain == null)
+            {
+                return NotFound($"No cart found for UserId {customerId}");
+            }
+            return Ok(cartDomain.CartId);
+        }
+
         [HttpGet("GetCartDetailsByCustomerId/{customerId}")]
-        public async Task<IActionResult> GetCartDetailsByCustomerId(int customerId)
+        public async Task<IActionResult> GetCartDetailsByCustomerId(string customerId)
         {
             var cartDomain = await _cartRepository.GetCartByCustomerId(customerId);
             if (cartDomain == null)

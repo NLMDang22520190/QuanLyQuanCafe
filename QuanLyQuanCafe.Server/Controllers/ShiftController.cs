@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTO;
 using QuanLyQuanCafe.Server.Repositories;
 
 namespace QuanLyQuanCafe.Server.Controllers
@@ -19,23 +20,24 @@ namespace QuanLyQuanCafe.Server.Controllers
         /// Get all shifts
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetAllShifts()
+        public async Task<IActionResult> GetAllShifts(int pageIndex, int pageSize)
         {
-            try
-            {
-                var shifts = await _shiftRepo.GetAllAsync();
-                if (shifts == null || !shifts.Any())
-                {
-                    return NotFound("No shifts found.");
-                }
-                return Ok(shifts);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
+            var pagedResult = await _shiftRepo.GetAllShift(pageIndex, pageSize);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while fetching shifts." });
+            if (pagedResult == null || !pagedResult.Data.Any())
+            {
+                return NotFound(new { message = "No shift found." });
             }
+
+            return Ok(new
+            {
+                message = "Shift fetched successfully.",
+                data = pagedResult.Data,
+                totalRecords = pagedResult.TotalRecords,
+                totalPages = pagedResult.TotalPages,
+                currentPage = pagedResult.CurrentPage,
+                pageSize = pagedResult.PageSize
+            });
         }
         /// <summary>
         /// Get a shift by ID
@@ -62,24 +64,24 @@ namespace QuanLyQuanCafe.Server.Controllers
         /// Create a new shift
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> CreateShift([FromBody] Shift newShift)
+        public async Task<IActionResult> CreateShift([FromBody] ShiftDTO newShift)
         {
-
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid data.");
+                return BadRequest(new { error = "Invalid data provided." });
             }
 
             try
             {
-                var createdShift = await _shiftRepo.CreateAsync(newShift);
-                Console.WriteLine($"create shift data: ShiftID={newShift.ShiftId}");
+                var createdShift = await _shiftRepo.CreateShift(newShift);
                 return CreatedAtAction(nameof(GetShiftById), new { id = createdShift.ShiftId }, createdShift);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { error = ex.Message });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message} , {ex.StackTrace}");
-
                 return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while creating the shift." });
             }
         }
@@ -87,35 +89,29 @@ namespace QuanLyQuanCafe.Server.Controllers
         /// Update a shift
         /// </summary>
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateShift(int id, [FromBody] Shift updatedShift)
+        public async Task<IActionResult> UpdateShift(int id, [FromBody] ShiftDTO shiftDto)
         {
-            Console.WriteLine($"Received data: ShiftName={updatedShift.ShiftName}, StartTime={updatedShift.StartTime}, EndTime={updatedShift.EndTime}");
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid data.");
+                return BadRequest(new { error = "Invalid data provided." });
             }
 
             try
             {
-                var updated = await _shiftRepo.UpdateAsync(
-                    s => s.ShiftId == id,
-                    shift =>
-                    {
-                        shift.StartTime = updatedShift.StartTime;
-                        shift.EndTime = updatedShift.EndTime;
-                    }
-                );
-
-                if (updated == null)
-                {
-                    return NotFound($"Shift with ID {id} not found.");
-                }
-
-                return Ok(updated);
+                var updatedShift = await _shiftRepo.UpdateShift(id, shiftDto);
+                return Ok(updatedShift);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { error = ex.Message });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"Error: {ex.Message}, {ex.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while updating the shift." });
             }
         }
@@ -123,24 +119,28 @@ namespace QuanLyQuanCafe.Server.Controllers
         /// Delete shift
         /// </summary>
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteShift(int id)
+        public async Task<IActionResult> SoftDeleteShift(int id)
         {
             try
             {
-                var deletedShift = await _shiftRepo.DeleteAsync(s => s.ShiftId == id);
-                if (deletedShift == null)
-                {
-                    return NotFound($"Shift with ID {id} not found.");
-                }
-
-                return Ok($"Shift with ID {id} deleted successfully.");
+                var result = await _shiftRepo.SoftDeleteShift(id);
+                return Ok(new { success = result });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"Error: {ex.Message}, {ex.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while deleting the shift." });
             }
         }
+
 
         [HttpGet("statistics")]
         public async Task<IActionResult> GetShiftStatistics()
