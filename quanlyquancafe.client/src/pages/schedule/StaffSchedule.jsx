@@ -99,7 +99,7 @@ const StaffSchedule = () => {
                         startHour="06:00"
                         endHour="22:00"
                         showTimeIndicator={true}
-
+                        readonly={true} 
                     >
                         <Inject services={[Day, Week, WorkWeek]} />
                     </ScheduleComponent>
