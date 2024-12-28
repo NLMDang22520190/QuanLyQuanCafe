@@ -19,7 +19,12 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
   ];
 
   const monthlySalaryColumns = [
-    { title: "Month", dataIndex: "month", key: "month" },
+    {
+      title: "Month",
+      dataIndex: "month",
+      key: "month",
+      render: (_, record) => `${record.month}, ${record.year}`, 
+    },
     { title: "Hours Worked", dataIndex: "hoursWorked", key: "hoursWorked" },
     { title: "Hourly Wage", dataIndex: "hourlyWage", key: "hourlyWage", render: (value) => (value !== "N/A" ? `$${value}` : value) },
     {

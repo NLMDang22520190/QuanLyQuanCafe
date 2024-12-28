@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTO;
 using QuanLyQuanCafe.Server.Repositories;
 
 namespace QuanLyQuanCafe.Server.Repositories.Implement
@@ -10,6 +12,41 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         public SQLShiftRepository(CoffeeManagementContext dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        public async Task<PagedResult<ShiftDTO>> GetAllShift(int pageIndex, int pageSize)
+        {
+            var query = _dbContext.Shifts.Where(s => !s.IsDeleted);
+            var totalRecords = await query.CountAsync();
+
+            var shifts = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (shifts == null || !shifts.Any())
+            {
+                return null;
+            }
+
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+
+            var shiftDtos = shifts.Select(s => new ShiftDTO
+            {
+                ShiftId = s.ShiftId,
+                ShiftName = s.ShiftName?? "Unknown",
+                StartTime = s.StartTime,
+                EndTime = s.EndTime
+            }).ToList();
+
+            return new PagedResult<ShiftDTO>
+            {
+                TotalRecords = totalRecords,
+                TotalPages = totalPages,
+                CurrentPage = pageIndex,
+                PageSize = pageSize,
+                Data = shiftDtos
+            };
         }
 
         public IQueryable<ShiftTimeDistribution> GetShiftDistribution()
@@ -42,6 +79,101 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             return shiftDistribution;
         }
+        public async Task<ShiftDTO> CreateShift(ShiftDTO shiftDto)
+        {
+            if (shiftDto == null)
+            {
+                throw new ArgumentNullException(nameof(shiftDto), "Shift details must be provided.");
+            }
+
+            var overlappingShift = await _dbContext.Shifts
+                .Where(s =>
+                    (shiftDto.StartTime < s.EndTime && shiftDto.EndTime > s.StartTime) 
+                )
+                .FirstOrDefaultAsync();
+
+            if (overlappingShift != null)
+            {
+                throw new InvalidOperationException($"Shift overlaps with an existing shift: {overlappingShift.ShiftName} (Start: {overlappingShift.StartTime}, End: {overlappingShift.EndTime})");
+            }
+
+            var shift = new Shift
+            {
+                ShiftName = shiftDto.ShiftName,
+                StartTime = shiftDto.StartTime,
+                EndTime = shiftDto.EndTime
+            };
+
+            await _dbContext.Shifts.AddAsync(shift);
+            await _dbContext.SaveChangesAsync();
+
+            return new ShiftDTO
+            {
+                ShiftId = shift.ShiftId,
+                ShiftName = shift.ShiftName,
+                StartTime = shift.StartTime,
+                EndTime = shift.EndTime
+            };
+        }
+        public async Task<ShiftDTO> UpdateShift(int shiftId, ShiftDTO shiftDto)
+        {
+            if (shiftDto == null)
+            {
+                throw new ArgumentNullException(nameof(shiftDto), "Shift details must be provided.");
+            }
+
+            var existingShift = await _dbContext.Shifts.FindAsync(shiftId);
+            if (existingShift == null)
+            {
+                throw new KeyNotFoundException($"Shift with ID {shiftId} not found.");
+            }
+
+            var overlappingShift = await _dbContext.Shifts
+                .Where(s => s.ShiftId != shiftId) 
+                .Where(s =>
+                    (shiftDto.StartTime < s.EndTime && shiftDto.EndTime > s.StartTime) 
+                )
+                .FirstOrDefaultAsync();
+
+            if (overlappingShift != null)
+            {
+                throw new InvalidOperationException($"Shift overlaps with an existing shift: {overlappingShift.ShiftName} (Start: {overlappingShift.StartTime}, End: {overlappingShift.EndTime})");
+            }
+
+            existingShift.ShiftName = shiftDto.ShiftName;
+            existingShift.StartTime = shiftDto.StartTime;
+            existingShift.EndTime = shiftDto.EndTime;
+
+            _dbContext.Shifts.Update(existingShift);
+            await _dbContext.SaveChangesAsync();
+
+            return new ShiftDTO
+            {
+                ShiftId = existingShift.ShiftId,
+                ShiftName = existingShift.ShiftName,
+                StartTime = existingShift.StartTime,
+                EndTime = existingShift.EndTime
+            };
+        }
+
+        public async Task<bool> SoftDeleteShift(int shiftId)
+        {
+            var shift = await _dbContext.Shifts.FindAsync(shiftId);
+            if (shift == null)
+                throw new KeyNotFoundException($"Shift with ID {shiftId} not found.");
+
+            var hasActiveSchedules = await _dbContext.Schedules
+                .AnyAsync(schedule => schedule.ShiftId == shiftId && schedule.EndDate >= DateOnly.FromDateTime(DateTime.Now));
+
+            if (hasActiveSchedules)
+                throw new InvalidOperationException($"Cannot delete shift with ID {shiftId} because it has active schedules.");
+
+            shift.IsDeleted = true;
+            await _dbContext.SaveChangesAsync();
+
+            return true;
+        }
+
     }
 }
 

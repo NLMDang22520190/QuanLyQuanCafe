@@ -182,6 +182,40 @@ namespace QuanLyQuanCafe.Server.Controllers
                 pageSize = pagedResult.PageSize
             });
         }
+        [HttpGet("staff-not-in-shift/{shiftId}")]
+        public async Task<IActionResult> GetStaffNotInShift(int shiftId, [FromQuery] int month, [FromQuery] int year)
+        {
+            try
+            {
+                var staffDtos = await _staffRepo.GetStaffNotInShiftAsync(shiftId, month, year);
+                return Ok(staffDtos);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}, {ex.StackTrace}");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while retrieving staff." });
+            }
+        }
+        [HttpGet("staff-in-shift/{shiftId}")]
+        public async Task<IActionResult> GetStaffInShift(int shiftId, [FromQuery] int month, [FromQuery] int year, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var result = await _staffRepo.GetStaffInShiftAsync(shiftId, month, year, pageIndex, pageSize);
+
+                if (result == null || result.Data == null || !result.Data.Any())
+                {
+                    return NotFound(new { message = "No staff found for this shift in the specified period." });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}, {ex.StackTrace}");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while retrieving staff." });
+            }
+        }
 
 
         [HttpGet("newest-staffs/{count}")]
