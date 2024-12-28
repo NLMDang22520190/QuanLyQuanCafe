@@ -4,7 +4,7 @@ import { getAuthCookies, clearAuthCookies } from "../Cookies/CookiesHelper";
 // Tạo instance của Axios
 const instance = axios.create({
   baseURL: "https://localhost:7087/", // URL của API backend
-  timeout: 10000, // Thời gian chờ tối đa cho mỗi request (ms)
+  timeout: 15000, // Thời gian chờ tối đa cho mỗi request (ms)
   headers: {
     "Content-Type": "application/json; charset=utf-8", // Header mặc định cho các request
   },

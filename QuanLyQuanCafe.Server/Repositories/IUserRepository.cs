@@ -14,5 +14,7 @@ namespace QuanLyQuanCafe.Server.Repositories
         Task<List<UserModel>> GetUsersAsync(int pageNumber, int pageSize);
 
         Task<ApplicationUser> GetUserByEmail(string email);
+
+        Task<bool> UpdateUserPasswordAsync(ApplicationUser user, string newPassword);
     }
 }
