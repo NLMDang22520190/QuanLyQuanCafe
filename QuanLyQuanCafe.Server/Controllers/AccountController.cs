@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Models.DTO;
+using QuanLyQuanCafe.Server.Models.DTO.GET;
+using QuanLyQuanCafe.Server.Models.DTO.UPDATE;
 using QuanLyQuanCafe.Server.Models.DTOs;
 using QuanLyQuanCafe.Server.Models.RequestModels;
 using QuanLyQuanCafe.Server.Repositories;
@@ -12,12 +15,13 @@ namespace QuanLyQuanCafe.Server.Controllers
 {
     [Route("api/account")]
     [ApiController]
-    public class AccountController(IUserRepository userRepository,IOrderRepository orderRepository, IMemoryCache cache) : ControllerBase
+    public class AccountController(IUserRepository userRepository,IOrderRepository orderRepository, IMemoryCache cache, IMapper mapper) : ControllerBase
     {
         private readonly IUserRepository userRepository = userRepository;
         private readonly IOrderRepository orderRepository = orderRepository;
         private readonly IMemoryCache _cache = cache;
         private readonly EmailService _emailService = new EmailService();
+        private readonly IMapper _mapper = mapper;
 
         [HttpPost("create-user")]
         public async Task<IActionResult> CreateUser(CreateUserModel createUserModel )
@@ -164,6 +168,21 @@ namespace QuanLyQuanCafe.Server.Controllers
             });
         }
 
+        [HttpGet("GetUserById/{userId}")]
+        public async Task<IActionResult> GetUserById(string userId)
+        {
+            var user = await userRepository.GetUserById(userId);
+            if (user == null)
+            {
+                return NotFound(new ApiResponse<UserInfoDTO>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = "User not found.",
+                    Data = null
+                });
+            }
+            return Ok(_mapper.Map<UserInfoDTO>(user));
+        }
 
         [HttpPost("send-verification-code/{email}")]
         public async Task<IActionResult> SendVerificationCode(string email)
@@ -291,6 +310,29 @@ namespace QuanLyQuanCafe.Server.Controllers
             }
         }
 
+        [HttpPost("CheckUserCurrentPass")]
+        public async Task<IActionResult> CheckUserCurrentPass(SignInModel signInModel)
+        {
+            var result = await userRepository.CheckUserCurrentPass(signInModel);
+            if (result)
+            {
+                return Ok(new ApiResponse<bool>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Password is correct.",
+                    Data = true
+                });
+            }
+            return BadRequest(new ApiResponse<bool>
+            {
+                StatusCode = StatusCodes.Status400BadRequest,
+                Message = "Mật khẩu hiện tại không đúng.",
+                Data = false
+            });
+
+
+        }
+
         [HttpGet("CheckEmailHasRegistered")]
         public async Task<bool> CheckEmailHasRegistered(string email)
         {
@@ -300,6 +342,28 @@ namespace QuanLyQuanCafe.Server.Controllers
                 return true;
             }
             return false;
+        }
+
+        [HttpPut("UpdateUserInfo/{userId}")]
+        public async Task<IActionResult> UpdateUserInfo(string userId, UpdateUserInfoRequestDTO request)
+        {
+
+            var result = await userRepository.UpdateUserInfo(userId, request);
+            if (result)
+            {
+                return Ok(new ApiResponse<bool>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "User info updated successfully.",
+                    Data = true
+                });
+            }
+            return BadRequest(new ApiResponse<bool>
+            {
+                StatusCode = StatusCodes.Status400BadRequest,
+                Message = "Failed to update user info.",
+                Data = false
+            });
         }
     }
 }

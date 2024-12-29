@@ -24,6 +24,8 @@ namespace QuanLyQuanCafe.Server.Mapping
             CreateMap<Ingredient, IngredientInRecipeDTO>().ReverseMap();
             CreateMap<ItemRecipe, UpdateItemRecipeRequestDTO>().ReverseMap();
             CreateMap<MenuItem, UpdateItemRequestDTO>().ReverseMap();
+            CreateMap<ApplicationUser, UserInfoDTO>().ReverseMap();
+            CreateMap<ApplicationUser, UpdateUserInfoRequestDTO>().ReverseMap();
         }
     }
 }
