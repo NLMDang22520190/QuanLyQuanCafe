@@ -43,6 +43,7 @@ const UserPage = () => {
     try {
       const response = await axios.get(`https://localhost:7087/api/staff/former-staffs?pageIndex=${pageIndexFStaff}&pageSize=${10}`);
 
+
       console.log(response.data)
       setTotalFStaff(response.data.totalPages)
       setFormerStaff(response.data.data);

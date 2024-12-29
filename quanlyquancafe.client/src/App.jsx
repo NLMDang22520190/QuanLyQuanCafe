@@ -17,17 +17,13 @@ function App() {
   return (
     <ConfigProvider theme={themeConfig}>
       <div className="App ">
-
-        {userRole === "Admin" || userRole === "Staff" ? (
-          <AppLayout>
-            <AllRoutes />
-          </AppLayout>
-        ) : (
-          <>
-            <Navbar />
-            <AllUserRoutes />
-          </>
-        )}
+        {/* <AppLayout>
+          <AllRoutes />
+        </AppLayout> */}
+        <>
+          <Navbar />
+          <AllUserRoutes />
+        </>
       </div>
     </ConfigProvider>
   );
