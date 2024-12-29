@@ -75,8 +75,63 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             return totalMonthSalariesByMonth;
         }
+        public async Task<List<MonthSalary>> CreateForRangeAsync(int salaryId, DateOnly startDate, DateOnly endDate)
+        {
+            if (startDate > endDate)
+            {
+                throw new ArgumentException("Start date must be earlier than or equal to the end date.");
+            }
+
+            var monthSalaries = new List<MonthSalary>();
+            var currentDate = startDate;
+
+            while (currentDate <= endDate)
+            {
+                var month = currentDate.ToString("yyyy-MM");
+
+                var existingMonthSalary = await dbContext.MonthSalaries
+                    .FirstOrDefaultAsync(ms => ms.SalaryId == salaryId && ms.Month == month);
+
+                if (existingMonthSalary == null)
+                {
+                    var newMonthSalary = new MonthSalary
+                    {
+                        SalaryId = salaryId,
+                        Month = month,
+                        TotalHours = 0
+                    };
+
+                    monthSalaries.Add(newMonthSalary);
+                    await dbContext.MonthSalaries.AddAsync(newMonthSalary);
+                }
+
+                currentDate = currentDate.AddMonths(1).AddDays(-currentDate.Day + 1); 
+            }
+
+            // Save all changes to the database
+            await dbContext.SaveChangesAsync();
+
+            return monthSalaries;
+        }
+        public async Task DeleteFutureMonthSalariesAsync(int salaryId, DateOnly startDate)
+        {
+            // Get the current month in "YYYY-MM" format
+            string currentMonth = $"{startDate.Year}-{startDate.Month:D2}";
+
+            var monthSalaries = await _dbSet
+                .Where(ms => ms.SalaryId == salaryId && string.Compare(ms.Month, currentMonth) > 0)
+                .ToListAsync();
+
+            if (monthSalaries.Any())
+            {
+                _dbSet.RemoveRange(monthSalaries);
+                await dbContext.SaveChangesAsync();
+            }
+        }
+
+
     }
 
-    
+
 
 }

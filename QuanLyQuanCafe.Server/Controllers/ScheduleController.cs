@@ -4,6 +4,8 @@ using QuanLyQuanCafe.Server.Repositories;
 using QuanLyQuanCafe.Server.Models;
 using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models.DTO;
+using QuanLyQuanCafe.Server.Migrations;
+using QuanLyQuanCafe.Server.Models.RequestModels;
 
 namespace QuanLyQuanCafe.Server.Controllers
 {
@@ -13,11 +15,17 @@ namespace QuanLyQuanCafe.Server.Controllers
     {
         private readonly IScheduleRepository _scheduleRepos;
         private readonly IAttendanceRepository _attendanceRepos;
+        private readonly ISalaryRepository _salaryRepos;
+        private readonly IMonthSalaryRepository _monthSalaryRepos;
 
-        public ScheduleController(IScheduleRepository scheduleRepository, IAttendanceRepository attendanceRepository)
+
+
+        public ScheduleController(IScheduleRepository scheduleRepository, IAttendanceRepository attendanceRepository, ISalaryRepository salaryRepository, IMonthSalaryRepository monthSalaryRepository)
         {
             _scheduleRepos = scheduleRepository;
             _attendanceRepos = attendanceRepository;
+            _salaryRepos = salaryRepository;
+            _monthSalaryRepos=monthSalaryRepository;
         }
         /// <summary>
         /// Create schedule with full field.
@@ -27,6 +35,13 @@ namespace QuanLyQuanCafe.Server.Controllers
         {
             try
             {
+                var salary = await _salaryRepos.GetCurrentSalaryByStaffIdAsync(scheduleDto.StaffId);
+                if (salary == null)
+                {
+                    return NotFound(new { message = "Salary record not found for the given staff." });
+                }
+                var salaryId = salary.SalaryId;
+                await _monthSalaryRepos.CreateForRangeAsync(salaryId, scheduleDto.StartDate, scheduleDto.EndDate);
                 var newScheduleDto = await _scheduleRepos.CreateScheduleAsync(scheduleDto);
 
                 if (newScheduleDto == null)
@@ -50,16 +65,23 @@ namespace QuanLyQuanCafe.Server.Controllers
         /// <summary>
         /// Update the end date of a specific schedule.
         /// </summary>
-        [HttpPut("update-end-date/{scheduleId}")]
-        public async Task<IActionResult> UpdateEndDateAsync(int scheduleId, [FromBody] DateOnly newEndDate)
+        [HttpPut("update-end-date")]
+        public async Task<IActionResult> UpdateEndDateAsync(int staffId, int shiftId, [FromBody] DateOnly newEndDate)
         {
 
-            var schedule = await _scheduleRepos.GetByIdAsync(s => s.ScheduleId == scheduleId);
-
+            var schedule = await _scheduleRepos.GetByIdAsync(s => s.StaffId == staffId && s.ShiftId==shiftId);
             if (schedule == null)
             {
-                return null;
+                return NotFound(new { message = "schedule record not found for the given staffid and shiftId." });
             }
+            var scheduleId = schedule.ScheduleId;
+            var salary = await _salaryRepos.GetCurrentSalaryByStaffIdAsync(staffId);
+            if (salary == null)
+            {
+                return NotFound(new { message = "Salary record not found for the given staff." });
+            }
+            var salaryId = salary.SalaryId;
+
             if (newEndDate <= schedule.StartDate)
             {
                 return BadRequest(new { message = "The new end date must be greater than the start date." });
@@ -72,17 +94,27 @@ namespace QuanLyQuanCafe.Server.Controllers
 
             if (newEndDate < schedule.EndDate)
             {
+                await _monthSalaryRepos.DeleteFutureMonthSalariesAsync(salaryId, newEndDate);
                 await _attendanceRepos.DeleteAttendancesForRangeAsync(scheduleId, newEndDate, schedule.EndDate);
             }
             else if (newEndDate > schedule.EndDate)
             {
+                await _monthSalaryRepos.CreateForRangeAsync(salaryId, schedule.EndDate, newEndDate); 
                 await _attendanceRepos.CreateAttendancesForRangeAsync(scheduleId, schedule.EndDate, newEndDate);
             }
 
 
             var result = await _scheduleRepos.UpdateEndDateAsync(scheduleId, newEndDate);
 
-            return Ok(schedule);
+            return Ok(new ScheduleDto
+            {
+                ScheduleId = result.ScheduleId,
+                StaffId = result.StaffId,
+                ShiftId = result.ShiftId,
+                EndDate = result.EndDate,
+                StartDate = result.StartDate,
+            });
+
         }
 
         /// <summary>

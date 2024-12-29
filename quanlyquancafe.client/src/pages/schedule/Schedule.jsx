@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { RoundedButton } from "../../components/buttons/RoundedButton";
-import { useState, useRef } from "react";
+import { useState,useEffect, useRef } from "react";
 import { Day, WorkWeek, Week, ScheduleComponent, Inject } from '@syncfusion/ej2-react-schedule';
-import {Input,TimePicker,Form, message,ConfigProvider,Modal, Steps, Table, Button, Select,theme } from 'antd';
+import instance from "../../features/AxiosInstance/AxiosInstance";
+import {Input,TimePicker, DatePicker,Form, message,ConfigProvider,Modal, Table, Button, Select,theme,Card } from 'antd';
+import moment from 'moment';
+
 import "./schedule.css";
 
 const Schedule = () => {
@@ -10,11 +13,16 @@ const Schedule = () => {
     const scheduleRef = useRef(null);
     const [formCreateShift] = Form.useForm();
     const [formEditShift] = Form.useForm();
-
+    const [assignStartDate, setAssignStartDate] = useState(null);
+    const [assignEndDate, setAssignEndDate] = useState(null);
     const [role, setRole] = useState("admin");
     const [openModal, setOpenModal] = useState(false);//assign
     const [openReport,setOpenReport]=useState(false);//see report
-
+    const [selectedMonth, setSelectedMonth] = useState(moment().startOf('month')); 
+    const handleMonthChange = (date, dateString) => {
+        setSelectedMonth(dateString);
+        console.log('Selected month:', dateString); 
+      };
     const [selectedShift, setSelectedShift] = useState(null);
     const [selectedEmployees, setSelectedEmployees] = useState([]);
     const [staffAssignedToShift, setStaffAssignedToShift] = useState([]); 
@@ -36,20 +44,8 @@ const Schedule = () => {
             { key: 4, name: "Employee 4", checkIn: "13:00", checkOut: "16:50" },
         ],
     };
-    const [shiftData, setShiftData] = useState([
-        {
-            Id: 1,
-            Name: "Morning Shift",
-            StartTime: "08:00 AM",
-            EndTime: "12:00 PM",
-        },
-        {
-            Id: 2,
-            Name: "Afternoon Shift",
-            StartTime: "01:00 PM",
-            EndTime: "05:00 PM",
-        },
-    ]);
+    const [shiftData, setShiftData] = useState([]);
+
     const [openCreateModal, setOpenCreateModal] = useState(false); // Control Create Shift Modal
     const [openEditModal, setOpenEditModal] = useState(false); // Control Create Shift Modal
 
@@ -58,6 +54,25 @@ const Schedule = () => {
         startTime: null,
         endTime: null,
     });
+    const [totalMShift, setTotalMShift]=useState(1);
+    const [pageIndexMShift,setPageIndexMShift]=useState(1);
+    useEffect(()=>{
+        fetchShift(pageIndexMShift,5);
+    },[pageIndexMShift])
+
+    const fetchShift = async(pageIndexMShift, pageSize) => {
+ 
+        try {
+            const response = await instance.get(`/api/shifts?pageIndex=${pageIndexMShift}&pageSize=${pageSize}`);
+            console.log(response.data);
+            setShiftData(response.data.data);   
+            setTotalMShift(response.data.totalRecords);
+        } catch (err) {
+            message.error("Failed to fetch shifts. Please try again.");
+            console.error(err);
+        }
+    }
+    
     const handleEditShift = () => {
         formCreateShift.validateFields()
             .then((values) => {
@@ -80,28 +95,34 @@ const Schedule = () => {
                 console.error("Validation Failed:", error);
             });
     };
-    const handleCreateShift = () => {
-        formCreateShift.validateFields()
-            .then((values) => {
-                const { startTime, endTime } = values;
-
-                const newShift = {
-                    name: values.name,
-                    startTime: startTime.format("HH:mm"),
-                    endTime: endTime.format("HH:mm"),
-                };
-
-                // Replace with API call or state update logic
-                console.log("New Shift Data: ", newShift);
-
+    const handleCreateShift = async () => {
+        try {
+            const values = await formCreateShift.validateFields();
+            const { startTime, endTime } = values;
+    
+            const newShift = {
+                ShiftName: values.name,
+                StartTime: startTime.format("HH:mm"),
+                EndTime: endTime.format("HH:mm"),
+            };
+            console.log(newShift);
+            const response = await instance.post("/api/shifts", newShift);
+            
+            console.log("New Shift Data: ", response);
+            if(response.status===201){
                 message.success("Shift created successfully!");
-                formCreateShift.resetFields(); 
-                setOpenCreateModal(false); 
-            })
-            .catch((error) => {
-                console.error("Validation Failed:", error);
-            });
+                formCreateShift.resetFields();
+                setOpenCreateModal(false);
+                fetchShift(pageIndexMShift,5);
+            }
+            else message.error(response.data.title);
+
+        } catch (error) {
+            console.error("Validation or API Error:", error.response.data.title);
+            message.error(`Failed to create shift. ${error.response.data.title}`);
+        }
     };
+    
     const handleOpenReport = (shift) => {
         setSelectedShift(shift);
     
@@ -150,6 +171,10 @@ const Schedule = () => {
     };
 
     const handleAddNewStaff = () => {
+        if (!selectedNewStaff || !startDate || !endDate) {
+            message.error("Please select a staff, start date, and end date.");
+            return;
+          }
         if (selectedNewStaff) {
             const newStaff = availableStaff.find(staff => staff.key === selectedNewStaff);
             setStaffAssignedToShift([...staffAssignedToShift, newStaff]);
@@ -182,9 +207,9 @@ const Schedule = () => {
 
 
     const mainShiftColumns = [
-        { title: "Name", dataIndex: "Name", key: "name" },
-        { title: "Start Time", dataIndex: "StartTime", key: "startTime" },
-        { title: "End Time", dataIndex: "EndTime", key: "endTime" },
+        { title: "Name", dataIndex: "shiftName", key: "shiftName" },
+        { title: "Start Time", dataIndex: "startTime", key: "startTime" },
+        { title: "End Time", dataIndex: "endTime", key: "endTime" },
         {
             title: "",
             key: "edit",
@@ -319,8 +344,16 @@ const Schedule = () => {
             <Table
                 columns={mainShiftColumns}
                 dataSource={shiftData}
-                rowKey="Id"
-                pagination={false}
+                rowKey="shiftId"
+                pagination={{
+                    current: pageIndexMShift,
+                    pageSize: 5,
+                    total: totalMShift, 
+                    onChange: (page) => {
+                        fetchShift(page, 5);
+                        setPageIndexMShift(page);
+                    },
+                  }}
             />
             <div className="flex justify-between items-center">
                 <h2 className="text-amber-500 font-medium text-3xl">Schedule</h2>
@@ -351,18 +384,11 @@ const Schedule = () => {
                 onCancel={handleModalOpen}
                 footer={null}
                 width={800}
+                title={<span>Assign Modal</span>}
             >
                     <div>
-                        <Table
-                            title={() => <span className="custom-table-title">Assign shift</span>}
-                            columns={staffColumns}
-                            dataSource={staffAssignedToShift}
-                            rowKey="key"
-                            pagination={false}
-                            style={{ marginTop: "12px" }}
 
-                        />
-                        <div className="mt-4 flex justify-between items-center">
+                    <div className="flex justify-between items-center">
                             <div className="mt-4 flex  items-center" >
                             <Select
                                 value={selectedNewStaff}
@@ -378,6 +404,21 @@ const Schedule = () => {
                                         </Select.Option>
                                     ))}
                             </Select>
+                            <DatePicker
+                                value={assignStartDate}
+                                onChange={setAssignStartDate}
+                                style={{ width: 200, marginLeft: 10 }}
+                                placeholder="Select Start Date"
+                                format="YYYY-MM-DD"
+                            />
+                            
+                            <DatePicker
+                                value={assignEndDate}
+                                onChange={setAssignEndDate}
+                                style={{ width: 200, marginLeft: 10 }}
+                                placeholder="Select End Date"
+                                format="YYYY-MM-DD"
+                            />
                             <Button
                                 type="primary"
                                 onClick={handleAddNewStaff}
@@ -387,6 +428,25 @@ const Schedule = () => {
                             </Button>
                             </div>
                         </div>
+                        <Table
+                            title={() => 
+                            <>
+                            <span className="custom-table-title mr-8">Monthly Assignment</span>
+                              <DatePicker 
+                                onChange={handleMonthChange}
+                                picker="month" 
+                                format="YYYY-MM" 
+                                value={selectedMonth ? moment(selectedMonth, 'YYYY-MM') : null}
+                                placeholder="Select Month"
+                            />
+                            </>}
+                            columns={staffColumns}
+                            dataSource={staffAssignedToShift}
+                            rowKey="key"
+                            pagination={false}
+                            style={{ marginTop: "12px" }}
+
+                        />
                     </div>
             </Modal>
             {/* Modal with See report */}
