@@ -344,6 +344,7 @@ const UpdatePersonalData = () => {
                 <Dropdown
                   size="md"
                   color="teal"
+                  className="h-64 overflow-auto"
                   label={
                     selectedCity
                       ? cities.find((city) => city.ProvinceID === selectedCity)
@@ -367,6 +368,7 @@ const UpdatePersonalData = () => {
                 <Label className="text-gray-700">Quận</Label>
                 <Dropdown
                   size="md"
+                  className="h-64 overflow-auto"
                   color="teal"
                   label={
                     selectedDistrict
@@ -394,6 +396,7 @@ const UpdatePersonalData = () => {
                 <Dropdown
                   size="md"
                   color="teal"
+                  className="h-64 overflow-auto"
                   label={
                     selectedWard
                       ? wards.find((ward) => ward.WardCode === selectedWard)
