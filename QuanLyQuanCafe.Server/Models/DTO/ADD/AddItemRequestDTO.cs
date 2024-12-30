@@ -9,7 +9,7 @@
         public int TypeOfFoodId { get; set; }
         public string? State { get; } = "Còn hàng";
 
-        public string ImageUrl { get; set; } = null!;
+        public string Picture { get; set; } = null!;
 
         public virtual List<AddItemRecipeRequestDTO> ItemRecipes { get; set; } = null!;
 

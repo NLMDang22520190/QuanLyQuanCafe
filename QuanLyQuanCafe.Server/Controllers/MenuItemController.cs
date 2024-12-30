@@ -19,11 +19,13 @@ namespace QuanLyQuanCafe.Server.Controllers
     {
 
         private readonly IMenuItemRepository _menuItemRepository;
+        private readonly IItemRecipeRepository _itemRecipeRepository;
         private readonly IMapper _mapper;
 
-        public MenuItemController(IMenuItemRepository menuItemRepo, IMapper mapper)
+        public MenuItemController(IMenuItemRepository menuItemRepo, IItemRecipeRepository itemRecipeRepo, IMapper mapper)
         {
             _menuItemRepository = menuItemRepo;
+            _itemRecipeRepository = itemRecipeRepo;
             _mapper = mapper;
         }
 
@@ -140,6 +142,28 @@ namespace QuanLyQuanCafe.Server.Controllers
             return Ok(_mapper.Map<List<ItemOnMenuPageDTO>>(menuItemDomain));
         }
 
+        [HttpGet("all-with-recipies")]
+        public async Task<IActionResult> GetAllMenuItemsWithRecipes()
+        {
+            var menuItems = await _menuItemRepository.GetAllWithRecipesAsync();
+            if (menuItems == null || !menuItems.Any())
+            {
+                return NotFound("No menu items found.");
+            }
+            return Ok(menuItems);
+        }
+
+        [HttpGet("with-recipies/{id}")]
+        public async Task<IActionResult> GetMenuItemWithRecipesById(int id)
+        {
+            var menuItem = await _menuItemRepository.GetMenuItemWithRecipesByIdAsync(id);
+            if (menuItem == null)
+            {
+                return NotFound($"Menu item with ID {id} not found.");
+            }
+            return Ok(menuItem);
+        }
+
         [HttpPost("AddProduct")]
         public async Task<IActionResult> AddProduct([FromBody] AddItemRequestDTO requestDto)
         {
@@ -166,6 +190,20 @@ namespace QuanLyQuanCafe.Server.Controllers
             try
             {
                 var menuItemDomain = _mapper.Map<MenuItem>(requestDto);
+
+                var existingRecipe = await _itemRecipeRepository.GetByIdAsync(f => f.ItemId == requestDto.ItemId);
+                if (existingRecipe != null)
+                {
+                    await _itemRecipeRepository.DeleteAsync(f => f.ItemId == requestDto.ItemId);
+                }
+
+                foreach (var newRecipe in requestDto.ItemRecipes)
+                {
+                    var itemRecipe = _mapper.Map<ItemRecipe>(newRecipe);
+                    itemRecipe.ItemId = requestDto.ItemId;
+                    await _itemRecipeRepository.CreateAsync(itemRecipe);
+                }
+
                 menuItemDomain = await _menuItemRepository.UpdateAsync(f => f.ItemId == requestDto.ItemId, m =>
                 {
                     m.ItemName = requestDto.ItemName;
@@ -173,7 +211,9 @@ namespace QuanLyQuanCafe.Server.Controllers
                     m.Price = requestDto.Price;
                     m.Picture = requestDto.Picture;
                     m.TypeOfFoodId = requestDto.TypeOfFoodId;
+                    m.ItemRecipes = _mapper.Map<ICollection<ItemRecipe>>(requestDto.ItemRecipes);
                 });
+
                 if (menuItemDomain == null)
                 {
                     return NotFound($"Product with ID {requestDto.ItemId} not found.");
