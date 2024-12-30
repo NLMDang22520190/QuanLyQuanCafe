@@ -13,7 +13,7 @@ import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 const MIN_SIZE = 48;
 const MAX_SIZE = 300;
 
-export const OrderPayment = () => {
+export const OrderPayment = ({onBack}) => {
     const [diningOption, setDiningOption] = useState(DiningOption.DineIn);
     const [totalAmount, setTotalAmount] = useState(0);
     const [discount, setDiscount] = useState(0);
@@ -55,21 +55,10 @@ export const OrderPayment = () => {
 
     return (
         <div className="flex flex-col gap-y-4 overflow-hidden h-full">
-            <div className="flex justify-between items-center">
-                <h2 className="text-amber-500 font-medium text-3xl">Order Payment</h2>
-                <div className="flex gap-x-2">
-
-
-                    <RoundedButton prefixIcon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                    </svg>
-                    } height="40px" label="Export Order Report" />
-
-                </div>
-            </div>
-
+            
             <div className="flex max-h-[calc(100vh-180px)]  min-h-[calc(100vh-180px)] w-full gap-x-4">
                 <div className="bg-gray-800/60 w-2/3 rounded-lg flex gap-x-8 p-4">
+                    <Button type="text" onClick={onBack}>Back</Button>
                     <div className="flex flex-col justify-between w-full py-14">
                         <div className="flex flex-col items-center" >
 
