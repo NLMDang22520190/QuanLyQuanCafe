@@ -7,7 +7,7 @@ import { SelectedOrderProductCard } from '../../components/card/SelectedOrderPro
 import { RoundedComboBox } from "../../components/combobox/RoundedComboBox";
 import { useNavigate } from "react-router-dom";
 import api from "../../features/AxiosInstance/AxiosInstance";
-import { Input, Form, Radio, Button } from "antd";
+import { Input, Form, Radio, Button, Card } from "antd";
 import { OrderPayment } from "./OrderPayment";
 
 export const CreateOrder = () => {
@@ -15,10 +15,8 @@ export const CreateOrder = () => {
     const [loading, setLoading] = useState(true);
     const [currentTypeOfFoodId, setCurrentTypeOfFoodId] = useState(0);
     const navigate = useNavigate();
-    const [diningOption, setDiningOption] = useState(DiningOption.DineIn);
     const [totalAmount, setTotalAmount] = useState(0);
     const [discount, setDiscount] = useState(0);
-    const [currentProducts, setCurrentProducts] = useState([]);
     const [currentMenuItems, setCurrentMenuItems] = useState([]);
     const [menuItems, setMenuItems] = useState([]);
     const [typeOfFoods, setTypeOfFoods] = useState([]);
@@ -40,8 +38,11 @@ export const CreateOrder = () => {
         setTotalAmount(totalAmount + parseFloat(product.price));
     };
 
-    const handlePlaceOrder = () => {
-        navigate('/orderAndBilling/payment');
+    const handlePlaceOrder = (values) => {
+    values.orderDetails = selectedMenuItems.map(item => {  
+        return { itemId: item.itemId, quantity: item.quantity}
+     });
+        console.log(values);
     }
 
     const fetchMenuItems = async () => {
@@ -91,13 +92,11 @@ export const CreateOrder = () => {
 
     const handleRemoveItem = (itemId) => {
         const updatedItems = selectedMenuItems.filter(item => item.itemId !== itemId);
-        const removedItem = selectedMenuItems.find(item => item.itemId === itemId);
         setSelectedMenuItems(updatedItems);
         calculateTotalAmount(updatedItems);
     }
 
     const calculateTotalAmount = (updatedItems) => {
-        console.log(updatedItems)
         setTotalAmount(
             updatedItems.reduce((total, product) => total + product.price * product.quantity, 0)
         )
@@ -127,91 +126,100 @@ export const CreateOrder = () => {
 
                 </div>
             </div>
+            <Form onFinish={handlePlaceOrder}>
+                {
+                    <>
+                        <div style={{ display: step == 1 ? '' : 'none' }} className="flex max-h-[calc(100vh-180px)]  min-h-[calc(100vh-180px)] w-full gap-x-4">
+                            <Card className="w-2/3 rounded-lg flex flex-col p-4">
+                                <div className="w-1/2">
 
-            {
-                step === 1 ? (
-                    <div className="flex max-h-[calc(100vh-180px)]  min-h-[calc(100vh-180px)] w-full gap-x-4">
-                        <div className="bg-gray-800/60 w-2/3 rounded-lg flex flex-col p-4">
-                            <div className="w-1/2">
-                                <Input width={"100px"} placeholder="Search for food..." prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                                </svg>} >
-                                </Input>
-                            </div>
-                            <ul className="flex gap-x-2 -mb-px text-sm text-center max-w-full overflow-x-auto" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
-                                {typeOfFoods.map((type) => (
-                                    <li key={type.typeOfFoodName} role="presentation">
-                                        <button onClick={() => {
-                                            setCurrentTypeOfFoodId(type.typeOfFoodId);
-                                        }} className={`inline-block p-4 border-b-2 rounded-t-lg ${currentTypeOfFoodId === type.typeOfFoodId ? 'border-amber-500 text-amber-500' : ''}`}>
-                                            <span className="text-sm line-clamp-1">{type.typeOfFoodName}</span>
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                            <div className="grid grid-cols-2 gap-4 mt-8 max-h-[calc(100%-150px)] overflow-y-auto">
-                                {currentMenuItems.map((product) => (
-                                    <OrderProductCard onClickAdd={() => handleAddProduct(product)} key={product.id} name={product.itemName} imageUrl={product.imageUrl} price={product.price} />
-                                ))}
-                            </div>
+                                    <Input width={"100px"} placeholder="Search for food..." prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                    </svg>} />
+
+                                </div>
+                                <ul className="flex gap-x-2 -mb-px text-sm text-center max-w-full overflow-x-auto" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
+                                    {typeOfFoods.map((type) => (
+                                        <li key={type.typeOfFoodName} role="presentation">
+                                            <button onClick={() => {
+                                                setCurrentTypeOfFoodId(type.typeOfFoodId);
+                                            }} className={`inline-block p-4 border-b-2 rounded-t-lg ${currentTypeOfFoodId === type.typeOfFoodId ? 'border-amber-500 text-amber-500' : ''}`}>
+                                                <span className="text-sm line-clamp-1">{type.typeOfFoodName}</span>
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <div className="grid grid-cols-2 gap-4 mt-8 grow overflow-y-auto">
+                                    {currentMenuItems.map((product) => (
+                                        <OrderProductCard onClickAdd={() => handleAddProduct(product)} key={product.id} name={product.itemName} imageUrl={product.imageUrl} price={product.price} />
+                                    ))}
+                                </div>
+                            </Card>
+                            <Card className="flex w-1/3 rounded-lg" >
+                                <div className="flex flex-col h-full w-full gap-y-4">
+                                    <Form.Item
+                                        layout="vertical"
+                                        className="flex justify-center"
+                                        label="Dining Option"
+                                        name="diningOption"
+                                        rules={[{ required: true, message: 'Please select a dining option' }]}  
+                                    >
+                                        <Radio.Group name="diningOption" options={diningOptions} optionType="button" />
+                                    </Form.Item>
+                                    <Form.Item
+                               
+                                    className="flex flex-col overflow-y-auto gap-2 grow divide-y divide-amber-500" >
+
+                                        {selectedMenuItems.map((product) => (
+                                            <SelectedOrderProductCard
+                                                key={product.itemId}
+                                                inStock={product.stock}
+                                                name={product.itemName}
+                                                imageUrl={product.imageUrl}
+                                                price={product.price}
+                                                onQuantityChange={(quantity) => { handleQuantityChange(quantity, product.itemId) }}
+                                                onRemove={() => handleRemoveItem(product.itemId)}
+                                            />
+                                        ))}
+
+                                    </Form.Item>
+                                    <div className="flex flex-col gap-y-2">
+                                        <div className="flex justify-center w-full">
+                                            <Form.Item>
+                                                <Input prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m9 14.25 6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185ZM9.75 9h.008v.008H9.75V9Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm4.125 4.5h.008v.008h-.008V13.5Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                                </svg>} placeholder="Enter promotion code..." />
+                                            </Form.Item>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <p>Total Amount:</p>
+                                            <p>${totalAmount}</p>
+                                        </div>
+
+                                        <div className="flex justify-between">
+                                            <p>Discount:</p>
+                                            <p>${discount}</p>
+                                        </div>
+
+                                        <div className="flex justify-between">
+                                            <p>Final Amount:</p>
+                                            <p>${totalAmount - discount}</p>
+                                        </div>
+
+                                        <div className="flex gap-4 justify-center w-full">
+                                            <Button type="primary" onClick={()=>setStep(2)} >Place Order</Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Card>
                         </div>
-                        <Form className="flex flex-col bg-gray-800/60 w-1/3 rounded-lg p-4 gap-y-4" >
-                            <Form.Item
-                                className="flex justify-center"
-                            >
-                                <Radio.Group options={diningOptions} optionType="button" />
-                            </Form.Item>
-                            <div className="flex flex-col overflow-y-auto grow gap-y-2">
-                                {selectedMenuItems.map((product) => (
-                                    <SelectedOrderProductCard
-                                        key={`selectedProduct-${product.itemId}`}
-                                        inStock={product.stock}
-                                        name={product.itemName}
-                                        imageUrl={product.imageUrl}
-                                        price={product.price}
-                                        onQuantityChange={(quantity) => { handleQuantityChange(quantity, product.itemId) }}
-                                        onRemove={() => handleRemoveItem(product.itemId)}
-                                    />
-                                ))}
-                            </div>
-
-                            <div className="flex flex-col gap-y-2">
-                                <div className="flex justify-center w-full">
-                                    <Input prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="m9 14.25 6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185ZM9.75 9h.008v.008H9.75V9Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm4.125 4.5h.008v.008h-.008V13.5Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                                    </svg>} placeholder="Enter promotion code..." ></Input>
-                                </div>
-                                <div className="flex justify-between">
-                                    <p>Total Amount:</p>
-                                    <p>${totalAmount}</p>
-                                </div>
-
-                                <div className="flex justify-between">
-                                    <p>Discount:</p>
-                                    <p>${discount}</p>
-                                </div>
-
-                                <div className="flex justify-between">
-                                    <p>Final Amount:</p>
-                                    <p>${totalAmount - discount}</p>
-                                </div>
-
-                                <div className="flex gap-4 justify-center w-full">
-                                    <Button type="primary" onClick={()=>setStep(2)} >Place Order</Button>
-                                </div>
-
-
-                            </div>
-
-                        </Form>
-
-                    </div>
-                ) : (
-                    <OrderPayment onBack={()=>setStep(1)} />
-                )
-            }
-
-
+              
+                        <div style={{ display: step == 2 ? '' : 'none' }}>
+                        <OrderPayment totalAmount={totalAmount} discountAmount={discount} onBack={() => setStep(1)} />
+                      </div>
+                </>
+                }
+            </Form>
         </div>
     )
 }
