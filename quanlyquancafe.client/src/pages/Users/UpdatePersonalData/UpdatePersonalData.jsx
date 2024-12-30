@@ -8,9 +8,12 @@ import {
   Dropdown,
 } from "flowbite-react";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import api from "../../../features/AxiosInstance/AxiosInstance";
 import ChangePasswordCard from "../../../components/Users/ChangePasswordCard/ChangePasswordCard";
+import { logout } from "../../../features/Auth/Auth";
+import { clearCart } from "../../../features/Cart/Cart";
 
 const apiKey = "a84f0896-7c1a-11ef-8e53-0a00184fe694";
 
@@ -25,6 +28,9 @@ const UpdatePersonalData = () => {
     district: "",
     ward: "",
   });
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const userId = useSelector((state) => state.auth.user);
 
@@ -258,6 +264,12 @@ const UpdatePersonalData = () => {
     }
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+    dispatch(clearCart());
+    navigate("/auth/login");
+  };
+
   return (
     <div className="min-h-screen bg-cream p-8">
       <motion.div
@@ -417,7 +429,7 @@ const UpdatePersonalData = () => {
               </div>
             </div>
 
-            <div className="flex justify-center">
+            <div className="justify-center grid grid-cols-1 md:grid-cols-2 gap-8">
               <Button
                 type="submit"
                 size="xl"
@@ -427,6 +439,17 @@ const UpdatePersonalData = () => {
                 className="text-white"
               >
                 {isLoading ? "Đang xử lý..." : "Cập Nhật Thông Tin"}
+              </Button>
+              <Button
+                size="xl"
+                disabled={isLoading}
+                pill
+                outline
+                onClick={handleLogout}
+                gradientDuoTone="redToYellow"
+                className="text-white"
+              >
+                {isLoading ? "Đang xử lý..." : "Đăng xuất"}
               </Button>
             </div>
           </form>
