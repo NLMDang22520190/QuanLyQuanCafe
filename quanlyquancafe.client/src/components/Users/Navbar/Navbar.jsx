@@ -17,7 +17,7 @@ const Navbar = () => {
       // Fetch cart items only when the user is authenticated
       dispatch(fetchCartDetailsByCustomerId(auth.user));
     }
-  }, [auth.isAuthenticated, cart.items, dispatch]); // Dependencies: khi cart.items hoặc auth.isAuthenticated thay đổi
+  }, [auth.isAuthenticated, dispatch]); // Chỉ phụ thuộc vào auth.isAuthenticated và dispatch
 
   useEffect(() => {
     if (cart.items.length !== itemsCount) {
@@ -25,6 +25,7 @@ const Navbar = () => {
       console.log("Cart items changed:", cart.items.length);
     }
   }, [cart.items, itemsCount]);
+
   return (
     <nav className="bg-primary-50 opacity-90 shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
@@ -43,7 +44,7 @@ const Navbar = () => {
               Menu
             </Link>
             <Link
-              to="/"
+              to="/OrderTracking"
               className="text-lg whitespace-nowrap text-primary-400 hover:underline hover:underline-offset-8"
             >
               Theo dõi đơn hàng
@@ -52,7 +53,7 @@ const Navbar = () => {
         </div>
         <div className="flex gap-4">
           <Link
-            to="/auth/login"
+            to={auth.isAuthenticated ? `/update-personal-data` : `/auth/login`}
             class="flex group items-center justify-center p-2 bg-white transition-colors  hover:bg-primary-500 rounded-full"
           >
             <svg
@@ -70,7 +71,7 @@ const Navbar = () => {
             </svg>
           </Link>
           <Link
-            to="/order-confirmation"
+            to={auth.isAuthenticated ? `/order-confirmation` : `/auth/login`}
             class="flex group items-center justify-center p-2 bg-white transition-colors  hover:bg-primary-500 rounded-full"
           >
             <div class="relative scale-75">

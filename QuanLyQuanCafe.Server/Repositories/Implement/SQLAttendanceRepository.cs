@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTO;
 using QuanLyQuanCafe.Server.Repositories;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace QuanLyQuanCafe.Server.Repositories.Implement
 {
@@ -9,11 +11,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         public SQLAttendanceRepository(CoffeeManagementContext dbContext) : base(dbContext)
         {
         }
-        public async Task<Attendance?> GetAttendanceByScheduleIdAndDateAsync(int scheduleId, DateOnly date)
-        {
-            return await _dbSet
-                .FirstOrDefaultAsync(a => a.ScheduleId == scheduleId && a.Date == date);
-        }
+
 
         public async Task DeleteAttendancesForRangeAsync(int scheduleId, DateOnly startDate, DateOnly endDate)
         {
@@ -37,25 +35,76 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             await dbContext.SaveChangesAsync();
         }
 
-        // Check-in
-        public async Task<Attendance?> CheckInAsync(int scheduleId, DateTime checkinTime)
+        public async Task<AttendanceDto?> CheckInAsync(string userId, int shiftId, DateTime checkinTime)
         {
-            var attendance = await _dbSet.FirstOrDefaultAsync(a => a.ScheduleId == scheduleId 
-                && a.Date == DateOnly.FromDateTime(checkinTime));
+            var staff = await dbContext.Staffs.FirstOrDefaultAsync(s => s.UserId == userId && s.DateEndWorking == null);
+            if (staff == null)
+            {
+                throw new Exception("Staff not found for the given userId.");
+            }
+
+            var staffId = staff.StaffId;
+
+            var schedule = await dbContext.Schedules.FirstOrDefaultAsync(s =>
+                s.StaffId == staffId &&
+                s.ShiftId == shiftId &&
+                s.StartDate <= DateOnly.FromDateTime(checkinTime) &&
+                s.EndDate >= DateOnly.FromDateTime(checkinTime));
+
+            if (schedule == null)
+            {
+                throw new Exception("Schedule not found for the given staffId, shiftId, and date.");
+            }
+
+            var scheduleId = schedule.ScheduleId;
+
+            var attendanceDate = DateOnly.FromDateTime(checkinTime);
+            var attendance = await _dbSet.FirstOrDefaultAsync(a =>
+                a.ScheduleId == scheduleId &&
+                a.Date == attendanceDate);
 
             if (attendance == null)
             {
-                return null;
+                throw new Exception("Attendance not found for the given staffId, shiftId, and date.");
+            }
+            else
+            {
+                attendance.Checkin = checkinTime;
             }
 
-            attendance.Checkin = checkinTime;
             await dbContext.SaveChangesAsync();
-            return attendance;
+            return new AttendanceDto {
+                AttendanceId=attendance.AttendanceId,
+                Checkin=attendance.Checkin,
+                Checkout=attendance.Checkout,
+                Date=attendance.Date,
+                ScheduleId=scheduleId,
+            };
         }
 
         // Check-out
-        public async Task<Attendance?> CheckOutAsync(int scheduleId, DateTime checkoutTime)
+        public async Task<AttendanceDto?> CheckOutAsync(string userId, int shiftId, DateTime checkinTime, DateTime checkoutTime)
         {
+            var staff = await dbContext.Staffs.FirstOrDefaultAsync(s => s.UserId == userId && s.DateEndWorking == null);
+            if (staff == null)
+            {
+                throw new Exception("Staff not found for the given userId.");
+            }
+
+            var staffId = staff.StaffId;
+
+            var schedule = await dbContext.Schedules.FirstOrDefaultAsync(s =>
+                s.StaffId == staffId &&
+                s.ShiftId == shiftId &&
+                s.StartDate <= DateOnly.FromDateTime(checkinTime) &&
+                s.EndDate >= DateOnly.FromDateTime(checkinTime));
+
+            if (schedule == null)
+            {
+                throw new Exception("Schedule not found for the given staffId, shiftId, and date.");
+            }
+            var scheduleId = schedule.ScheduleId;
+
             var attendance = await _dbSet.FirstOrDefaultAsync(a => a.ScheduleId == scheduleId 
                 && a.Date == DateOnly.FromDateTime(checkoutTime)
                 && a.Checkin!= default(DateTime));
@@ -66,13 +115,49 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             attendance.Checkout = checkoutTime;
             await dbContext.SaveChangesAsync();
-            return attendance;
+            return new AttendanceDto {
+                AttendanceId = attendance.AttendanceId,
+                Checkin = attendance.Checkin,
+                Checkout = attendance.Checkout,
+                Date = attendance.Date,
+                ScheduleId = scheduleId,
+            };
         }
-        
-        public async Task<List<Attendance>> GetAttendanceByDateAsync(DateOnly date)
+
+
+        public async Task<PagedResult<StaffAttendanceDto>> GetStaffAttendanceForShiftOnDateAsync(
+            int shiftId, DateOnly date, int pageIndex, int pageSize)
         {
-            return await _dbSet.Where(a => a.Date == date).ToListAsync();
+            var query = dbContext.Attendances
+                .Include(a => a.Schedule)
+                .ThenInclude(s => s.Staff)
+                .Where(a => a.Schedule.ShiftId == shiftId && a.Date == date);
+
+            var totalRecords = await query.CountAsync();
+
+            var attendances = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var staffAttendanceDtos = attendances.Select(a => new StaffAttendanceDto
+            {
+                StaffName = a.Schedule.Staff.User.UserName ?? "Unknown",
+                Checkin = a.Checkin,
+                Checkout = a.Checkout
+            }).ToList();
+
+            return new PagedResult<StaffAttendanceDto>
+            {
+                TotalRecords = totalRecords,
+                CurrentPage = pageIndex,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
+                Data = staffAttendanceDtos
+            };
         }
+
+
         public async Task<List<Attendance>> CreateAttendancesForRangeAsync(int scheduleId, DateOnly startDate, DateOnly endDate)
         {
             
@@ -102,5 +187,44 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             return attendances; 
         }
+
+        public async Task<AttendanceDto?> GetAttendanceByUserIdShiftIdDate(string userId, int shiftId, DateOnly date)
+        {
+            var staff = await dbContext.Staffs.FirstOrDefaultAsync(s => s.UserId == userId && s.DateEndWorking == null);
+            if (staff == null)
+            {
+                throw new Exception("Staff not found for the given userId.");
+            }
+
+            var schedule = await dbContext.Schedules.FirstOrDefaultAsync(s =>
+                s.StaffId == staff.StaffId &&
+                s.ShiftId == shiftId &&
+                s.StartDate <= date &&
+                s.EndDate >= date);
+
+            if (schedule == null)
+            {
+                throw new Exception("Schedule not found for the given staffId, shiftId, and date.");
+            }
+
+            var attendance = await dbContext.Attendances.FirstOrDefaultAsync(a =>
+                a.ScheduleId == schedule.ScheduleId &&
+                a.Date == date);
+
+            if (attendance == null)
+            {
+                return null; 
+            }
+
+            return new AttendanceDto
+            {
+                AttendanceId = attendance.AttendanceId,
+                ScheduleId = attendance.ScheduleId,
+                Date = attendance.Date,
+                Checkin = attendance.Checkin,
+                Checkout = attendance.Checkout
+            };
+        }
+
     }
 }

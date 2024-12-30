@@ -18,3 +18,4 @@ public partial class Salary
 
     public virtual Staff Staff { get; set; } = null!;
 }
+

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Helpers;
 using QuanLyQuanCafe.Server.Migrations;
 using QuanLyQuanCafe.Server.Repositories;
+using QuanLyQuanCafe.Server.Models.DTOs;
 namespace QuanLyQuanCafe.Server.Controllers
 {
     [Route("api/staff")]
@@ -39,16 +40,14 @@ namespace QuanLyQuanCafe.Server.Controllers
                 return NotFound("User not found.");
             }
 
-            
-            var existingStaff = await _context.Staffs.FirstOrDefaultAsync(s => s.UserId == userId);
-            if (existingStaff != null)
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (currentRoles.Contains(AppRole.Staff))
             {
-                return Conflict("User is already a staff member.");
+                return BadRequest("User is already a staff member.");
             }
 
-            
-            var currentRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-            if (currentRole != null && currentRole != AppRole.Staff)
+            var currentRole = currentRoles.FirstOrDefault();
+            if (currentRole != null && currentRole == AppRole.Customer)
             {
                 await _userManager.RemoveFromRoleAsync(user, currentRole); 
                 await _userManager.AddToRoleAsync(user, AppRole.Staff); 
@@ -67,8 +66,14 @@ namespace QuanLyQuanCafe.Server.Controllers
             };
 
             await _salaryRepo.CreateAsync(salary);
+            var staffDto = new CreateStaffDTO
+            {
+                StaffId = staff.StaffId,
+                UserId = staff.UserId,
+                DateStartedWorking = staff.DateStartedWorking
+            };
 
-            return CreatedAtAction(nameof(GetStaffById), new { id = staff.StaffId }, staff);
+            return CreatedAtAction(nameof(GetStaffById), new { id = staff.StaffId }, staffDto);
         }
 
         // Disable staff - Update end work date and change user role to customer
@@ -81,20 +86,25 @@ namespace QuanLyQuanCafe.Server.Controllers
                 return NotFound("User not found.");
             }
 
-            var staff = await _context.Staffs.FirstOrDefaultAsync(s => s.UserId == userId);
+            var staff = await _context.Staffs.FirstOrDefaultAsync(s => s.UserId == userId&& s.DateEndWorking == null);
             if (staff == null)
             {
                 return NotFound("Staff not found.");
             }
 
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (!currentRoles.Contains(AppRole.Staff))
+            {
+                return BadRequest("User is not a staff member.");
+            }
+
             staff.DateEndWorking = DateTime.UtcNow;
 
-        
-            var currentRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-            if (currentRole != null && currentRole != "Customer")
+            var currentRole = currentRoles.FirstOrDefault();
+            if (currentRole != null && currentRole != AppRole.Customer)
             {
-                await _userManager.RemoveFromRoleAsync(user, currentRole); 
-                await _userManager.AddToRoleAsync(user, AppRole.Customer); 
+                await _userManager.RemoveFromRoleAsync(user, currentRole);
+                await _userManager.AddToRoleAsync(user, AppRole.Customer);
             }
 
             await _context.SaveChangesAsync();
@@ -132,13 +142,81 @@ namespace QuanLyQuanCafe.Server.Controllers
             return Ok(staff);
         }
 
-        [HttpGet("staffs")]
-        public async Task<IActionResult> GetAllStaff(int id)
+        [HttpGet("current-staffs")]
+        public async Task<IActionResult> GetAllStaff(int pageIndex, int pageSize)
         {
-            var staffs = await _staffRepo.GetAllAsync();
-            
-            return Ok(staffs);
+            var pagedResult = await _staffRepo.GetAllCurrentStaffAsync(pageIndex, pageSize);
+
+            if (pagedResult == null || !pagedResult.Data.Any())
+            {
+                return NotFound(new { message = "No staff found." });
+            }
+
+            return Ok(new
+            {
+                message = "Staff fetched successfully.",
+                data = pagedResult.Data,
+                totalRecords = pagedResult.TotalRecords,
+                totalPages = pagedResult.TotalPages,
+                currentPage = pagedResult.CurrentPage,
+                pageSize = pagedResult.PageSize
+            });
         }
+        [HttpGet("former-staffs")]
+        public async Task<IActionResult> GetFormerStaff(int pageIndex, int pageSize)
+        {
+            var pagedResult = await _staffRepo.GetFormerStaffAsync(pageIndex, pageSize);
+
+            if (pagedResult == null || !pagedResult.Data.Any())
+            {
+                return NotFound(new { message = "No former staff found." });
+            }
+
+            return Ok(new
+            {
+                message = "Former staff fetched successfully.",
+                data = pagedResult.Data,
+                totalRecords = pagedResult.TotalRecords,
+                totalPages = pagedResult.TotalPages,
+                currentPage = pagedResult.CurrentPage,
+                pageSize = pagedResult.PageSize
+            });
+        }
+        [HttpGet("staff-not-in-shift/{shiftId}")]
+        public async Task<IActionResult> GetStaffNotInShift(int shiftId, [FromQuery] int month, [FromQuery] int year)
+        {
+            try
+            {
+                var staffDtos = await _staffRepo.GetStaffNotInShiftAsync(shiftId, month, year);
+                return Ok(staffDtos);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}, {ex.StackTrace}");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while retrieving staff." });
+            }
+        }
+        [HttpGet("staff-in-shift/{shiftId}")]
+        public async Task<IActionResult> GetStaffInShift(int shiftId, [FromQuery] int month, [FromQuery] int year, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var result = await _staffRepo.GetStaffInShiftAsync(shiftId, month, year, pageIndex, pageSize);
+
+                if (result == null || result.Data == null || !result.Data.Any())
+                {
+                    return NotFound(new { message = "No staff found for this shift in the specified period." });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}, {ex.StackTrace}");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while retrieving staff." });
+            }
+        }
+
 
         [HttpGet("newest-staffs/{count}")]
         public async Task<IActionResult> GetNewestStaffAsync(int count)

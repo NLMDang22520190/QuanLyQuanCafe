@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Repositories;
+using System.ComponentModel.DataAnnotations;
 
 namespace QuanLyQuanCafe.Server.Controllers
 {
@@ -21,27 +22,35 @@ namespace QuanLyQuanCafe.Server.Controllers
         /// Create a new salary
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> CreateSalary([FromBody] Salary newSalary)
+        public async Task<IActionResult> CreateSalary([FromBody] SalaryDto salaryDto)
         {
-
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid data.");
+                return BadRequest(ModelState);
             }
 
             try
             {
+                // Chuyển đổi DTO sang entity
+                var newSalary = new Salary
+                {
+                    StaffId = salaryDto.StaffId,
+                    HourWage = salaryDto.HourWage,
+                    StartDate = DateOnly.Parse(salaryDto.StartDate) // Chuyển string sang DateOnly
+                };
+
                 var createdSalary = await _salaryRepo.CreateAsync(newSalary);
-                Console.WriteLine($"create salary data: salaryID={newSalary.SalaryId}");
-                return CreatedAtAction(nameof(_salaryRepo), new { id = createdSalary.SalaryId }, createdSalary);
+
+                Console.WriteLine($"Create salary data: SalaryID={newSalary.SalaryId}");
+                return CreatedAtAction(nameof(CreateSalary), new { id = createdSalary.SalaryId }, createdSalary);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message} , {ex.StackTrace}");
-
+                Console.WriteLine($"Error: {ex.Message}, {ex.StackTrace}");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while creating the salary." });
             }
         }
+
         /// <summary>
         /// Get current staff salary
         /// </summary>
@@ -61,44 +70,58 @@ namespace QuanLyQuanCafe.Server.Controllers
         /// Get all salary of staff
         /// </summary>
         [HttpGet("{staffId}")]
-public async Task<IActionResult> GetAllSalariesByStaffID(int staffId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 2)
-{
-    try
-    {
-        if (pageIndex <= 0 || pageSize <= 0)
+        public async Task<IActionResult> GetAllSalariesByStaffID(int staffId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 3)
         {
-            return BadRequest(new { message = "Page index and page size must be greater than zero." });
+            try
+            {
+                if (pageIndex <= 0 || pageSize <= 0)
+                {
+                    return BadRequest(new { message = "Page index and page size must be greater than zero." });
+                }
+
+                var salaries = await _salaryRepo.GetAllSalariesByStaffIdAsync(staffId);
+
+                if (salaries == null || !salaries.Any())
+                {
+                    return NotFound(new { message = $"No salary found for staffId {staffId}" });
+                }
+
+                var totalRecords = salaries.Count;
+                var pagedSalaries = salaries
+                    .Skip((pageIndex - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                var result = new
+                {
+                    pageIndex,
+                    pageSize,
+                    totalRecords,
+                    totalPages = (int)Math.Ceiling((double)totalRecords / pageSize),
+                    data = pagedSalaries
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while processing your request.", details = ex.Message });
+            }
         }
 
-        var salaries = await _salaryRepo.GetAllSalariesByStaffIdAsync(staffId);
-
-        if (salaries == null || !salaries.Any())
-        {
-            return NotFound(new { message = $"No salary found for staffId {staffId}" });
-        }
-
-        var totalRecords = salaries.Count;
-        var pagedSalaries = salaries
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-
-        var result = new
-        {
-            pageIndex,
-            pageSize,
-            totalRecords,
-            totalPages = (int)Math.Ceiling((double)totalRecords / pageSize),
-            data = pagedSalaries
-        };
-
-        return Ok(result);
     }
-    catch (Exception ex)
+
+    public class SalaryDto
     {
-        return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while processing your request.", details = ex.Message });
-    }
-}
+        [Required]
+        public int StaffId { get; set; }
 
+        [Required]
+        public int HourWage { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        public string StartDate { get; set; } // Chấp nhận kiểu string để nhận dữ liệu dạng "YYYY-MM-DD"
     }
+
 }

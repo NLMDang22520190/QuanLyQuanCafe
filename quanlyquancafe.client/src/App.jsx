@@ -17,7 +17,6 @@ function App() {
   return (
     <ConfigProvider theme={themeConfig}>
       <div className="App ">
-
         {userRole === "Admin" || userRole === "Staff" ? (
           <AppLayout>
             <AllRoutes />
