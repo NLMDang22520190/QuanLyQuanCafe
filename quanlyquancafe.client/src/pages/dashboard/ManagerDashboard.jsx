@@ -82,9 +82,9 @@ export const ManagerDashboard = () => {
     ]
 
     const staffCol = [
-        { header: "ID", key: "staffId", type: TableDetailType.Info },
-        { header: "Name", key: "user", type: TableDetailType.Info },
-        { header: "Start Working", key: "dateStartedWorking", type: TableDetailType.Info },
+        { title: "ID", dataIndex: "staffId", key: "staffId" },
+        { title: "Name", dataIndex: "name", key: "name" },
+        { title: "Start Working", dataIndex: "dateStartedWorking", key: "dateStartedWorking" },
     ]
 
     const orderCol = [
@@ -252,7 +252,7 @@ export const ManagerDashboard = () => {
                         value={saleStatisticByMonths ? saleStatisticByMonths[0].totalExpense : 0} />
                     </div>
 
-                    <div className="flex gap-x-4 h-3/5">
+                    <div className="flex gap-x-4 h-4/5">
                         <div className="flex flex-col w-1/2 h-full bg-gray-500/30 rounded-[20px] p-4 shadow-lg">
                             <p className="font-semibold text-xl">Time Chart</p>
 
@@ -266,7 +266,7 @@ export const ManagerDashboard = () => {
                         <div className="flex flex-col w-1/2 h-full bg-gray-500/30 rounded-[20px] p-4 pb-8 shadow-lg">
                             <p className="font-semibold text-xl">New Staff</p>
 
-                            <OverviewTableLayout columns={staffCol} data={newestStaffs} />
+                            <Table columns={staffCol} dataSource={newestStaffs} pagination={{pageSize: 3}} />
 
                         </div>
                     </div>
@@ -300,12 +300,12 @@ export const ManagerDashboard = () => {
                         columns={menuItemCol} data={menuItemTab == 0 ? (menuItemStatistic?.mostSoldMenuItems ?? []) : (menuItemStatistic?.leastSoldMenuItems ?? [])} />
                     </div>
                     <div className="flex flex-col gap-y-2 bg-gray-500/30 rounded-[20px] p-6 shadow-lg">
-                        <p className="font-semibold text-xl">On Transaction</p>
-                        <Table columns={orderCol} dataSource={pendingOrders} pagination={false} />
+                        <p className="font-semibold text-xl">On Pending Orders</p>
+                        <Table columns={orderCol} dataSource={pendingOrders} pagination={{ pageSize: 3 }} />
                     </div>
                     <div className="flex flex-col gap-y-2 bg-gray-500/30 rounded-[20px] p-6 shadow-lg">
                         <p className="font-semibold text-xl">Inventory Status</p>
-                        <Table loading={!ingredients} className="bg-transparent" columns={stockCol} dataSource={ingredients} pagination={false} />
+                        <Table loading={!ingredients} className="bg-transparent" columns={stockCol} dataSource={ingredients} pagination={{ pageSize: 3 }} />
                     </div>
                 </div>
             </div>

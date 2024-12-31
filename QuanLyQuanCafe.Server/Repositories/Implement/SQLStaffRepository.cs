@@ -95,11 +95,20 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         }
 
 
-        public Task<List<Staff>> GetNewestStaffAsync(int count)
+        public async Task<List<StaffDto>> GetNewestStaffAsync(int count)
         {
-            var newestStaffs = dbContext.Staffs
+            var newestStaffs = await dbContext.Staffs
+                .Include(s => s.User)
                 .OrderByDescending(s => s.DateStartedWorking)
                 .Take(count)
+                .Select(s => new StaffDto
+                {
+                    StaffId = s.StaffId,
+                    Name = s.User.FullName ?? "Unknown",
+                    Email = s.User.Email ?? "No email",
+                    UserId = s.User.Id ?? "",
+                    DateStartedWorking = s.DateStartedWorking
+                })
                 .ToListAsync();
 
             return newestStaffs;
