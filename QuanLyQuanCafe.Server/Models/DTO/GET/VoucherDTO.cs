@@ -4,6 +4,7 @@ namespace QuanLyQuanCafe.Server.Models.DTO.GET;
 
 public class VoucherDTO
 {
+    public int VoucherId { get; set; }
     public string VoucherName { get; set; }
     public string VoucherCode { get; set; }
     public DateTime VoucherStartDate { get; set; }

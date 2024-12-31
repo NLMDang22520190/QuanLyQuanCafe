@@ -49,6 +49,7 @@ namespace QuanLyQuanCafe.Server.Controllers
 		public async Task<IActionResult> GetOrderById(int orderId)
 		{
 			var order = await _orderRepository.GetOrderByIdAsync(orderId);
+			
 			if (order == null)
 			{
 				return NotFound($"No order found with OrderId {orderId}");

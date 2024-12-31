@@ -23,24 +23,40 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 		public async Task<List<OrderDTO>> GetAllOrders()
 		{
 			var orders = await _dbContext.Orders
+
 				.Include(o => o.OrderDetails)
 				.ThenInclude(od => od.Item)
 				.Include(o => o.User)
 				.ToListAsync();
 
-            return _mapper.Map<List<OrderDTO>>(orders);
+			var orderDTOs = _mapper.Map<List<OrderDTO>>(orders);
+			orderDTOs.ForEach(o => 
+			{
+				if (o.VoucherApplied != null)
+				{
+					var voucherDetail = _dbContext.VoucherDetails.FirstOrDefault(v => v.VoucherId == o.VoucherApplied.VoucherId);
+					o.VoucherApplied = voucherDetail?.VoucherId != null ? _mapper.Map<VoucherDTO>(voucherDetail) : null;
+				}
+			});
+
+            return orderDTOs;
 		}
 
 		public async Task<Order?> GetOrderByIdAsync(int orderId)
 		{
 			return await _dbContext.Orders
+								   .Include(o => o.OrderDetails)
+								   .ThenInclude(od => od.Item)
+								   .Include(o => o.User)
 								   .FirstOrDefaultAsync(o => o.OrderId == orderId);
+								   
 		}
 
 		public async Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId)
 		{
 			return await _dbContext.Orders
 								   .Where(o => o.UserId== userId)
+								   .Include(o => o.User)
 								   .ToListAsync();
 		}
 
