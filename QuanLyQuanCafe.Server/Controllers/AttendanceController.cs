@@ -127,5 +127,64 @@ namespace QuanLyQuanCafe.Server.Controllers
 
             return Ok(attendance);
         }
+        [HttpGet("rollcall-report")]
+        public async Task<IActionResult> GetAttendancesByUserIdAndMonth(
+         [FromQuery] string userId,
+         [FromQuery] int month,
+         [FromQuery] int year,
+         [FromQuery] int pageIndex = 1,
+         [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                // Validate inputs
+                if (string.IsNullOrWhiteSpace(userId))
+                {
+                    return BadRequest(new { message = "User ID must be provided." });
+                }
+
+                if (month < 1 || month > 12)
+                {
+                    return BadRequest(new { message = "Month must be between 1 and 12." });
+                }
+
+                if (year < 1)
+                {
+                    return BadRequest(new { message = "Year must be greater than 0." });
+                }
+
+                if (pageIndex <= 0 || pageSize <= 0)
+                {
+                    return BadRequest(new { message = "Page index and page size must be greater than zero." });
+                }
+
+                var result = await _attendanceRepos.GetAttendancesByUserIdAndMonthAsync(userId, month, year, pageIndex, pageSize);
+
+                if (result.TotalRecords == 0)
+                {
+                    return NotFound(new { message = "No attendance records found for the given user and month." });
+                }
+
+                return Ok(new
+                {
+                    result.CurrentPage,
+                    result.PageSize,
+                    result.TotalRecords,
+                    result.TotalPages,
+                    result.Data
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while processing your request.", details = ex.Message });
+            }
+        }
+
+
     }
 }

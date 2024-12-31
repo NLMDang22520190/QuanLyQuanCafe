@@ -67,7 +67,7 @@ namespace QuanLyQuanCafe.Server.Controllers
         }
 
         /// <summary>
-        /// Get all salary of staff
+        /// Get all salaries for a specific staff member.
         /// </summary>
         [HttpGet("{staffId}")]
         public async Task<IActionResult> GetAllSalariesByStaffID(int staffId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 3)
@@ -79,35 +79,32 @@ namespace QuanLyQuanCafe.Server.Controllers
                     return BadRequest(new { message = "Page index and page size must be greater than zero." });
                 }
 
-                var salaries = await _salaryRepo.GetAllSalariesByStaffIdAsync(staffId);
+                var pagedResult = await _salaryRepo.GetAllSalariesByStaffIdAsync(staffId, pageIndex, pageSize);
 
-                if (salaries == null || !salaries.Any())
+                if (pagedResult.TotalRecords == 0)
                 {
-                    return NotFound(new { message = $"No salary found for staffId {staffId}" });
+                    return NotFound(new { message = "No salaries found for the given staff ID." });
                 }
 
-                var totalRecords = salaries.Count;
-                var pagedSalaries = salaries
-                    .Skip((pageIndex - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToList();
-
-                var result = new
+                return Ok(new
                 {
-                    pageIndex,
-                    pageSize,
-                    totalRecords,
-                    totalPages = (int)Math.Ceiling((double)totalRecords / pageSize),
-                    data = pagedSalaries
-                };
-
-                return Ok(result);
+                    pagedResult.CurrentPage,
+                    pagedResult.PageSize,
+                    pagedResult.TotalRecords,
+                    pagedResult.TotalPages,
+                    pagedResult.Data
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while processing your request.", details = ex.Message });
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    message = "An error occurred while processing your request.",
+                    details = ex.Message
+                });
             }
         }
+
 
     }
 
