@@ -21,7 +21,7 @@ namespace QuanLyQuanCafe.Server.Controllers
         {
             try
             {
-                var foodTypes = await _foodTypeRepo.GetAllWithMenuItems().ToListAsync();
+                var foodTypes = await _foodTypeRepo.GetAllAsync();
                 if (foodTypes == null || !foodTypes.Any())
                 {
                     return NotFound("No food types found.");

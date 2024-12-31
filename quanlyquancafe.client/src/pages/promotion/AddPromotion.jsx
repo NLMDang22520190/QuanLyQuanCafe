@@ -1,16 +1,18 @@
 import { Input, TimePicker, DatePicker, InputNumber, Select, Steps, Radio, Form, Button } from 'antd';
 import axios from 'axios';
+import api from '../../features/AxiosInstance/AxiosInstance';
 
 export const AddPromotion = ({onSubmit, onClose}) => {
     const handleCreateVoucher = (values) => {
         values.voucherStartDate = values.voucherStartDate.format('YYYY-MM-DD');
         values.voucherEndDate = values.voucherEndDate.format('YYYY-MM-DD');
-        axios.post('https://localhost:7087/api/voucher-details', values).then(res => {
+        api.post('https://localhost:7087/api/voucher-details', values).then(res => {
             onSubmit();
         }).catch(err => {
             console.log(err);
         });
     }
+    
 
     return (
         <Form layout="horizontal" labelCol={{ span: 8 }} wrapperCol={{ span: 24 }} onFinish={handleCreateVoucher}>
@@ -62,6 +64,19 @@ export const AddPromotion = ({onSubmit, onClose}) => {
             name='percentDiscount'
             rules={[{ required: true, message: 'Please input discount percentage!' }]}>
                 <InputNumber />
+            </Form.Item>
+            <Form.Item 
+            label="Min order required"
+            name='minOrderAmount'
+            rules={[{ required: true, message: 'Please input min order required!' }]}>
+                <InputNumber name='minOrderRequired' />
+            </Form.Item>
+            <Form.Item 
+            label="Points required"
+            name='pointsRequired'
+            rules={[{ required: true, message: 'Please input points required!' }]}
+            >
+                <InputNumber name='pointsRequired' />
             </Form.Item>
             <Form.Item>
                 <Button type="primary" htmlType="submit">

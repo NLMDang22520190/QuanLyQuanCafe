@@ -18,6 +18,8 @@ public partial class CoffeeManagementContext : IdentityDbContext<ApplicationUser
     {
     }
 
+    public virtual DbSet<Image> Images { get; set; }
+
     public virtual DbSet<Attendance> Attendances { get; set; }
 
     public virtual DbSet<Cart> Carts { get; set; }

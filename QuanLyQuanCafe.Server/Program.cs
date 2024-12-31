@@ -23,7 +23,6 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader());
 });
 
-
 // Đọc ConnectionString từ appsettings.json
 Console.WriteLine("connection string: " + builder.Configuration.GetConnectionString("se100-db"));
 builder.Services.AddDbContext<CoffeeManagementContext>(options =>

@@ -8,5 +8,6 @@
         public string? Description { get; set; }
         public string? Picture { get; set; }
         public int TypeOfFoodId { get; set; }
+        public virtual List<UpdateItemRecipeRequestDTO> ItemRecipes { get; set; } = null!;
     }
 }
