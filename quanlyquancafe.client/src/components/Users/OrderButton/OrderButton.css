@@ -1,0 +1,25 @@
+.place-order-btn {
+    color: white;
+    font-size: 16px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #007bff; /* Default background color */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+    margin-top: 20px;
+  }
+  
+  .place-order-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow on hover */
+    background-color: #0056b3; /* Darker blue on hover */
+  }
+  
+  .place-order-btn:disabled {
+    background-color: #d3d3d3;
+    cursor: not-allowed;
+  }
+  

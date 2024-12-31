@@ -11,7 +11,6 @@ namespace QuanLyQuanCafe.Server.Models
 		public int Quantity { get; set; }
 		public string Notes { get; set; }
 		public string Adjustments { get; set; }
-
 		public virtual Cart Cart { get; set; }
 		public virtual MenuItem Item { get; set; }
 	}

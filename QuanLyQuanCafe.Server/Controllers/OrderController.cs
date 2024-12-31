@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTO.UPDATE;
 using QuanLyQuanCafe.Server.Models.DTOs;
 using QuanLyQuanCafe.Server.Repositories;
 using System.Collections.Generic;
@@ -13,10 +14,12 @@ namespace QuanLyQuanCafe.Server.Controllers
 	public class OrderController : ControllerBase
 	{
 		private readonly IOrderRepository _orderRepository;
+		private readonly ICartRepository _cartRepository;
 
-		public OrderController(IOrderRepository orderRepository)
+		public OrderController(IOrderRepository orderRepository, ICartRepository cartRepository)
 		{
 			_orderRepository = orderRepository;
+			_cartRepository = cartRepository;
 		}
 
 		// Lấy tất cả các đơn hàng
@@ -109,6 +112,66 @@ namespace QuanLyQuanCafe.Server.Controllers
 				return NotFound($"Order with ID {orderId} not found.");
 			}
 			return NoContent();
+		}
+
+		// Thêm mới đơn hàng
+		[HttpPost("CartToOrder")]
+		public async Task<IActionResult> CartToOrder([FromBody] CartToOrderRequest request)
+		{
+			try
+			{
+				// Step 1: Fetch the Cart using the CartRepository
+				var cart = await _cartRepository.GetCartByUserIdAsync(request.UserId);
+
+				if (cart == null || !cart.CartDetails.Any())
+				{
+					return BadRequest(new { Message = "Cart is empty or does not exist." });
+				}
+
+				// Step 2: Create the Order from the Cart
+				var order = new Order
+				{
+					UserId = cart.UserId,
+					OrderState = "Pending", // Default state
+					TotalPrice = cart.CartDetails.Sum(cd => cd.Quantity * cd.Item.Price), // Calculate total price
+					OrderTime = DateTime.Now,
+					PaymentMethod = request.PaymentMethod,
+					VoucherApplied = request.VoucherId // Handle optional voucher
+				};
+
+				// Step 3: Add the new order to the database
+				var newOrder = await _orderRepository.AddAsync(order);
+
+				// Step 4: Add Order Details for each CartDetail
+				foreach (var cartDetail in cart.CartDetails)
+				{
+					var orderDetail = new OrderDetail
+					{
+						OrderId = newOrder.OrderId,
+						ItemId = cartDetail.ItemId,
+						Quantity = cartDetail.Quantity,
+						Notes = cartDetail.Notes,
+						Adjustments = cartDetail.Adjustments
+					};
+
+					await _orderRepository.AddOrderDetailAsync(orderDetail); // Assuming you have this method in the repository
+				}
+
+				// Step 5: Clear the Cart (Remove CartDetails and Cart)
+				await _cartRepository.ClearCartAsync(cart);
+
+				return Ok(new
+				{
+					Message = "Order created successfully.",
+					OrderId = newOrder.OrderId,
+					TotalPrice = newOrder.TotalPrice
+				});
+			}
+			catch (Exception ex)
+			{
+				// Handle unexpected errors
+				return StatusCode(500, new { Error = ex.Message });
+			}
 		}
 	}
 }

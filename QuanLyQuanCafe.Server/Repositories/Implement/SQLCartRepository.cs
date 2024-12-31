@@ -168,5 +168,20 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 			dbContext.CartDetails.Remove(cartDetail);
 			await dbContext.SaveChangesAsync();
 		}
+
+		public async Task<Cart> GetCartByUserIdAsync(string userId)
+		{
+			return await dbContext.Carts
+				.Include(c => c.CartDetails)
+				.ThenInclude(cd => cd.Item)
+				.FirstOrDefaultAsync(c => c.UserId == userId);
+		}
+
+		public async Task ClearCartAsync(Cart cart)
+		{
+			dbContext.CartDetails.RemoveRange(cart.CartDetails);
+			dbContext.Carts.Remove(cart);
+			await dbContext.SaveChangesAsync();
+		}
 	}
 }

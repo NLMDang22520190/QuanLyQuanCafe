@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import MenuItem from "../../../components/Users/MenuItem/MenuItem";
 import AddItemForm from "../../../components/Users/AddItemForm/AddItemForm";
 import "./CartInfo.css";
+import OrderButton from "../../../components/Users/OrderButton/OrderButton";
 
 const CartInfo = ({ userId }) => {
   const [orderItems, setOrderItems] = useState([]);
@@ -9,19 +10,17 @@ const CartInfo = ({ userId }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [editingItemId, setEditingItemId] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("Credit Card"); // Example default payment method
 
-  const testing = true; // Set to false for production
-  const testUserId = "276bfb8a-6f92-458b-819a-afda44ae0582"; // Example user ID for testing
-
-  // Define currentUserId
-  const currentUserId = testing ? testUserId : userId; // Use testUserId for testing, otherwise use the passed userId
+  const testing = true;
+  const testUserId = "276bfb8a-6f92-458b-819a-afda44ae0582";
+  const currentUserId = testing ? testUserId : userId;
 
   // Fetch cart details when component mounts or userId changes
   useEffect(() => {
-    fetchCartDetails(currentUserId); // Use currentUserId here
+    fetchCartDetails(currentUserId);
   }, [currentUserId]);
 
-  // Fetch cart details from the API
   const fetchCartDetails = async (id) => {
     setIsLoading(true);
     try {
@@ -32,7 +31,7 @@ const CartInfo = ({ userId }) => {
         throw new Error("Failed to fetch cart details.");
       }
       const data = await response.json();
-      setOrderItems(data || []); // Set order items if available
+      setOrderItems(data || []);
     } catch (error) {
       setErrorMessage(`Error loading cart details: ${error.message}`);
       console.error("Fetch Error:", error);
@@ -41,29 +40,57 @@ const CartInfo = ({ userId }) => {
     }
   };
 
-  // Save edited item to the cart
+  const handleAddItem = async (newItem) => {
+    try {
+      const response = await fetch(
+        "https://localhost:7087/api/Cart/AddItemToCart",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: currentUserId,
+            itemId: newItem.ItemId,
+            quantity: newItem.Quantity,
+            notes: newItem.Notes,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to add item to cart.");
+      }
+
+      const addedItem = await response.json();
+      setOrderItems((prevItems) => [...prevItems, addedItem]);
+      console.log("Item added to cart successfully!");
+    } catch (error) {
+      setErrorMessage(`Error adding item: ${error.message}`);
+      console.error("Add Item Error:", error);
+    }
+  };
+
   const saveEditedItem = async (cartDetailId, updatedData) => {
-    // Extract the cartId from the orderItems state
     const cartItem = orderItems.find(
       (item) => item.cartDetailId === cartDetailId
     );
-    const cartId = cartItem.cartId; // Assuming cartId is available in the item
+    const cartId = cartItem.cartId;
 
     const requestBody = {
-      userId: currentUserId, // Use the currentUserId state or prop
+      userId: currentUserId,
       cartId: cartId,
       cartDetailId: cartDetailId,
       quantity: updatedData.quantity,
       notes: updatedData.notes,
-      adjustment: updatedData.adjustment || "", // Assuming you might want to set an adjustment (e.g., discounts)
+      adjustment: updatedData.adjustment || "",
     };
 
     try {
-      // Send the updated item to the backend using a PUT request
       const response = await fetch(
-        `https://localhost:7087/api/Cart/UpdateCartDetail`, // Endpoint to update the item in the cart
+        `https://localhost:7087/api/Cart/UpdateCartDetail`,
         {
-          method: "PUT", // or PATCH, depending on your API design
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
@@ -75,7 +102,6 @@ const CartInfo = ({ userId }) => {
         throw new Error("Failed to save item changes.");
       }
 
-      // Update the state to reflect the changes
       setOrderItems((prevItems) =>
         prevItems.map((item) =>
           item.cartDetailId === cartDetailId
@@ -83,7 +109,7 @@ const CartInfo = ({ userId }) => {
             : item
         )
       );
-      setEditingItemId(null); // Exit edit mode after saving
+      setEditingItemId(null);
       console.log("Item updated successfully!");
     } catch (error) {
       setErrorMessage(`Error saving item: ${error.message}`);
@@ -91,7 +117,6 @@ const CartInfo = ({ userId }) => {
     }
   };
 
-  // Remove item from the cart using the API
   const removeItemFromCart = async (userId, itemId) => {
     if (window.confirm("Are you sure you want to remove this item?")) {
       try {
@@ -115,58 +140,71 @@ const CartInfo = ({ userId }) => {
     }
   };
 
-  // Calculate the total amount for the cart
-  const totalAmount = orderItems.reduce(
-    (acc, item) => acc + (item.item?.price || 0) * (item.quantity || 0),
-    0
-  );
-  const shippingFee = 25000;
-
   return (
-    <div className="order-info">
-      <div className="order-header">
-        <h3>Your Order</h3>
-        <button className="add-more" onClick={() => setIsAddingItem(true)}>
-          Add Item
-        </button>
-      </div>
+    <div className="cart-info">
+      <h2>Your Cart</h2>
+      {isLoading ? (
+        <p>Loading cart...</p>
+      ) : (
+        <div>
+          {orderItems.length === 0 ? (
+            <p>Your cart is empty.</p>
+          ) : (
+            <div className="menu-items-container">
+              {orderItems.map((item) => (
+                <MenuItem
+                  key={item.cartDetailId}
+                  item={item}
+                  userId={currentUserId}
+                  editMode={item.cartDetailId === editingItemId}
+                  onRemove={(userId, itemId) =>
+                    removeItemFromCart(userId, itemId)
+                  }
+                  onEditToggle={() =>
+                    setEditingItemId(
+                      item.cartDetailId === editingItemId
+                        ? null
+                        : item.cartDetailId
+                    )
+                  }
+                  onSaveEdit={saveEditedItem}
+                />
+              ))}
+            </div>
+          )}
+          {errorMessage && <p className="error">{errorMessage}</p>}
+        </div>
+      )}
 
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
-
-      <div className="order-items-list">
-        {isLoading ? (
-          <p>Loading...</p>
-        ) : (
-          orderItems.map((item) => (
-            <MenuItem
-              key={item.cartDetailId}
-              item={item}
-              userId={currentUserId}
-              editMode={editingItemId === item.cartDetailId}
-              onRemove={removeItemFromCart}
-              onEditToggle={() =>
-                setEditingItemId(
-                  editingItemId === item.cartDetailId ? null : item.cartDetailId
-                )
-              }
-              onSaveEdit={saveEditedItem}
-            />
-          ))
-        )}
-      </div>
-
-      <div className="order-summary">
-        <h3>Total: {totalAmount.toLocaleString()} VND</h3>
-        <h4>Shipping Fee: {shippingFee.toLocaleString()} VND</h4>
-        <h4>Grand Total: {(totalAmount + shippingFee).toLocaleString()} VND</h4>
-      </div>
+      {!isAddingItem && (
+        <button onClick={() => setIsAddingItem(true)}>Add Item</button>
+      )}
 
       {isAddingItem && (
         <AddItemForm
-          onAddItem={() => {}}
+          userId={currentUserId}
+          onAddItem={handleAddItem}
           onClose={() => setIsAddingItem(false)}
         />
       )}
+
+      <h1>
+        {/* Pass the required props to OrderButton */}
+        {orderItems.length > 0 && !isLoading && (
+          <OrderButton
+            cart={orderItems}
+            userId={currentUserId}
+            paymentMethod={paymentMethod} // Example payment method
+            onOrderSuccess={(orderData) => {
+              // You can add functionality to handle the order success here
+              alert(
+                `Order placed successfully! Order ID: ${orderData.orderId}`
+              );
+              setOrderItems([]); // Clear the cart after successful order
+            }}
+          />
+        )}
+      </h1>
     </div>
   );
 };

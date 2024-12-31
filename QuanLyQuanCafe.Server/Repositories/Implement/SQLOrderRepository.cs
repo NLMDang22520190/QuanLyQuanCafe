@@ -113,5 +113,14 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 				.ThenInclude(oi => oi.Item)
 				.ToListAsync();
 		}
+
+		public async Task AddOrderDetailAsync(OrderDetail orderDetail)
+		{
+			// Add the OrderDetail to the OrderDetails DbSet
+			dbContext.OrderDetails.Add(orderDetail);
+
+			// Save changes asynchronously
+			await dbContext.SaveChangesAsync();
+		}
 	}
 }

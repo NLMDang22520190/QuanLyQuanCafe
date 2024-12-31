@@ -98,7 +98,7 @@ const MenuItem = ({
           <>
             <button
               className="remove-item"
-              onClick={() => onRemove(userId, item.cartDetailId)}
+              onClick={() => onRemove(userId, item.item.itemId)}
             >
               Xóa
             </button>

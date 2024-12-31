@@ -233,3 +233,11 @@
   color: #333;
   margin: 0 10px;
 }
+
+.menu-items-container {
+  max-height: 500px; /* Chiều cao tối đa của danh sách */
+  overflow-y: auto; /* Kích hoạt cuộn dọc */
+  border: 1px solid #ccc; /* (Tùy chọn) thêm viền */
+  padding: 10px; /* Khoảng cách giữa danh sách và viền */
+  
+}

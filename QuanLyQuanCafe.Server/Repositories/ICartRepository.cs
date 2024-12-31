@@ -14,5 +14,7 @@ namespace QuanLyQuanCafe.Server.Repositories
 		Task<bool> EditCartItem(string userId, int cartDetailId, int quantity, string? notes, string? adjustments); 
 		Task ClearCart(string userId);
 		Task RemoveItemFromCart(string userId, int itemId);
+		Task<Cart> GetCartByUserIdAsync(string userId);
+		Task ClearCartAsync(Cart cart);
 	}
 }

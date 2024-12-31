@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTO.UPDATE;
 using QuanLyQuanCafe.Server.Models.DTOs;
 using QuanLyQuanCafe.Server.Repositories;
-using System.Collections.Generic;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace QuanLyQuanCafe.Server.Controllers
@@ -12,10 +14,14 @@ namespace QuanLyQuanCafe.Server.Controllers
 	public class OrderDetailController : ControllerBase
 	{
 		private readonly IOrderDetailRepository _orderDetailRepository;
+		private readonly IOrderRepository _orderRepository;
+		private readonly ICartRepository _cartRepository;
 
-		public OrderDetailController(IOrderDetailRepository orderDetailRepository)
+		public OrderDetailController(IOrderDetailRepository orderDetailRepository, IOrderRepository orderRepository, ICartRepository cartRepository)
 		{
 			_orderDetailRepository = orderDetailRepository;
+			_orderRepository = orderRepository;
+			_cartRepository = cartRepository;
 		}
 
 		// Lấy tất cả chi tiết đơn hàng
@@ -30,47 +36,83 @@ namespace QuanLyQuanCafe.Server.Controllers
 			return Ok(orderDetails);
 		}
 
-		// Lấy tất cả chi tiết đơn hàng theo orderId
-		[HttpGet("get-by-order-id/{orderId}")]
-		public async Task<ActionResult<List<OrderDetail>>> GetOrderDetailsByOrderId(int orderId)
+		// Lấy chi tiết đơn hàng theo ID
+		[HttpGet("{orderDetailId}")]
+		public async Task<ActionResult<OrderDetail>> GetOrderDetailById(int orderDetailId)
 		{
-			if (orderId <= 0)
+			if (orderDetailId <= 0)
 			{
-				return BadRequest("Invalid order ID.");
+				return BadRequest("Invalid order detail ID.");
 			}
 
-			var orderDetails = await _orderDetailRepository.GetOrderDetailsByOrderIdAsync(orderId);
-			if (orderDetails == null || orderDetails.Count == 0)
+			var orderDetail = await _orderDetailRepository.GetByIdAsync(orderDetailId);
+			if (orderDetail == null)
 			{
-				return NotFound($"No order details found for order ID {orderId}.");
+				return NotFound($"Order detail with ID {orderDetailId} not found.");
 			}
-			return Ok(orderDetails);
+			return Ok(orderDetail);
 		}
 
-		// Lấy tổng số lượng món đã đặt theo itemId
-		[HttpGet("total-quantity-ordered-by-item-id/{itemId}")]
-		public async Task<ActionResult<int>> GetTotalQuantityOrderedByItemId(int itemId)
+		// Thêm chi tiết đơn hàng từ giỏ hàng (Cart to OrderDetail conversion)
+		[HttpPost("convert-cart-to-order")]
+		public async Task<IActionResult> ConvertCartToOrderDetails([FromBody] CartToOrderRequest request)
 		{
-			if (itemId <= 0)
+			try
 			{
-				return BadRequest("Invalid item ID.");
+				// Step 1: Fetch the Cart using the CartRepository
+				var cart = await _cartRepository.GetCartByUserIdAsync(request.UserId);
+
+				if (cart == null || !cart.CartDetails.Any())
+				{
+					return BadRequest(new { Message = "Cart is empty or does not exist." });
+				}
+
+				// Step 2: Create the Order from the Cart
+				var order = new Order
+				{
+					UserId = cart.UserId,
+					OrderState = "Pending", // Default state
+					TotalPrice = cart.CartDetails.Sum(cd => cd.Quantity * cd.Item.Price), // Calculate total price
+					OrderTime = DateTime.Now,
+					PaymentMethod = request.PaymentMethod,
+					VoucherApplied = request.VoucherId // Optional voucher
+				};
+
+				// Step 3: Add the new order to the database
+				var newOrder = await _orderRepository.AddAsync(order);
+
+				// Step 4: Convert Cart Details to Order Details
+				foreach (var cartDetail in cart.CartDetails)
+				{
+					var orderDetail = new OrderDetail
+					{
+						OrderId = newOrder.OrderId,
+						ItemId = cartDetail.ItemId,
+						Quantity = cartDetail.Quantity,
+						Notes = cartDetail.Notes,
+						Adjustments = cartDetail.Adjustments
+					};
+
+					// Add order details to the database
+					await _orderDetailRepository.AddAsync(orderDetail);
+				}
+
+				// Step 5: Clear the Cart (Remove CartDetails and Cart)
+				await _cartRepository.ClearCartAsync(cart);
+
+				// Return success response with the order details
+				return Ok(new
+				{
+					Message = "Cart converted to order and order details created successfully.",
+					OrderId = newOrder.OrderId,
+					TotalPrice = newOrder.TotalPrice
+				});
 			}
-
-			var totalQuantity = await _orderDetailRepository.GetTotalQuantityOrderedByItemIdAsync(itemId);
-			return Ok(totalQuantity);
-		}
-
-		// Lấy số lần món đã được đặt theo itemId
-		[HttpGet("total-times-ordered-by-item-id/{itemId}")]
-		public async Task<ActionResult<int>> GetTotalTimesOrderedByItemId(int itemId)
-		{
-			if (itemId <= 0)
+			catch (Exception ex)
 			{
-				return BadRequest("Invalid item ID.");
+				// Handle unexpected errors
+				return StatusCode(500, new { Error = ex.Message });
 			}
-
-			var totalTimes = await _orderDetailRepository.GetTotalTimesOrderedByItemIdAsync(itemId);
-			return Ok(totalTimes);
 		}
 
 		// Cập nhật ghi chú hoặc điều chỉnh cho chi tiết đơn hàng
@@ -116,23 +158,6 @@ namespace QuanLyQuanCafe.Server.Controllers
 
 			await _orderDetailRepository.RemoveAsync(orderDetail);
 			return Ok($"Order detail ID {orderDetailId} removed successfully.");
-		}
-
-		// Lấy chi tiết đơn hàng theo ID
-		[HttpGet("{orderDetailId}")]
-		public async Task<ActionResult<OrderDetail>> GetOrderDetailById(int orderDetailId)
-		{
-			if (orderDetailId <= 0)
-			{
-				return BadRequest("Invalid order detail ID.");
-			}
-
-			var orderDetail = await _orderDetailRepository.GetByIdAsync(orderDetailId);
-			if (orderDetail == null)
-			{
-				return NotFound($"Order detail with ID {orderDetailId} not found.");
-			}
-			return Ok(orderDetail);
 		}
 	}
 }
