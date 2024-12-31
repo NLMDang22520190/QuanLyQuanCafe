@@ -33,6 +33,24 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 			}
 		}
 
+		// CreateCartForCustomer
+		public async Task<Cart> CreateCartForCustomer(string userId)
+		{
+			// Create a new cart for the customer
+			var newCart = new Cart
+			{
+				UserId = userId,
+				CartDetails = new List<CartDetail>(),  // Initial empty cart details
+				LastUpdated = DateTime.UtcNow
+			};
+
+			dbContext.Carts.Add(newCart);
+			await dbContext.SaveChangesAsync();
+
+			// Return the newly created cart
+			return newCart; // Ensure it returns a Task<Cart>
+		}
+
 		// Get Cart Detail by Cart ID and Item ID
 		public async Task<CartDetail> GetCartDetailByCartIdAndItemId(int cartId, int itemId)
 		{
@@ -75,6 +93,40 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 			}
 		}
 
+		public async Task UpdateCartDetail(CartDetail cartDetail)
+		{
+			try
+			{
+				// Find the existing CartDetail record by its ID
+				var existingCartDetail = await dbContext.CartDetails
+					.FirstOrDefaultAsync(cd => cd.CartDetailId == cartDetail.CartDetailId);
+
+				if (existingCartDetail != null)
+				{
+					// Update the properties of the existing CartDetail with new values
+					existingCartDetail.Quantity = cartDetail.Quantity;
+					existingCartDetail.Notes = cartDetail.Notes;
+					existingCartDetail.Adjustments = cartDetail.Adjustments;
+
+					// Save changes to the database
+					dbContext.CartDetails.Update(existingCartDetail);
+					await dbContext.SaveChangesAsync();
+					Console.WriteLine($"Cart detail with ID {cartDetail.CartDetailId} updated successfully.");
+				}
+				else
+				{
+					// If no existing CartDetail found, log the error
+					Console.WriteLine($"Cart detail with ID {cartDetail.CartDetailId} not found.");
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error updating cart detail with ID {cartDetail.CartDetailId}: {ex.Message}");
+			}
+		}
+
+
+
 		// Add Cart Detail
 		public async Task AddCartDetail(CartDetail cartDetail)
 		{
@@ -91,7 +143,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 		}
 
 		// Update Cart Detail
-		public async Task UpdateCartDetail(CartDetail cartDetail)
+		public async Task UpdateCartDetaila(CartDetail cartDetail)
 		{
 			try
 			{

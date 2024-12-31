@@ -2,10 +2,22 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import "./MenuItem.css";
 
-const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
+const MenuItem = ({
+  item,
+  userId,
+  editMode,
+  onRemove,
+  onEditToggle,
+  onSaveEdit,
+}) => {
+  // Ensure item and item.item are defined before accessing properties
+  if (!item || !item.item) {
+    return <div className="cart-item">Invalid item data</div>;
+  }
+
   const [quantity, setQuantity] = useState(item.quantity);
   const [notes, setNotes] = useState(item.notes || "");
-  const [size, setSize] = useState(item.size || "Medium");
+  const [adjustment, setAdjustment] = useState(item.adjustment || "None");
 
   const handleSave = () => {
     if (quantity < 1) {
@@ -14,7 +26,7 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
     }
 
     // Pass updated data back to the parent component (CartInfo)
-    onSaveEdit(item.cartDetailId, { quantity, notes, size });
+    onSaveEdit(item.cartDetailId, { quantity, notes, adjustment });
   };
 
   return (
@@ -45,18 +57,16 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
               />
             </div>
 
-            {/* Size */}
+            {/* Adjustment */}
             <div className="form-group">
-              <label htmlFor={`size-${item.cartDetailId}`}>Kích thước:</label>
-              <select
-                id={`size-${item.cartDetailId}`}
-                value={size}
-                onChange={(e) => setSize(e.target.value)}
-              >
-                <option value="Small">Nhỏ</option>
-                <option value="Medium">Vừa</option>
-                <option value="Large">Lớn</option>
-              </select>
+              <label htmlFor={`adjustment-${item.cartDetailId}`}>
+                Điều chỉnh:
+              </label>
+              <input
+                id={`adjustment-${item.cartDetailId}`}
+                value={adjustment}
+                onChange={(e) => setAdjustment(e.target.value)}
+              />
             </div>
 
             {/* Buttons */}
@@ -75,7 +85,7 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
               {quantity} x {item.item.itemName}
             </p>
             <div className="item-options">
-              <span>Kích thước: {size}</span>
+              <span>Điều chỉnh: {adjustment}</span>
               <p className="item-price">{item.item.price.toLocaleString()}đ</p>
               <p>Ghi chú: {notes || "Không có"}</p>
             </div>
@@ -88,7 +98,7 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
           <>
             <button
               className="remove-item"
-              onClick={() => onRemove(item.cartDetailId)} // Use cartDetailId for removal
+              onClick={() => onRemove(userId, item.cartDetailId)}
             >
               Xóa
             </button>
@@ -104,6 +114,7 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
 
 MenuItem.propTypes = {
   item: PropTypes.object.isRequired,
+  userId: PropTypes.string.isRequired, // Make sure to pass userId
   editMode: PropTypes.bool.isRequired,
   onRemove: PropTypes.func.isRequired,
   onEditToggle: PropTypes.func.isRequired,

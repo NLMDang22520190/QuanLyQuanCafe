@@ -21,44 +21,61 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 		public async Task<List<Cart>> GetAllCarts()
 		{
 			return await dbContext.Carts
-								   .Include(c => c.CartDetails)  // Include cart details
-								   .ThenInclude(cd => cd.Item)  // Include item details
-								   .ToListAsync();
+				.Include(c => c.CartDetails)  // Include cart details
+				.ThenInclude(cd => cd.Item)  // Include item details
+				.ToListAsync();
 		}
 
 		// Method to get a cart by its ID
 		public async Task<Cart> GetCartById(int cartId)
 		{
-			// Eager load CartDetails to avoid lazy loading issues
 			var cart = await dbContext.Carts
-									  .Include(c => c.CartDetails)
-									  .ThenInclude(cd => cd.Item) // Include MenuItem details
-									  .FirstOrDefaultAsync(x => x.CartId == cartId);
+				.Include(c => c.CartDetails)
+				.ThenInclude(cd => cd.Item)
+				.FirstOrDefaultAsync(x => x.CartId == cartId);
+
+			if (cart == null)
+				throw new ArgumentException("Cart not found.");
 
 			return cart;
 		}
 
-
 		// Method to get the cart by customer ID
 		public async Task<Cart> GetCartByCustomerId(string userId)
 		{
-			// Eager load CartDetails to avoid lazy loading issues
 			var cart = await dbContext.Carts
-									  .Include(c => c.CartDetails)
-									  .ThenInclude(cd => cd.Item) // Include MenuItem details
-									  .FirstOrDefaultAsync(x => x.UserId == userId);
+				.Include(c => c.CartDetails)
+				.ThenInclude(cd => cd.Item)
+				.FirstOrDefaultAsync(x => x.UserId == userId);
+
+			if (cart == null)
+				throw new ArgumentException("Cart not found for this user.");
 
 			return cart;
+		}
+
+		// CreateCartForCustomer method implementation
+		public async Task<Cart> CreateCartForCustomer(string userId)
+		{
+			// Create a new cart for the customer
+			var newCart = new Cart
+			{
+				UserId = userId,
+				CartDetails = new List<CartDetail>(),  // Initial empty cart details
+				LastUpdated = DateTime.UtcNow
+			};
+
+			dbContext.Carts.Add(newCart);
+			await dbContext.SaveChangesAsync();
+
+			// Return the newly created cart
+			return newCart;  // Ensure the return type matches Task<Cart>
 		}
 
 		// Method to add an item to the cart
 		public async Task AddItemToCart(string userId, int itemId, int quantity, string? notes = null, string? adjustments = null)
 		{
 			var cart = await GetCartByCustomerId(userId);
-			if (cart == null)
-			{
-				throw new ArgumentException("Cart not found for this user.");
-			}
 
 			var menuItem = await dbContext.MenuItems.FindAsync(itemId);
 			if (menuItem == null)
@@ -72,8 +89,8 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 			{
 				// Update quantity if the item exists
 				cartDetail.Quantity += quantity;
-				cartDetail.Notes = notes ?? cartDetail.Notes;  // Preserve the previous note if not provided
-				cartDetail.Adjustments = adjustments ?? cartDetail.Adjustments;  // Preserve adjustments if not provided
+				cartDetail.Notes = notes ?? cartDetail.Notes;
+				cartDetail.Adjustments = adjustments ?? cartDetail.Adjustments;
 			}
 			else
 			{
@@ -85,53 +102,53 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 					Quantity = quantity,
 					Notes = notes,
 					Adjustments = adjustments,
-					Item = menuItem  // Add the item details to the CartDetail
+					Item = menuItem // Add the item details to the CartDetail
 				});
 			}
 
 			// Update the LastUpdated timestamp
-			cart.LastUpdated = DateTime.Now;
+			cart.LastUpdated = DateTime.UtcNow;
 
 			// Save changes to the database
 			await dbContext.SaveChangesAsync();
 		}
 
 		// Method to update an existing item in the cart
-		public async Task EditCartItem(string userId, int cartDetailId, int quantity, string? notes = null, string? adjustments = null)
+		public async Task<bool> EditCartItem(string userId, int cartDetailId, int quantity, string? notes, string? adjustments)
 		{
-			var cart = await GetCartByCustomerId(userId);
-			if (cart == null)
+			try
 			{
-				throw new ArgumentException("Cart not found for this user.");
-			}
+				// Retrieve the cart detail from the database
+				var cartDetail = await dbContext.CartDetails
+					.FirstOrDefaultAsync(cd => cd.CartDetailId == cartDetailId);
 
-			// Find the cart detail that needs to be updated
-			var cartDetail = cart.CartDetails.FirstOrDefault(cd => cd.CartDetailId == cartDetailId);
-			if (cartDetail == null)
+				if (cartDetail == null)
+				{
+					return false; // Cart detail not found
+				}
+
+				// Update the fields
+				cartDetail.Quantity = quantity;
+				cartDetail.Notes = notes;
+				cartDetail.Adjustments = adjustments;
+
+				// Save changes to the database
+				await dbContext.SaveChangesAsync();
+				return true; // Return true if update is successful
+			}
+			catch (Exception ex)
 			{
-				throw new ArgumentException("Cart detail not found for this cart.");
+				// Log and handle error
+				Console.WriteLine($"Error updating cart item: {ex.Message}");
+				return false; // Return false if an error occurred
 			}
-
-			// Update the cart detail fields
-			cartDetail.Quantity = quantity;
-			cartDetail.Notes = notes ?? cartDetail.Notes;  // Preserve the previous note if not provided
-			cartDetail.Adjustments = adjustments ?? cartDetail.Adjustments;  // Preserve adjustments if not provided
-
-			// Update the LastUpdated timestamp
-			cart.LastUpdated = DateTime.Now;
-
-			// Save changes to the database
-			await dbContext.SaveChangesAsync();
 		}
+
 
 		// Clear the cart
 		public async Task ClearCart(string userId)
 		{
 			var cart = await GetCartByCustomerId(userId);
-			if (cart == null)
-			{
-				throw new ArgumentException("Cart not found for this user.");
-			}
 
 			dbContext.CartDetails.RemoveRange(cart.CartDetails);
 			await dbContext.SaveChangesAsync();
@@ -141,22 +158,15 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 		public async Task RemoveItemFromCart(string userId, int itemId)
 		{
 			var cart = await GetCartByCustomerId(userId);
-			if (cart == null)
-			{
-				throw new ArgumentException("Cart not found for this user.");
-			}
 
-			// Find the cart detail by itemId
 			var cartDetail = cart.CartDetails.FirstOrDefault(cd => cd.ItemId == itemId);
-			if (cartDetail != null)
-			{
-				dbContext.CartDetails.Remove(cartDetail);
-				await dbContext.SaveChangesAsync();
-			}
-			else
+			if (cartDetail == null)
 			{
 				throw new ArgumentException("Item not found in the cart.");
 			}
+
+			dbContext.CartDetails.Remove(cartDetail);
+			await dbContext.SaveChangesAsync();
 		}
 	}
 }

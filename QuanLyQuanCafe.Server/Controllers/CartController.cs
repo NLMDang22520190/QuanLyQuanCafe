@@ -1,213 +1,175 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Models.DTO.ADD;
 using QuanLyQuanCafe.Server.Models.DTO.UPDATE;
 using QuanLyQuanCafe.Server.Repositories;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace QuanLyQuanCafe.Server.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class CartController : ControllerBase
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class CartController : ControllerBase
+	private readonly ICartRepository _cartRepository;
+
+	public CartController(ICartRepository cartRepository)
 	{
-		private readonly ICartRepository _cartRepository;
-		private readonly ICartDetailRepository _cartDetailRepository;
+		_cartRepository = cartRepository;
+	}
 
-		public CartController(ICartRepository cartRepository, ICartDetailRepository cartDetailRepository)
+	// Get cart details by customer ID
+	[HttpGet("GetCartDetailsByCustomerId/{userId}")]
+	public async Task<IActionResult> GetCartDetailsByCustomerId(string userId)
+	{
+		try
 		{
-			_cartRepository = cartRepository;
-			_cartDetailRepository = cartDetailRepository;
+			var cart = await _cartRepository.GetCartByCustomerId(userId);
+
+			if (cart == null)
+			{
+				return NotFound(new { error = "No cart found for the user." });
+			}
+
+			var cartDetails = cart.CartDetails.Select(cd => new
+			{
+				CartDetailId = cd.CartDetailId,
+				CartId = cd.CartId,
+				ItemId = cd.ItemId,
+				Quantity = cd.Quantity,
+				Notes = cd.Notes,
+				Adjustments = cd.Adjustments,
+				Item = new
+				{
+					cd.Item.ItemId,
+					cd.Item.ItemName,
+					cd.Item.Price
+				}
+			}).ToList();
+
+			return Ok(cartDetails);
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error fetching cart details: {ex.Message}");
+			return StatusCode(500, new { error = "An error occurred while fetching cart details.", details = ex.Message });
+		}
+	}
+
+	[HttpPost("AddItemToCart")]
+	public async Task<IActionResult> AddItemToCart([FromBody] AddCartItemRequestDTO addItemRequest)
+	{
+		try
+		{
+			// Check if quantity is valid
+			if (addItemRequest.Quantity <= 0)
+			{
+				return BadRequest(new { error = "Quantity must be greater than zero." });
+			}
+
+			// Retrieve the cart or create a new one if it doesn't exist
+			var cart = await _cartRepository.GetCartByCustomerId(addItemRequest.UserId);
+			if (cart == null)
+			{
+				// Create a new cart for the customer if not found
+				cart = await _cartRepository.CreateCartForCustomer(addItemRequest.UserId);
+			}
+
+			// Create the CartDetail object for the item being added
+			var cartDetail = new CartDetail
+			{
+				CartId = cart.CartId,
+				ItemId = addItemRequest.ItemId,
+				Quantity = addItemRequest.Quantity,
+				Notes = addItemRequest.Notes,
+				Adjustments = addItemRequest.Adjustments
+			};
+
+			// Add the item to the cart (now passing individual parameters)
+			await _cartRepository.AddItemToCart(addItemRequest.UserId, addItemRequest.ItemId, addItemRequest.Quantity, addItemRequest.Notes, addItemRequest.Adjustments);
+
+			// Return a success message
+			return Ok(new { message = "Item added to cart successfully." });
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error adding item to cart: {ex.Message}");
+			return StatusCode(500, new { error = "An error occurred while adding the item to the cart.", details = ex.Message });
+		}
+	}
+
+	[HttpDelete("RemoveItemFromCart/{userId}/{itemId}")]
+	public async Task<IActionResult> RemoveItemFromCart(string userId, int itemId)
+	{
+		try
+		{
+			// Call the repository method to remove the item from the cart
+			await _cartRepository.RemoveItemFromCart(userId, itemId);
+
+			return Ok(new { message = "Item removed from cart successfully." });
+		}
+		catch (ArgumentException ex)
+		{
+			// Handle the case where the item is not found in the cart
+			return NotFound(new { error = ex.Message });
+		}
+		catch (Exception ex)
+		{
+			// Handle any other errors
+			Console.WriteLine($"Error removing item from cart: {ex.Message}");
+			return StatusCode(500, new { error = "An error occurred while removing the item from the cart.", details = ex.Message });
+		}
+	}
+
+	[HttpPut("UpdateCartDetail")]
+	public async Task<IActionResult> UpdateCartDetail([FromBody] UpdateCartItemRequestDTO request)
+	{
+		// Validate the request
+		if (request == null || request.CartDetailId <= 0 || request.Quantity <= 0)
+		{
+			return BadRequest(new { error = "Invalid data provided." });
 		}
 
-		[HttpGet("GetCartDetailsByCustomerId/{userId}")]
-		public async Task<IActionResult> GetCartDetailsByCustomerId(string userId)
+		try
 		{
-			try
+			// Get the cart from the repository
+			var cart = await _cartRepository.GetCartById(request.CartId);
+			if (cart == null)
 			{
-				var cart = await _cartRepository.GetCartByCustomerId(userId);
-
-				if (cart == null)
-				{
-					return NotFound(new { error = "No cart found for the user." });
-				}
-
-				var cartDetails = cart.CartDetails.Select(cd => new
-				{
-					CartDetailId = cd.CartDetailId,
-					CartId = cd.CartId,
-					ItemId = cd.ItemId,
-					Quantity = cd.Quantity,
-					Notes = cd.Notes,
-					Adjustments = cd.Adjustments,
-					Item = new
-					{
-						cd.Item.ItemId,
-						cd.Item.ItemName,
-						cd.Item.Price
-					}
-				}).ToList();
-
-				return Ok(cartDetails);
+				return NotFound(new { error = "Cart not found." });
 			}
-			catch (Exception ex)
+
+			// Find the cart detail to update
+			var cartDetail = cart.CartDetails.FirstOrDefault(cd => cd.CartDetailId == request.CartDetailId);
+			if (cartDetail == null)
 			{
-				Console.WriteLine($"Error fetching cart details: {ex.Message}");
-				return StatusCode(500, new { error = "An error occurred while fetching cart details.", details = ex.Message });
+				return NotFound(new { error = "Cart detail not found." });
 			}
+
+			// Update the cart detail fields
+			cartDetail.Quantity = request.Quantity;
+			cartDetail.Notes = request.Notes;
+			cartDetail.Adjustments = request.Adjustment;
+
+			// Call EditCartItem on the repository with all the required parameters
+			bool isUpdated = await _cartRepository.EditCartItem(
+				request.UserId,               // UserId
+				request.CartDetailId,         // CartDetailId
+				request.Quantity,             // Quantity
+				request.Notes,                // Notes
+				request.Adjustment            // Adjustments
+			);
+
+			if (!isUpdated)
+			{
+				return StatusCode(500, new { error = "Failed to update cart detail." });
+			}
+
+			// Return a success response
+			return Ok(new { message = "Cart detail updated successfully." });
 		}
-
-		[HttpPost("RemoveItemFromCart")]
-		public async Task<IActionResult> RemoveItemFromCart([FromBody] RemoveCartItemRequestDTO request)
+		catch (Exception ex)
 		{
-			try
-			{
-				Console.WriteLine($"Removing item: UserId={request.UserId}, ItemId={request.ItemId}");
-
-				if (string.IsNullOrEmpty(request.UserId) || request.ItemId <= 0)
-				{
-					return BadRequest(new { error = "Invalid request data." });
-				}
-
-				var cart = await _cartRepository.GetCartByCustomerId(request.UserId);
-				if (cart == null)
-				{
-					return NotFound(new { error = "Cart not found." });
-				}
-
-				var cartDetail = await _cartDetailRepository.GetCartDetailByCartIdAndItemId(cart.CartId, request.ItemId);
-				if (cartDetail == null)
-				{
-					return NotFound(new { error = "Item not found in cart." });
-				}
-
-				var result = await _cartDetailRepository.DeleteCartDetailByCartId(cartDetail.CartDetailId);
-				if (result)
-				{
-					return NoContent(); // Successful removal
-				}
-
-				return BadRequest(new { error = "Failed to remove item from cart." });
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error: {ex.Message}");
-				return StatusCode(500, new { error = "An error occurred while removing the item from the cart.", details = ex.Message });
-			}
-		}
-
-		[HttpPut("UpdateCartItem")]
-		public async Task<IActionResult> UpdateCartItem([FromBody] UpdateCartItemRequestDTO updateCartItemDto)
-		{
-			try
-			{
-				// Ensure the cart exists
-				var cart = await _cartRepository.GetCartById(updateCartItemDto.CartId);
-
-				if (cart == null)
-				{
-					return NotFound(new { message = "Cart not found." });
-				}
-
-				// Find the cart detail by cartDetailId
-				var cartDetail = cart.CartDetails
-					.FirstOrDefault(cd => cd.CartDetailId == updateCartItemDto.CartDetailId);
-
-				if (cartDetail == null)
-				{
-					return NotFound(new { message = "Cart detail not found." });
-				}
-
-				// Update the necessary fields
-				cartDetail.Quantity = updateCartItemDto.Quantity;
-				cartDetail.Notes = updateCartItemDto.Notes;
-				cartDetail.Adjustments = updateCartItemDto.Adjustment; // Assuming Adjustment is a valid field
-
-				// Save the changes using the repository
-				await _cartDetailRepository.UpdateCartDetail(cartDetail); // Just call the method without assigning to a variable
-
-				return Ok(new { message = "Cart item updated successfully." });
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, new { message = "An error occurred while updating the cart item.", error = ex.Message });
-			}
-		}
-
-
-		// Clear Cart by UserId
-		[HttpDelete("ClearCart/{userId}")]
-		public async Task<IActionResult> ClearCart(string userId)
-		{
-			try
-			{
-				var cart = await _cartRepository.GetCartByCustomerId(userId);
-				if (cart == null)
-				{
-					return NotFound(new { error = "No cart found for the user." });
-				}
-
-				foreach (var cartDetail in cart.CartDetails)
-				{
-					await _cartDetailRepository.DeleteCartDetailByCartId(cartDetail.CartDetailId);
-				}
-
-				return Ok(new { message = "Cart cleared successfully!" });
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error clearing cart: {ex.Message}");
-				return StatusCode(500, new { error = "An error occurred while clearing the cart.", details = ex.Message });
-			}
-		}
-
-		// Place an Order from the Cart
-		[HttpPost("PlaceOrder/{userId}")]
-		public async Task<IActionResult> PlaceOrder(string userId)
-		{
-			try
-			{
-				var cart = await _cartRepository.GetCartByCustomerId(userId);
-				if (cart == null || !cart.CartDetails.Any())
-				{
-					return BadRequest(new { error = "Cart is empty or does not exist." });
-				}
-
-				decimal totalPrice = cart.CartDetails.Sum(cd => cd.Quantity * (decimal)cd.Item.Price);
-
-				var order = new Order
-				{
-					UserId = userId,
-					OrderTime = DateTime.Now,
-					TotalPrice = (double)totalPrice,
-					OrderState = "Pending"
-				};
-
-				foreach (var cartDetail in cart.CartDetails)
-				{
-					var orderDetail = new OrderDetail
-					{
-						ItemId = cartDetail.ItemId,
-						Quantity = cartDetail.Quantity,
-						Notes = cartDetail.Notes,
-						Adjustments = cartDetail.Adjustments,
-						Item = cartDetail.Item
-					};
-					order.OrderDetails.Add(orderDetail);
-				}
-
-				await _cartRepository.ClearCart(userId);  // Just call this method without assigning it to a variable
-
-				return Ok(new { message = "Order placed successfully!" });
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error placing order: {ex.Message}");
-				return StatusCode(500, new { error = "An error occurred while placing the order.", details = ex.Message });
-			}
+			// Handle any unexpected errors
+			Console.WriteLine($"Error updating cart detail: {ex.Message}");
+			return StatusCode(500, new { error = "An error occurred while updating the cart detail.", details = ex.Message });
 		}
 	}
 }

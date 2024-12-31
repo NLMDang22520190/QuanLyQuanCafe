@@ -1,21 +1,18 @@
-// AddItemForm.jsx
-
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import "./AddItemForm.css";
 
 const AddItemForm = ({ userId, onAddItem, onClose }) => {
-  // Accept userId as a prop
   const [menuItems, setMenuItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState("");
 
   const testId = "276bfb8a-6f92-458b-819a-afda44ae0582"; // test user ID
-  const testing = true; // Set to false for production
+  const testing = true;
 
-  const currentUserId = testing ? testId : userId; // Use testId if testing, else use the actual userId
+  const currentUserId = testing ? testId : userId;
 
   useEffect(() => {
     axios
@@ -39,14 +36,16 @@ const AddItemForm = ({ userId, onAddItem, onClose }) => {
     const itemToAdd = menuItems.find((item) => item.itemId === selectedItem);
     if (itemToAdd) {
       const newItem = {
-        UserId: currentUserId, // Pass the current userId (either testId or real userId)
-        ItemId: itemToAdd.itemId,
-        Quantity: quantity,
-        Notes: notes,
+        cartDetailId: new Date().getTime(), // Generate a unique ID for the item
+        UserId: currentUserId, // Use the current user ID
+        ItemId: itemToAdd.itemId, // The ID of the selected item
+        Quantity: quantity, // The quantity the user selected
+        Notes: notes, // Special notes
+        item: itemToAdd, // The selected item details
       };
 
-      onAddItem(newItem);
-      onClose();
+      onAddItem(newItem); // Calls the function passed from CartInfo to add the item to the cart
+      onClose(); // Closes the add item form
     }
   };
 
@@ -96,7 +95,7 @@ const AddItemForm = ({ userId, onAddItem, onClose }) => {
 };
 
 AddItemForm.propTypes = {
-  userId: PropTypes.string.isRequired, // Add userId prop validation
+  userId: PropTypes.string.isRequired,
   onAddItem: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
 };

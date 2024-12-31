@@ -8,24 +8,23 @@ const CartInfo = ({ userId }) => {
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-  const [editMode, setEditMode] = useState(null);
+  const [editingItemId, setEditingItemId] = useState(null);
 
   const testing = true; // Set to false for production
   const testUserId = "276bfb8a-6f92-458b-819a-afda44ae0582"; // Example user ID for testing
 
-  useEffect(() => {
-    if (testing) {
-      console.log("Testing mode: Using default testUserId");
-      fetchCartDetails(testUserId);
-    } else {
-      fetchCartDetails(userId);
-    }
-  }, [userId]);
+  // Define currentUserId
+  const currentUserId = testing ? testUserId : userId; // Use testUserId for testing, otherwise use the passed userId
 
+  // Fetch cart details when component mounts or userId changes
+  useEffect(() => {
+    fetchCartDetails(currentUserId); // Use currentUserId here
+  }, [currentUserId]);
+
+  // Fetch cart details from the API
   const fetchCartDetails = async (id) => {
     setIsLoading(true);
     try {
-      console.log("Fetching cart details for userId:", id);
       const response = await fetch(
         `https://localhost:7087/api/Cart/GetCartDetailsByCustomerId/${id}`
       );
@@ -33,8 +32,7 @@ const CartInfo = ({ userId }) => {
         throw new Error("Failed to fetch cart details.");
       }
       const data = await response.json();
-      console.log("Fetched cart details:", data);
-      setOrderItems(data || []);
+      setOrderItems(data || []); // Set order items if available
     } catch (error) {
       setErrorMessage(`Error loading cart details: ${error.message}`);
       console.error("Fetch Error:", error);
@@ -43,55 +41,81 @@ const CartInfo = ({ userId }) => {
     }
   };
 
-  // Remove an item from the cart
-  const removeItemFromCart = async (itemId) => {
+  // Save edited item to the cart
+  const saveEditedItem = async (cartDetailId, updatedData) => {
+    // Extract the cartId from the orderItems state
+    const cartItem = orderItems.find(
+      (item) => item.cartDetailId === cartDetailId
+    );
+    const cartId = cartItem.cartId; // Assuming cartId is available in the item
+
+    const requestBody = {
+      userId: currentUserId, // Use the currentUserId state or prop
+      cartId: cartId,
+      cartDetailId: cartDetailId,
+      quantity: updatedData.quantity,
+      notes: updatedData.notes,
+      adjustment: updatedData.adjustment || "", // Assuming you might want to set an adjustment (e.g., discounts)
+    };
+
     try {
-      const requestBody = {
-        UserId: testing ? testUserId : userId,
-        ItemId: itemId, // Now using the correct itemId
-      };
-
-      console.log("UserId:", requestBody.UserId);
-      console.log("ItemId:", requestBody.ItemId);
-
+      // Send the updated item to the backend using a PUT request
       const response = await fetch(
-        "https://localhost:7087/api/Cart/RemoveItemFromCart",
+        `https://localhost:7087/api/Cart/UpdateCartDetail`, // Endpoint to update the item in the cart
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: "PUT", // or PATCH, depending on your API design
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify(requestBody),
         }
       );
 
       if (!response.ok) {
-        const errorResponse = await response.json();
-        console.error("Server Error Response:", errorResponse);
-        throw new Error(
-          errorResponse.message || "Failed to remove item from cart."
-        );
+        throw new Error("Failed to save item changes.");
       }
 
-      console.log("Item removed successfully. Updating UI...");
-      setOrderItems(
-        (prevItems) => prevItems.filter((item) => item.cartDetailId !== itemId) // Filter by cartDetailId
+      // Update the state to reflect the changes
+      setOrderItems((prevItems) =>
+        prevItems.map((item) =>
+          item.cartDetailId === cartDetailId
+            ? { ...item, ...updatedData }
+            : item
+        )
       );
+      setEditingItemId(null); // Exit edit mode after saving
+      console.log("Item updated successfully!");
     } catch (error) {
-      setErrorMessage(`Error removing item from cart: ${error.message}`);
-      console.error("Remove Item Error Details:", error);
+      setErrorMessage(`Error saving item: ${error.message}`);
+      console.error("Save Edit Error:", error);
     }
   };
 
-  // Save the edited item data
-  const saveEditItem = (cartDetailId, updatedData) => {
-    console.log("Saving updated item:", { cartDetailId, updatedData });
-    setOrderItems((prevItems) =>
-      prevItems.map((item) =>
-        item.cartDetailId === cartDetailId ? { ...item, ...updatedData } : item
-      )
-    );
-    setEditMode(null);
+  // Remove item from the cart using the API
+  const removeItemFromCart = async (userId, itemId) => {
+    if (window.confirm("Are you sure you want to remove this item?")) {
+      try {
+        const response = await fetch(
+          `https://localhost:7087/api/Cart/RemoveItemFromCart/${userId}/${itemId}`,
+          {
+            method: "DELETE",
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to remove item.");
+        }
+        setOrderItems((prevItems) =>
+          prevItems.filter((item) => item.cartDetailId !== itemId)
+        );
+        console.log("Item removed successfully!");
+      } catch (error) {
+        setErrorMessage(`Error removing item from cart: ${error.message}`);
+        console.error("Remove Item Error:", error);
+      }
+    }
   };
 
+  // Calculate the total amount for the cart
   const totalAmount = orderItems.reduce(
     (acc, item) => acc + (item.item?.price || 0) * (item.quantity || 0),
     0
@@ -115,16 +139,17 @@ const CartInfo = ({ userId }) => {
         ) : (
           orderItems.map((item) => (
             <MenuItem
-              key={item.cartDetailId} // Ensure cartDetailId is used as the key
+              key={item.cartDetailId}
               item={item}
-              editMode={editMode === item.cartDetailId} // Edit mode management by cartDetailId
-              onRemove={() => removeItemFromCart(item.cartDetailId)} // Pass cartDetailId for removal
+              userId={currentUserId}
+              editMode={editingItemId === item.cartDetailId}
+              onRemove={removeItemFromCart}
               onEditToggle={() =>
-                setEditMode(
-                  editMode === item.cartDetailId ? null : item.cartDetailId
+                setEditingItemId(
+                  editingItemId === item.cartDetailId ? null : item.cartDetailId
                 )
               }
-              onSaveEdit={saveEditItem}
+              onSaveEdit={saveEditedItem}
             />
           ))
         )}
@@ -138,11 +163,7 @@ const CartInfo = ({ userId }) => {
 
       {isAddingItem && (
         <AddItemForm
-          onAddItem={(newItem) => {
-            console.log("Adding new item to cart:", newItem);
-            setOrderItems((prevItems) => [...prevItems, newItem]);
-            setIsAddingItem(false);
-          }}
+          onAddItem={() => {}}
           onClose={() => setIsAddingItem(false)}
         />
       )}
