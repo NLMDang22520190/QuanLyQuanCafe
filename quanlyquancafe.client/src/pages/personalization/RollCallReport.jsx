@@ -4,6 +4,11 @@ import { Modal, Table } from "antd";
 const RollCallReport = ({ visible, onClose, monthData }) => {
   const rollCallColumns = [
     {
+      title: "Shift",
+      dataIndex: "shiftName",
+      key: "shiftName",
+    },
+    {
       title: "Date",
       dataIndex: "date",
       key: "date",
@@ -20,9 +25,9 @@ const RollCallReport = ({ visible, onClose, monthData }) => {
     },
   ];
   const rollCallData = [
-    { key: 1, date: "01/01/2024", checkin: "09:00 AM", checkout: "05:00 PM" },
-    { key: 2, date: "02/01/2024", checkin: "09:15 AM", checkout: "05:10 PM" },
-    { key: 3, date: "03/01/2024", checkin: "09:05 AM", checkout: "04:50 PM" },
+    { key: 1,shiftName:"ca 1", date: "01/01/2024", checkin: "09:00 AM", checkout: "05:00 PM" },
+    { key: 2,shiftName:"ca 1", date: "02/01/2024", checkin: "09:15 AM", checkout: "05:10 PM" },
+    { key: 3,shiftName:"ca 1", date: "03/01/2024", checkin: "09:05 AM", checkout: "04:50 PM" },
   ];
 
   return (
