@@ -1,31 +1,47 @@
-import { useState, useRef } from "react";
-import { Modal, Button, Table, ConfigProvider, theme } from "antd";
+import { useState, useEffect, useRef } from "react";
+import { Modal, Button, ConfigProvider, theme } from "antd";
 import { Day, WorkWeek, Week, ScheduleComponent, Inject } from "@syncfusion/ej2-react-schedule";
+import axios from "axios";
 import "./schedule.css";
 
 const StaffSchedule = () => {
     const scheduleRef = useRef(null);
-    const [openRollCall, setOpenRollCall] = useState(false); // Modal Roll Call
+    const [openRollCall, setOpenRollCall] = useState(false); 
     const [selectedShift, setSelectedShift] = useState(null);
     const [checkInTime, setCheckInTime] = useState(null);
     const [checkOutTime, setCheckOutTime] = useState(null);
+    const [schedule, setSchedule] = useState([]); 
 
-    const schedule = [
-        {
-            Id: 1,
-            Subject: "Morning Shift",
-            StartTime: new Date(2024, 11, 26, 8, 0),
-            EndTime: new Date(2024, 11, 26, 12, 0),
-            Date: "2024-11-26",
-        },
-        {
-            Id: 2,
-            Subject: "Afternoon Shift",
-            StartTime: new Date(2024, 11, 26, 13, 0),
-            EndTime: new Date(2024, 11, 26, 17, 0),
-            Date: "2024-11-26",
-        },
-    ];
+ 
+    const fetchShifts = async () => {
+        try {
+            const response = await axios.get("https://localhost:7087/api/shifts?pageIndex=1&pageSize=10");
+            const shiftData = response.data.data;
+
+
+            const formattedShifts = shiftData.map((shift) => {
+                const [startHour, startMinute] = shift.startTime.split(":").map(Number);
+                const [endHour, endMinute] = shift.endTime.split(":").map(Number);
+
+                const today = new Date();
+                return {
+                    Id: shift.shiftId,
+                    Subject: shift.shiftName,
+                    StartTime: new Date(today.getFullYear(), today.getMonth(), today.getDate(), startHour, startMinute),
+                    EndTime: new Date(today.getFullYear(), today.getMonth(), today.getDate(), endHour, endMinute),
+                    Date: today.toISOString().split("T")[0], 
+                };
+            });
+
+            setSchedule(formattedShifts);
+        } catch (error) {
+            console.error("Error fetching shifts:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchShifts(); 
+    }, []);
 
     const handleOpenRollCall = (shift) => {
         setSelectedShift(shift);
@@ -39,17 +55,49 @@ const StaffSchedule = () => {
         setSelectedShift(null);
     };
 
-    const handleCheckIn = () => {
+    const handleCheckIn = async () => {
         if (!checkInTime) {
-            setCheckInTime(new Date());
+            try {
+                const payload = {
+                    shiftId: selectedShift.Id, 
+                    checkInTime: new Date().toISOString(), 
+                };
+                const response = await axios.post("https://localhost:7087/api/attendances/checkin", payload);
+                console.log("Check-In Successful:", response.data);
+                setCheckInTime(new Date());
+                message.success("Checked in successfully!");
+            } catch (error) {
+                console.error("Error during Check-In:", error.response?.data || error.message);
+                message.error(error.response?.data?.message || "Failed to check in. Please try again.");
+            }
         }
     };
+    
 
-    const handleCheckOut = () => {
+    const handleCheckOut = async () => {
         if (checkInTime && !checkOutTime) {
-            setCheckOutTime(new Date());
+            try {
+                const userId = localStorage.getItem("userId");
+                const payload = {
+                    UserId: userId, 
+                    ShiftId: selectedShift.Id, 
+                    Checkin: checkInTime.toISOString().split("T")[0], 
+                    Checkout: new Date().toISOString().split("T")[0], 
+                };
+    
+                const queryString = new URLSearchParams(payload).toString();
+                const response = await axios.post(`https://localhost:7087/api/attendances/checkout?${queryString}`);
+    
+                console.log("Check-Out Successful:", response.data);
+                setCheckOutTime(new Date());
+                message.success("Checked out successfully!");
+            } catch (error) {
+                console.error("Error during Check-Out:", error.response?.data || error.message);
+                message.error(error.response?.data?.message || "Failed to check out. Please try again.");
+            }
         }
     };
+    
 
     const quickInfoEventTemplate = (props) => (
         <div className="custom-quick-info">
@@ -67,10 +115,8 @@ const StaffSchedule = () => {
         </div>
     );
 
-
-
     const eventSettings = {
-        dataSource: schedule,
+        dataSource: schedule, 
     };
 
     return (
@@ -91,7 +137,7 @@ const StaffSchedule = () => {
                 <div className="max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)] overflow-auto">
                     <ScheduleComponent
                         ref={scheduleRef}
-                        selectedDate={new Date(2024, 11, 26)}
+                        selectedDate={new Date()}
                         eventSettings={eventSettings}
                         quickInfoTemplates={{
                             content: quickInfoEventTemplate,
@@ -154,3 +200,6 @@ const StaffSchedule = () => {
 };
 
 export default StaffSchedule;
+
+
+

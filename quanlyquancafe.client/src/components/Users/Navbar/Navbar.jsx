@@ -44,7 +44,7 @@ const Navbar = () => {
               Menu
             </Link>
             <Link
-              to="/"
+              to="/OrderTracking"
               className="text-lg whitespace-nowrap text-primary-400 hover:underline hover:underline-offset-8"
             >
               Theo dõi đơn hàng
