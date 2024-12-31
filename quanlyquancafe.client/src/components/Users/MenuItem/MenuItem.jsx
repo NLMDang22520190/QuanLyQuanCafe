@@ -13,7 +13,8 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
       return;
     }
 
-    onSaveEdit(item.itemId, { quantity, notes, size });
+    // Pass updated data back to the parent component (CartInfo)
+    onSaveEdit(item.cartDetailId, { quantity, notes, size });
   };
 
   return (
@@ -23,9 +24,9 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
           <div className="edit-mode">
             {/* Quantity */}
             <div className="form-group">
-              <label htmlFor={`quantity-${item.itemId}`}>Số lượng:</label>
+              <label htmlFor={`quantity-${item.cartDetailId}`}>Số lượng:</label>
               <input
-                id={`quantity-${item.itemId}`}
+                id={`quantity-${item.cartDetailId}`}
                 type="number"
                 value={quantity}
                 min="1"
@@ -35,9 +36,9 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
 
             {/* Notes */}
             <div className="form-group">
-              <label htmlFor={`notes-${item.itemId}`}>Ghi chú:</label>
+              <label htmlFor={`notes-${item.cartDetailId}`}>Ghi chú:</label>
               <textarea
-                id={`notes-${item.itemId}`}
+                id={`notes-${item.cartDetailId}`}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Ghi chú đặc biệt"
@@ -46,9 +47,9 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
 
             {/* Size */}
             <div className="form-group">
-              <label htmlFor={`size-${item.itemId}`}>Kích thước:</label>
+              <label htmlFor={`size-${item.cartDetailId}`}>Kích thước:</label>
               <select
-                id={`size-${item.itemId}`}
+                id={`size-${item.cartDetailId}`}
                 value={size}
                 onChange={(e) => setSize(e.target.value)}
               >
@@ -85,7 +86,10 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
       <div className="button-container">
         {!editMode && (
           <>
-            <button className="remove-item" onClick={onRemove}>
+            <button
+              className="remove-item"
+              onClick={() => onRemove(item.cartDetailId)} // Use cartDetailId for removal
+            >
               Xóa
             </button>
             <button className="edit-item-button" onClick={onEditToggle}>
@@ -99,16 +103,7 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
 };
 
 MenuItem.propTypes = {
-  item: PropTypes.shape({
-    itemId: PropTypes.number.isRequired,
-    quantity: PropTypes.number.isRequired,
-    notes: PropTypes.string,
-    size: PropTypes.string,
-    item: PropTypes.shape({
-      itemName: PropTypes.string.isRequired,
-      price: PropTypes.number.isRequired,
-    }).isRequired,
-  }).isRequired,
+  item: PropTypes.object.isRequired,
   editMode: PropTypes.bool.isRequired,
   onRemove: PropTypes.func.isRequired,
   onEditToggle: PropTypes.func.isRequired,

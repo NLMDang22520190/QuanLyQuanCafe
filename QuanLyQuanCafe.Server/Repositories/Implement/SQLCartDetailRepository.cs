@@ -1,44 +1,125 @@
-﻿using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace QuanLyQuanCafe.Server.Repositories.Implement
 {
-    public class SQLCartDetailRepository : CoffeeManagementRepository<CartDetail>, ICartDetailRepository
-    {
-        private readonly CoffeeManagementContext dbContext;
+	public class SQLCartDetailRepository : CoffeeManagementRepository<CartDetail>, ICartDetailRepository
+	{
+		private readonly CoffeeManagementContext dbContext;
 
-        public SQLCartDetailRepository(CoffeeManagementContext dbContext) : base(dbContext)
-        {
-            this.dbContext = dbContext;
-        }
-        public Task<List<CartDetail>> GetCartDetailByCartId(int cartId)
-        {
-            var cartDetails = dbContext.CartDetails
-                .Include(cd => cd.Item)
-                .Where(x => x.CartId == cartId)
-                .ToListAsync();
-            return cartDetails;
-        }
+		public SQLCartDetailRepository(CoffeeManagementContext dbContext) : base(dbContext)
+		{
+			this.dbContext = dbContext;
+		}
 
-        public async Task<bool> DeleteCartDetailByCartId(int cartDetailId)
-        {
+		// Get Cart Details by Cart ID
+		public async Task<List<CartDetail>> GetCartDetailByCartId(int cartId)
+		{
+			try
+			{
+				return await dbContext.CartDetails
+					.Where(cd => cd.CartId == cartId)
+					.ToListAsync();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching cart details for CartId {cartId}: {ex.Message}");
+				return new List<CartDetail>(); // Return empty list on error
+			}
+		}
 
-            // Tạo filter dựa trên CartDetailId
-            Expression<Func<CartDetail, bool>> filter = cd => cd.CartDetailId == cartDetailId;
+		// Get Cart Detail by Cart ID and Item ID
+		public async Task<CartDetail> GetCartDetailByCartIdAndItemId(int cartId, int itemId)
+		{
+			try
+			{
+				return await dbContext.CartDetails
+					.FirstOrDefaultAsync(cd => cd.CartId == cartId && cd.ItemId == itemId);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching cart detail for CartId {cartId} and ItemId {itemId}: {ex.Message}");
+				return null; // Return null if an error occurs
+			}
+		}
 
-            var status = await DeleteAsync(filter);
+		// Delete Cart Detail by Cart Detail ID
+		public async Task<bool> DeleteCartDetailByCartId(int cartDetailId)
+		{
+			try
+			{
+				var cartDetail = await dbContext.CartDetails
+					.FirstOrDefaultAsync(cd => cd.CartDetailId == cartDetailId);
 
-            if(status == null)
-            {
-                return false;
-            }
+				if (cartDetail == null)
+				{
+					Console.WriteLine($"Cart detail with ID {cartDetailId} not found.");
+					return false; // Item not found, return false
+				}
 
-            return true;
-          
-        }
+				dbContext.CartDetails.Remove(cartDetail);
+				await dbContext.SaveChangesAsync();
+				Console.WriteLine($"Cart detail with ID {cartDetailId} deleted successfully.");
+				return true; // Successfully deleted
+			}
+			catch (Exception ex)
+			{
+				// Log the exception to help diagnose the issue
+				Console.WriteLine($"Error deleting cart detail with ID {cartDetailId}: {ex.Message}");
+				return false; // Return false if an error occurs
+			}
+		}
 
-    }
+		// Add Cart Detail
+		public async Task AddCartDetail(CartDetail cartDetail)
+		{
+			try
+			{
+				await dbContext.CartDetails.AddAsync(cartDetail);
+				await dbContext.SaveChangesAsync();
+				Console.WriteLine($"Cart detail with ItemId {cartDetail.ItemId} added successfully.");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error adding cart detail: {ex.Message}");
+			}
+		}
+
+		// Update Cart Detail
+		public async Task UpdateCartDetail(CartDetail cartDetail)
+		{
+			try
+			{
+				dbContext.CartDetails.Update(cartDetail); // Update the cart detail in the database
+				await dbContext.SaveChangesAsync(); // Save changes to the database
+				Console.WriteLine($"Cart detail with ID {cartDetail.CartDetailId} updated successfully.");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error updating cart detail with ID {cartDetail.CartDetailId}: {ex.Message}");
+			}
+		}
+
+		// Get Cart Detail by Cart Detail ID (new method)
+		public async Task<CartDetail> GetCartDetail(int cartDetailId)
+		{
+			try
+			{
+				return await dbContext.CartDetails
+					.FirstOrDefaultAsync(cd => cd.CartDetailId == cartDetailId);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching cart detail for CartDetailId {cartDetailId}: {ex.Message}");
+				return null; // Return null if an error occurs
+			}
+		}
+
+
+	}
 }
-

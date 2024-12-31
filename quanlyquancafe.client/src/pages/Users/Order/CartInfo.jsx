@@ -1,115 +1,151 @@
 import React, { useState, useEffect } from "react";
 import MenuItem from "../../../components/Users/MenuItem/MenuItem";
-import PromoModal from "../../../components/Users/PromoModal/PromoModal";
-import AddItemForm from "../../../components/Users/AddItemForm/AddItemForm"; // Import AddItemForm
+import AddItemForm from "../../../components/Users/AddItemForm/AddItemForm";
 import "./CartInfo.css";
 
-const CartInfo = () => {
-  const [cartItems, setCartItems] = useState(() => {
-    const storedCart = localStorage.getItem("cartItems");
-    return storedCart ? JSON.parse(storedCart) : [];
-  });
+const CartInfo = ({ userId }) => {
+  const [orderItems, setOrderItems] = useState([]);
+  const [isAddingItem, setIsAddingItem] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [editMode, setEditMode] = useState(null);
 
-  const [isAddingItem, setIsAddingItem] = useState(false); // Track if "Add Item" form is open
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const testing = true; // Set to false for production
+  const testUserId = "276bfb8a-6f92-458b-819a-afda44ae0582"; // Example user ID for testing
 
-  // Save cartItems to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  }, [cartItems]);
+    if (testing) {
+      console.log("Testing mode: Using default testUserId");
+      fetchCartDetails(testUserId);
+    } else {
+      fetchCartDetails(userId);
+    }
+  }, [userId]);
 
-  const addItemToCart = (newItem) => {
-    setCartItems([...cartItems, newItem]);
+  const fetchCartDetails = async (id) => {
+    setIsLoading(true);
+    try {
+      console.log("Fetching cart details for userId:", id);
+      const response = await fetch(
+        `https://localhost:7087/api/Cart/GetCartDetailsByCustomerId/${id}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch cart details.");
+      }
+      const data = await response.json();
+      console.log("Fetched cart details:", data);
+      setOrderItems(data || []);
+    } catch (error) {
+      setErrorMessage(`Error loading cart details: ${error.message}`);
+      console.error("Fetch Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const removeItem = (itemId) => {
-    setCartItems(cartItems.filter((item) => item.itemId !== itemId));
+  // Remove an item from the cart
+  const removeItemFromCart = async (itemId) => {
+    try {
+      const requestBody = {
+        UserId: testing ? testUserId : userId,
+        ItemId: itemId, // Now using the correct itemId
+      };
+
+      console.log("UserId:", requestBody.UserId);
+      console.log("ItemId:", requestBody.ItemId);
+
+      const response = await fetch(
+        "https://localhost:7087/api/Cart/RemoveItemFromCart",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        console.error("Server Error Response:", errorResponse);
+        throw new Error(
+          errorResponse.message || "Failed to remove item from cart."
+        );
+      }
+
+      console.log("Item removed successfully. Updating UI...");
+      setOrderItems(
+        (prevItems) => prevItems.filter((item) => item.cartDetailId !== itemId) // Filter by cartDetailId
+      );
+    } catch (error) {
+      setErrorMessage(`Error removing item from cart: ${error.message}`);
+      console.error("Remove Item Error Details:", error);
+    }
   };
 
-  const clearCart = () => {
-    setCartItems([]);
-  };
-
-  const updateItem = (itemId, updatedFields) => {
-    setCartItems(
-      cartItems.map((item) =>
-        item.itemId === itemId ? { ...item, ...updatedFields } : item
+  // Save the edited item data
+  const saveEditItem = (cartDetailId, updatedData) => {
+    console.log("Saving updated item:", { cartDetailId, updatedData });
+    setOrderItems((prevItems) =>
+      prevItems.map((item) =>
+        item.cartDetailId === cartDetailId ? { ...item, ...updatedData } : item
       )
     );
+    setEditMode(null);
   };
 
-  const totalAmount = cartItems.reduce(
-    (acc, item) => acc + item.item.price * item.quantity,
+  const totalAmount = orderItems.reduce(
+    (acc, item) => acc + (item.item?.price || 0) * (item.quantity || 0),
     0
   );
   const shippingFee = 25000;
 
   return (
-    <div className="cart-info">
-      <div className="cart-header">
-        <h3>Các món đã chọn</h3>
+    <div className="order-info">
+      <div className="order-header">
+        <h3>Your Order</h3>
         <button className="add-more" onClick={() => setIsAddingItem(true)}>
-          Thêm món
+          Add Item
         </button>
       </div>
 
-      <div className="cart-items-list">
-        {cartItems.map((item) => (
-          <MenuItem
-            key={item.itemId}
-            item={item}
-            editMode={item.editMode || false} // Use editMode from the item
-            onRemove={() => removeItem(item.itemId)}
-            onEditToggle={() =>
-              updateItem(item.itemId, { editMode: !item.editMode })
-            }
-            onSaveEdit={(updatedFields) => {
-              updateItem(item.itemId, { ...updatedFields, editMode: false });
-            }}
-          />
-        ))}
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
+
+      <div className="order-items-list">
+        {isLoading ? (
+          <p>Loading...</p>
+        ) : (
+          orderItems.map((item) => (
+            <MenuItem
+              key={item.cartDetailId} // Ensure cartDetailId is used as the key
+              item={item}
+              editMode={editMode === item.cartDetailId} // Edit mode management by cartDetailId
+              onRemove={() => removeItemFromCart(item.cartDetailId)} // Pass cartDetailId for removal
+              onEditToggle={() =>
+                setEditMode(
+                  editMode === item.cartDetailId ? null : item.cartDetailId
+                )
+              }
+              onSaveEdit={saveEditItem}
+            />
+          ))
+        )}
       </div>
 
-      <button className="delete-order" onClick={clearCart}>
-        Xóa đơn hàng
-      </button>
-
-      <div className="cart-summary">
-        <h3>Tổng cộng</h3>
-        <div className="summary-item">
-          <p>Thành tiền</p>
-          <p>{totalAmount.toLocaleString()}đ</p>
-        </div>
-        <div className="summary-item">
-          <p>Phí giao hàng</p>
-          <p>{shippingFee.toLocaleString()}đ</p>
-        </div>
-        <button className="discount" onClick={() => setIsModalOpen(true)}>
-          Khuyến mãi
-        </button>
-      </div>
-
-      <div className="total-amount">
-        <strong>Thành tiền</strong>
-        <strong>{(totalAmount + shippingFee).toLocaleString()}đ</strong>
-      </div>
-
-      <div className="cart-footer">
-        <button className="confirm-order">Đặt hàng</button>
+      <div className="order-summary">
+        <h3>Total: {totalAmount.toLocaleString()} VND</h3>
+        <h4>Shipping Fee: {shippingFee.toLocaleString()} VND</h4>
+        <h4>Grand Total: {(totalAmount + shippingFee).toLocaleString()} VND</h4>
       </div>
 
       {isAddingItem && (
         <AddItemForm
-          onAddItem={addItemToCart}
+          onAddItem={(newItem) => {
+            console.log("Adding new item to cart:", newItem);
+            setOrderItems((prevItems) => [...prevItems, newItem]);
+            setIsAddingItem(false);
+          }}
           onClose={() => setIsAddingItem(false)}
         />
       )}
-
-      <PromoModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onApply={(promoCode) => alert(`Áp dụng mã khuyến mại: ${promoCode}`)}
-      />
     </div>
   );
 };
