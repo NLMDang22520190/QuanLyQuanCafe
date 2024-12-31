@@ -9,52 +9,63 @@ namespace QuanLyQuanCafe.Server.Controllers
     public class MonthSalaryController : ControllerBase
     {
         private IMonthSalaryRepository _monthSalaryRepos;
+        private IStaffRepository _staffRepos;
 
-        public MonthSalaryController(IMonthSalaryRepository monthSalaryRepository) {
+        public MonthSalaryController(IMonthSalaryRepository monthSalaryRepository, IStaffRepository staffRepository) {
             _monthSalaryRepos=monthSalaryRepository;
+            _staffRepos=staffRepository;
         }
         /// <summary>
         /// Get all month salaries for a given staff member by staffId
         /// </summary>
-        [HttpGet("{staffId}")]
-    public async Task<IActionResult> GetAllMonthSalaries(int staffId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 3)
-    {
-        try
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetAllMonthSalaries(string userId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 3)
         {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequest(new { message = "User ID must be provided." });
+            }
+
+            var staff = await _staffRepos.GetStaffByUserid(userId);
+            if (staff == null)
+            {
+                return NotFound(new { message = "Staff not found for the given user ID." });
+            }
+
+            var staffId = staff.StaffId;
+
             if (pageIndex <= 0 || pageSize <= 0)
             {
                 return BadRequest(new { message = "Page index and page size must be greater than zero." });
             }
 
-            var monthSalaries = await _monthSalaryRepos.GetAllMonthSalariesByStaffIdAsync(staffId);
-
-            if (monthSalaries == null || monthSalaries.Count == 0)
+            try
             {
-                return NotFound(new { message = "No month salary entries found for the given staff ID." });
+                var pagedResult = await _monthSalaryRepos.GetAllMonthSalariesByStaffIdAsync(staffId, pageIndex, pageSize);
+
+                if (pagedResult.TotalRecords == 0)
+                {
+                    return NotFound(new { message = "No monthly salaries found for the given staff ID." });
+                }
+
+                return Ok(new
+                {
+                    pagedResult.CurrentPage,
+                    pagedResult.PageSize,
+                    pagedResult.TotalRecords,
+                    pagedResult.TotalPages,
+                    pagedResult.Data
+                });
             }
-
-            var totalRecords = monthSalaries.Count;
-            var pagedSalaries = monthSalaries
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
-            var result = new
+            catch (Exception ex)
             {
-                pageIndex,
-                pageSize,
-                totalRecords,
-                totalPages = (int)Math.Ceiling((double)totalRecords / pageSize),
-                data = pagedSalaries
-            };
-
-            return Ok(result);
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    message = "An error occurred while processing your request.",
+                    details = ex.Message
+                });
+            }
         }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while processing your request.", details = ex.Message });
-        }
-    }
 
 
         [HttpGet("statistics")]
