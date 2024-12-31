@@ -4,6 +4,7 @@ import { useState,useEffect, useRef } from "react";
 import { Day, WorkWeek, Week, ScheduleComponent, Inject } from '@syncfusion/ej2-react-schedule';
 import instance from "../../features/AxiosInstance/AxiosInstance";
 import {Input,TimePicker, DatePicker,Form, message,ConfigProvider,Modal, Table, Button, Select,theme,Card } from 'antd';
+import axios from "axios";
 import moment from 'moment';
 
 import "./schedule.css";
@@ -16,6 +17,7 @@ const Schedule = () => {
     const [assignStartDate, setAssignStartDate] = useState(null);
     const [assignEndDate, setAssignEndDate] = useState(null);
     const [role, setRole] = useState("admin");
+    const [schedule1, setSchedule] = useState([]);
     const [openModal, setOpenModal] = useState(false);//assign
     const [openReport,setOpenReport]=useState(false);//see report
     const [selectedMonth, setSelectedMonth] = useState(moment().startOf('month')); 
@@ -46,8 +48,8 @@ const Schedule = () => {
     };
     const [shiftData, setShiftData] = useState([]);
 
-    const [openCreateModal, setOpenCreateModal] = useState(false); // Control Create Shift Modal
-    const [openEditModal, setOpenEditModal] = useState(false); // Control Create Shift Modal
+    const [openCreateModal, setOpenCreateModal] = useState(false);
+    const [openEditModal, setOpenEditModal] = useState(false); 
 
     const [newShift, setNewShift] = useState({
         name: "",
@@ -73,28 +75,114 @@ const Schedule = () => {
         }
     }
     
-    const handleEditShift = () => {
-        formCreateShift.validateFields()
-            .then((values) => {
-                const { startTime, endTime } = values;
 
-                const newShift = {
-                    name: values.name,
-                    startTime: startTime.format("HH:mm"),
-                    endTime: endTime.format("HH:mm"),
+
+    const fetchSchedule = async () => {
+        try {
+            const response = await axios.get("https://localhost:7087/api/shifts?pageIndex=1&pageSize=10");
+            const shiftData = response.data.data;
+
+
+            const formattedShifts = shiftData.map((shift) => {
+                const [startHour, startMinute] = shift.startTime.split(":").map(Number);
+                const [endHour, endMinute] = shift.endTime.split(":").map(Number);
+
+                const today = new Date();
+                return {
+                    Id: shift.shiftId,
+                    Subject: shift.shiftName,
+                    StartTime: new Date(today.getFullYear(), today.getMonth(), today.getDate(), startHour, startMinute),
+                    EndTime: new Date(today.getFullYear(), today.getMonth(), today.getDate(), endHour, endMinute),
+                    Date: today.toISOString().split("T")[0], 
+                    Staff: shift.staffIds || [], 
                 };
-
-                // Replace with API call or state update logic
-                console.log("New Shift Data: ", newShift);
-
-                message.success("Shift created successfully!");
-                formCreateShift.resetFields(); 
-                setOpenEditModal(false); 
-            })
-            .catch((error) => {
-                console.error("Validation Failed:", error);
-            });
+            }); 
+            setSchedule(formattedShifts); 
+            console.log("Formatted Schedule:", formattedShifts);
+        } catch (error) {
+            console.error("Error fetching schedule data:", error);
+        }
     };
+    
+
+    useEffect(() => {
+        fetchSchedule(); 
+    }, []);
+
+
+    const handleEditShift = async () => {
+        try {
+            const startTime = formEditShift.getFieldValue("startTime");
+            const endTime = formEditShift.getFieldValue("endTime");
+    
+            const shiftData = {
+                shiftId: selectedShift.shiftId,
+                shiftName: formEditShift.getFieldValue("name"),
+                startTime: startTime.format("HH:mm"),
+                endTime: endTime.format("HH:mm"),
+            };
+    
+            const response = await fetch(`https://localhost:7087/api/shifts/${selectedShift.shiftId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(shiftData),
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('API error details:', errorData);
+                throw new Error(`Error: ${response.statusText}. ${errorData.error || 'Unknown error'}`);
+            }
+    
+            const responseData = await response.json();
+            console.log('Shift updated successfully:', responseData);
+    
+            setSelectedShift((prevShift) => ({
+                ...prevShift,
+                shiftName: responseData.shiftName,
+                startTime: responseData.startTime,
+                endTime: responseData.endTime,
+            }));
+    
+            setOpenEditModal(false);
+    
+        } catch (error) {
+            console.error('Error during shift update:', error);
+            alert(error.message);
+        }
+    };
+    
+
+    
+    const handleDeleteShift = async (shiftId) => {
+        if (!window.confirm("Are you sure you want to delete this shift?")) {
+            return;
+        }
+    
+        try {
+            const response = await instance.delete(`/api/shifts/${shiftId}`);
+    
+            if (response.status === 200) {
+                message.success("Shift deleted successfully!");
+                fetchShift(pageIndexMShift, 5); 
+            } else {
+                throw new Error(response.data.error || "Failed to delete the shift.");
+            }
+        } catch (error) {
+            console.error("Error during shift deletion:", error);
+            message.error(
+                error.response?.data?.error || "An error occurred while deleting the shift."
+            );
+        }
+    };
+    
+    
+    
+    
+    
+    
     const handleCreateShift = async () => {
         try {
             const values = await formCreateShift.validateFields();
@@ -161,9 +249,25 @@ const Schedule = () => {
 
   
 
-    const handleShiftSelect = (shift) => {
-        setSelectedShift(shift);
-        setStaffAssignedToShift([]);  
+    const handleEditClick = (shift) => {
+
+        if (!shift || !shift.shiftName || !shift.startTime || !shift.endTime) {
+            console.error("Invalid shift data:", shift);
+            return;
+        }
+
+
+        console.log("Editing shift:", shift);
+            setSelectedShift(shift); 
+            
+        
+            formEditShift.setFieldsValue({
+                name: shift.shiftName,
+                startTime: moment(shift.startTime, "HH:mm:ss"), 
+                endTime: moment(shift.endTime, "HH:mm:ss"), 
+            });
+            console.log("Form values set:", formEditShift.getFieldsValue());
+            setOpenEditModal(true);
     };
 
     const handleEmployeeSelect = (selectedRowKeys) => {
@@ -186,25 +290,6 @@ const Schedule = () => {
         setOpenModal(false);  
     };
 
-    const schedule = [
-        {
-            Id: 1,
-            Subject: "Morning Shift",
-            StartTime: new Date(2024, 11, 26, 8, 0), 
-            EndTime: new Date(2024, 11, 26, 9, 0), 
-            Date: "2024-11-26",
-            Staff: [1, 2, 3],
-        },
-        {
-            Id: 2,
-            Subject: "Afternoon Shift",
-            StartTime: new Date(2024, 11, 26, 10, 0),
-            EndTime: new Date(2024, 11, 26, 11, 0),
-            Date: "2024-11-26",
-            Staff: [2, 3, 4],
-        },
-    ];
-
 
     const mainShiftColumns = [
         { title: "Name", dataIndex: "shiftName", key: "shiftName" },
@@ -217,7 +302,7 @@ const Schedule = () => {
                 <>
                 <Button
                     type="default"
-                    onClick={() => setOpenEditModal(true)}
+                    onClick={() => handleEditClick(record)}
                 >
                     Edit
                 </Button>
@@ -230,7 +315,7 @@ const Schedule = () => {
                 </Button>
                 <Button
                     type="primary"
-                    onClick={() => handleEditShift(record)}
+                    onClick={() => handleDeleteShift(record.shiftId)}
                     className="bg-amber-500 hover:bg-amber-400 ml-4"
                     danger
                 >
@@ -252,6 +337,10 @@ const Schedule = () => {
             )
         },
     ];
+
+    const eventSettings = {
+        dataSource: schedule1,
+    };
 
     const employeeColumns = [
         { title: 'Employee Name', dataIndex: 'name', key: 'name' },
@@ -314,9 +403,7 @@ const Schedule = () => {
             </div>
         );
     };
-    const eventSettings = {
-        dataSource: schedule,
-    };
+    
     return (
         <ConfigProvider
         theme={{
@@ -354,6 +441,9 @@ const Schedule = () => {
                         setPageIndexMShift(page);
                     },
                   }}
+                  onClick={(record) => ({
+                    onClick: () => handleShiftSelect(record),
+                })}
             />
             <div className="flex justify-between items-center">
                 <h2 className="text-amber-500 font-medium text-3xl">Schedule</h2>
@@ -363,7 +453,7 @@ const Schedule = () => {
             <div className="max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)] overflow-auto">
             <ScheduleComponent
                     ref={scheduleRef} 
-                    selectedDate={new Date(2024, 11, 26)}
+                    selectedDate={new Date()}
                     eventSettings={eventSettings}
                     quickInfoTemplates={{
                         content: quickInfoEventTemplate,
@@ -462,7 +552,8 @@ const Schedule = () => {
                         <p><strong>Date:</strong> {selectedShift.Date}</p>
                         <p>
                             <strong>Time:</strong>{" "}
-                            {`${selectedShift.StartTime.toLocaleTimeString()} - ${selectedShift.EndTime.toLocaleTimeString()}`}
+                            {`${selectedShift?.StartTime?.toLocaleTimeString() || '00:00:00'} - ${selectedShift?.EndTime?.toLocaleTimeString() || '00:00:00'}`}
+
                         </p>
 
                         <Table
