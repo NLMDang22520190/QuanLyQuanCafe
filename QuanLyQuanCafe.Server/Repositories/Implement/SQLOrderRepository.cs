@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTO.GET;
 using QuanLyQuanCafe.Server.Models.DTOs;
 
 namespace QuanLyQuanCafe.Server.Repositories.Implement
@@ -10,10 +12,23 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 	public class SQLOrderRepository : CoffeeManagementRepository<Order>, IOrderRepository
 	{
 		private readonly CoffeeManagementContext _dbContext;
+		private readonly IMapper _mapper;
 
-		public SQLOrderRepository(CoffeeManagementContext dbContext) : base(dbContext)
+		public SQLOrderRepository(CoffeeManagementContext dbContext, IMapper mapper) : base(dbContext)
 		{
 			_dbContext = dbContext;
+			_mapper = mapper;	
+		}
+
+		public async Task<List<OrderDTO>> GetAllOrders()
+		{
+			var orders = await _dbContext.Orders
+				.Include(o => o.OrderDetails)
+				.ThenInclude(od => od.Item)
+				.Include(o => o.User)
+				.ToListAsync();
+
+            return _mapper.Map<List<OrderDTO>>(orders);
 		}
 
 		public async Task<Order?> GetOrderByIdAsync(int orderId)
@@ -78,6 +93,14 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 				.ToListAsync();
 			return pendingOrders;
         }
+
+		public async Task<Order> CreateOrderAsync(Order order)
+		{
+			order.TotalPrice = order.OrderDetails.Sum(item => item.Quantity * item.Item.Price);
+			var createdOrder = _dbContext.Orders.Add(order);
+			await _dbContext.SaveChangesAsync();
+			return createdOrder.Entity;
+		}
     }
 
 }

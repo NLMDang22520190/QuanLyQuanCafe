@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using QuanLyQuanCafe.Server.Models.DTOs;
 using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Repositories;
+using QuanLyQuanCafe.Server.Models.DTO.ADD;
+using AutoMapper;
 
 namespace QuanLyQuanCafe.Server.Controllers
 {
@@ -15,11 +17,22 @@ namespace QuanLyQuanCafe.Server.Controllers
 	public class OrderController : ControllerBase
 	{
 		private readonly IOrderRepository _orderRepository;
+		private readonly IMenuItemRepository _menuItemRepository;
+		 private readonly IMapper _mapper;
 
-		public OrderController(IOrderRepository orderRepository)
+		public OrderController(IOrderRepository orderRepository, IMenuItemRepository menuItemRepository, IMapper mapper)
 		{
 			_orderRepository = orderRepository;
+			_menuItemRepository = menuItemRepository;	
+			_mapper = mapper;
 		}
+
+		[HttpGet]
+		public async Task<IActionResult> GetOrders()
+		{
+			var orders = await _orderRepository.GetAllOrders();
+			return Ok(orders);
+		}	
 
 		[HttpGet("statistics")]
 		public async Task<ActionResult<List<OrderStatisticDTO>>> GetOrderStatistics()
@@ -56,6 +69,44 @@ namespace QuanLyQuanCafe.Server.Controllers
 				return NotFound($"No orders found for UserId {userId}");
 			}
 			return Ok(orders);
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> CreateOrder([FromBody] AddOrderRequestDTO requestDTO)
+		{
+			 if (requestDTO == null)
+            {
+                return BadRequest("Order data is null.");
+            }
+
+            // Fetch item prices and calculate total price
+            double totalPrice = 0;
+            foreach (var orderDetail in requestDTO.OrderDetails)
+            {
+				var menuItem = await _menuItemRepository.GetByIdAsync(m => m.ItemId == orderDetail.itemId);
+                if (menuItem == null)
+                {
+                    return BadRequest($"Menu item with ID {orderDetail.itemId} not found.");
+                }
+                totalPrice += menuItem.Price * orderDetail.quantity;
+            }
+
+            var orderDomain = _mapper.Map<Order>(requestDTO);
+            if (orderDomain == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Mapping failed." });
+            }
+
+            orderDomain.TotalPrice = totalPrice;
+
+            orderDomain = await _orderRepository.CreateAsync(orderDomain);
+
+            if (orderDomain == null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while creating the order." });
+            }
+
+			return Ok("Order created successfully.");
 		}
 
 		[HttpPut("{orderId}/state")]

@@ -27,6 +27,15 @@ export const CreateOrder = () => {
         { label: 'Delivery', value: 'Delivery' },
     ]
 
+    const createOrder = async (values) => {
+        const response = await api.post('api/orders', values).then((response)=> {
+            console.log('Order created:', response.data);
+            navigate('/orderAndBilling');
+        }).catch((error) => {
+            console.error('Error creating order:', error);
+        });
+    }
+
     const handleAddProduct = (product) => {
         const existingProduct = selectedMenuItems.find(item => item.itemId === product.itemId);
         if (existingProduct) {
@@ -42,7 +51,7 @@ export const CreateOrder = () => {
     values.orderDetails = selectedMenuItems.map(item => {  
         return { itemId: item.itemId, quantity: item.quantity}
      });
-        console.log(values);
+       createOrder(values);
     }
 
     const fetchMenuItems = async () => {
@@ -155,8 +164,8 @@ export const CreateOrder = () => {
                                     ))}
                                 </div>
                             </Card>
-                            <Card className="flex w-1/3 rounded-lg" >
-                                <div className="flex flex-col h-full w-full gap-y-4">
+                            <Card className="flex w-1/3 rounded-lg justify-center" >
+                                <div className="flex flex-col h-full gap-y-4">
                                     <Form.Item
                                         layout="vertical"
                                         className="flex justify-center"
