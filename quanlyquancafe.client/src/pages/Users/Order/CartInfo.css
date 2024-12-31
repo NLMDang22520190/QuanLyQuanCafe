@@ -40,9 +40,8 @@
 /* Danh sách các món đã chọn */
 .cart-items-list {
   margin-bottom: 20px;
-  min-height: 400px;
-  max-height: 400px;
-  overflow-y: auto;
+  max-height: 400px; /* Giới hạn chiều cao */
+  overflow-y: auto;  /* Enable vertical scrolling */
   padding-right: 10px;
 }
 
@@ -120,6 +119,10 @@
   cursor: pointer;
   margin-top: 20px;
   width: 100%;
+}
+
+.confirm-order:hover {
+  background-color: #e66f00;
 }
 
 /* Nút xóa đơn hàng */
@@ -230,4 +233,11 @@
   color: #333;
   margin: 0 10px;
 }
+
+.menu-items-container {
+  max-height: 500px; /* Chiều cao tối đa của danh sách */
+  overflow-y: auto; /* Kích hoạt cuộn dọc */
+  border: 1px solid #ccc; /* (Tùy chọn) thêm viền */
+  padding: 10px; /* Khoảng cách giữa danh sách và viền */
   
+}

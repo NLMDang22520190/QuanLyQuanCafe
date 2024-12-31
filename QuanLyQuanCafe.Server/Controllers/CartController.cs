@@ -64,9 +64,9 @@ namespace QuanLyQuanCafe.Server.Controllers
 
                 var cartAfterUpdate = await _cartDetailRepository.CreateAsync(cartDetailDomain);
 
-              var cartDetailsDomain = await _cartDetailRepository.GetCartDetailByCartId(cartAfterUpdate.CartId);
+                var cartDetailsDomain = await _cartDetailRepository.GetCartDetailByCartId(cartAfterUpdate.CartId);
 
-              var cartDomain = cartDetailsDomain.FirstOrDefault(x => x.CartDetailId == cartAfterUpdate.CartDetailId);
+                var cartDomain = cartDetailsDomain.FirstOrDefault(x => x.CartDetailId == cartAfterUpdate.CartDetailId);
 
                 return Ok(_mapper.Map<CartItemDetailDTO>(cartDomain));
             }
