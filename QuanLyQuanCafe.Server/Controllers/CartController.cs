@@ -62,9 +62,13 @@ namespace QuanLyQuanCafe.Server.Controllers
                 // Gọi phương thức AddCartDetailAsync để thêm sản phẩm vào giỏ
                 var cartDetailDomain = _mapper.Map<CartDetail>(requestDto);
 
-                await _cartDetailRepository.CreateAsync(cartDetailDomain);
+                var cartAfterUpdate = await _cartDetailRepository.CreateAsync(cartDetailDomain);
 
-                return Ok("Item added to cart successfully!");
+                var cartDetailsDomain = await _cartDetailRepository.GetCartDetailByCartId(cartAfterUpdate.CartId);
+
+                var cartDomain = cartDetailsDomain.FirstOrDefault(x => x.CartDetailId == cartAfterUpdate.CartDetailId);
+
+                return Ok(_mapper.Map<CartItemDetailDTO>(cartDomain));
             }
             catch (Exception ex)
             {
