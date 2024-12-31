@@ -37,6 +37,27 @@ namespace QuanLyQuanCafe.Server.Controllers
             }
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetVoucherDetailById(int id)
+        {
+            try
+            {
+                var voucherDetail = await _voucherDetailRepo.GetByIdAsync(f => f.VoucherId == id);
+
+                if (voucherDetail == null)
+                {
+                    return NotFound($"Voucher detail with ID {id} not found.");
+                }
+                return Ok(voucherDetail);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while fetching the voucher detail." });
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateVoucherDetail([FromBody] VoucherDetail voucherDetail)
         {

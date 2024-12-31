@@ -73,11 +73,11 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
       const monthlyData = monthlyResponse.data.data;
       const statisticsData = statisticsResponse.data;
   
-      // Kết hợp dữ liệu
         const combinedData = monthlyData.map((item) => {
           const stats = statisticsData.find((stat) => stat.month === item.month);
+          const monthValue = item.month || "Unknown Month";
           return {
-            month: item.month,
+            month: monthValue,
             hoursWorked: item.totalHours || 0,
             hourlyWage: stats ? (stats.totalSalaryPayed / stats.totalHours).toFixed(2) : "N/A",
             totalSalary: stats ? stats.totalSalaryPayed : "N/A",
@@ -191,9 +191,8 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
           dataSource={salaryHistoryData}
           rowKey="date"
           pagination={{
-            pageSize: 2, // Số mục mỗi trang
+            pageSize: 2, 
             onChange: (pageIndex, pageSize) => {
-              // Gọi lại API mỗi khi chuyển trang
               fetchHourlyWageHistoryData(pageIndex, pageSize);
             },
           }}

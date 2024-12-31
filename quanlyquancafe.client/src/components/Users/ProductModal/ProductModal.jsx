@@ -238,7 +238,7 @@ const ProductModal = ({ product, open, onClose, onAddToCart, cartID }) => {
                   name="topping"
                   onChange={handleToppingChange}
                   id={topping.id}
-                  className="mr-2 border-2 border-gray-200 size-5 focus:ring-primary-200"
+                  className="mr-2 border-2 border-gray-200 size-5 checked:bg-primary-200 focus:ring-primary-200"
                 />
                 <label htmlFor={topping.id} className="flex-1 text-gray-700">
                   {topping.label}

@@ -44,9 +44,8 @@ namespace QuanLyQuanCafe.Server.Controllers
 
                   
                     await _imageRepository.CreateAsync(newImage);
+                    return Ok(new { ImageId = newImage.ImageId, ImageUrl = $"/api/image/{newImage.ImageId}" });
                 }
-
-                return Ok("File uploaded successfully.");
             }
             catch (Exception ex)
             {
@@ -78,6 +77,31 @@ namespace QuanLyQuanCafe.Server.Controllers
         {
             var images = await _imageRepository.GetAllAsync();
             return Ok(images.Select(img => new { img.ImageId, img.ImageName }));
+        }
+
+        [HttpGet("byIds")]
+        public async Task<IActionResult> GetImagesByIds([FromQuery] List<int> ids)
+        {
+            if (ids == null || !ids.Any())
+            {
+            return BadRequest("No IDs provided.");
+            }
+
+            var images = await _imageRepository.GetImagesByIdsAsync(ids);
+
+            foreach (var id in ids)
+            {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid ID provided.");
+            }
+            }
+            if (images == null || !images.Any())
+            {
+            return NotFound("No images found for the provided IDs.");
+            }
+
+            return Ok(images.Select(img => new { img.ImageId, img.ImageName, img.ImageData }));
         }
 
     }

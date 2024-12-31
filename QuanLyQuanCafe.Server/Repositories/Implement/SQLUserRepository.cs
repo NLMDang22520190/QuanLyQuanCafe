@@ -1,3 +1,4 @@
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -9,19 +10,24 @@ using QuanLyQuanCafe.Server.Repositories;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AutoMapper;
+using QuanLyQuanCafe.Server.Models.DTO.UPDATE;
+using System.Text.RegularExpressions;
 
 namespace QuanLyQuanCafe.Server.Repositories.Implement
 {
-    public class SQLUserRepository(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, RoleManager<IdentityRole> roleManager) :  IUserRepository
+    public class SQLUserRepository(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, RoleManager<IdentityRole> roleManager, IMapper mapper, ILookupNormalizer lookupNormalizer) :  IUserRepository
     {
         private readonly UserManager<ApplicationUser> userManager = userManager;
         private readonly SignInManager<ApplicationUser> signInManager = signInManager;
         private readonly IConfiguration configuration = configuration;
         private readonly RoleManager<IdentityRole> roleManager = roleManager;
+        private readonly IMapper _mapper = mapper;
+        private readonly ILookupNormalizer _lookupNormalizer = lookupNormalizer;
 
         public async Task<string> SignInAsync(SignInModel model)
         {
-            var user = await userManager.FindByEmailAsync(model.Email);
+            var user = await GetUserByEmail(model.Email);
             if (user == null )
             {
                 return string.Empty;
@@ -65,8 +71,8 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             var user = new ApplicationUser
             {
                 Email = model.Email,
-                UserName = model.Email,
-                isActive=true,
+                UserName = Regex.Replace(model.Email.Split('@')[0], @"[^a-zA-Z0-9]", ""),
+                isActive =true,
                 CustomerPoint = 0,
             };
 
@@ -100,11 +106,14 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             var user = await userManager.FindByIdAsync(userId);
             if (user == null) return false;
 
-            user.isActive = false; 
+            user.isActive = false;
+            
             var result = await userManager.UpdateAsync(user);
 
             return result.Succeeded;
         }
+
+
         public async Task<List<UserModel>> GetUsersAsync(int pageIndex, int pageSize)
         {
 
@@ -133,15 +142,22 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             return userWithRoles;
         }
 
+        public Task<ApplicationUser> GetUserById(string userId)
+        {
+            var user = userManager.FindByIdAsync(userId);
+            return user;
+        }
+
 
         public Task<ApplicationUser> GetUserByEmail(string email)
         {
-            var user = userManager.FindByEmailAsync(email);
+            var user = userManager.Users.FirstOrDefaultAsync(u => u.Email.ToUpper() == email.ToUpper());
             return user;
         }
 
         public async Task<bool> UpdateUserPasswordAsync(ApplicationUser user, string newPassword)
         {
+           
             var result = await userManager.HasPasswordAsync(user);
 
             if (result)
@@ -160,6 +176,46 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             }
 
             return true;
+
+        }
+
+
+        public async Task<bool> UpdateUserInfo(string userId, UpdateUserInfoRequestDTO request)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.FullName = request.FullName;
+            user.City = request.City;
+            user.District = request.District;
+            user.Ward = request.Ward;
+            user.PhotoUrl = request.PhotoUrl;
+            user.PhoneNumber = request.PhoneNumber;
+            try
+            {
+                var result = await userManager.UpdateAsync(user);
+                return result.Succeeded;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("error:" + e.Message);
+                return false;
+            }
+        
+        }
+
+        public async Task<bool> CheckUserCurrentPass(SignInModel model)
+        {
+            var user = await GetUserByEmail(model.Email);
+            if (user == null)
+            {
+                return false;
+            }
+            var passwordValid = await userManager.CheckPasswordAsync(user, model.Password);
+            return passwordValid;
         }
     }
 

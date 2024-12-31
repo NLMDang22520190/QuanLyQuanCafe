@@ -88,5 +88,71 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
 			return randomMenuItems;
 		}
-	}
+
+        public Task<List<MenuItem>> GetAllWithRecipesAsync()
+        {
+            var 
+        menuItemsWithRecipes = (
+            from menuItem in _dbContext.MenuItems
+            join recipe in _dbContext.ItemRecipes on menuItem.ItemId equals recipe.ItemId
+            join ingredient in _dbContext.Ingredients on recipe.IngredientId equals ingredient.IngredientId
+            select new MenuItem
+            {
+                ItemId = menuItem.ItemId,
+                ItemName = menuItem.ItemName,
+                Price = menuItem.Price,
+                Picture = menuItem.Picture,
+                TypeOfFoodId = menuItem.TypeOfFoodId,
+                TypeOfFood = menuItem.TypeOfFood,
+                OrderDetails = menuItem.OrderDetails,
+                ItemRecipes = menuItem.ItemRecipes.Select(r => new ItemRecipe
+                {
+                    ItemId = r.ItemId,
+                    IngredientId = r.IngredientId,
+                    Quantity = r.Quantity,
+                    Ingredient = new Ingredient
+                    {
+                        IngredientId = ingredient.IngredientId,
+                        IngredientName = ingredient.IngredientName,
+                        Unit = ingredient.Unit,
+                    }
+                }).ToList()
+            }).ToListAsync();
+
+        return menuItemsWithRecipes;
+        }
+
+        public Task<MenuItem?> GetMenuItemWithRecipesByIdAsync(int itemId)
+        {
+            var menuItemWithRecipes = (
+            from menuItem in _dbContext.MenuItems
+            join recipe in _dbContext.ItemRecipes on menuItem.ItemId equals recipe.ItemId
+            join ingredient in _dbContext.Ingredients on recipe.IngredientId equals ingredient.IngredientId
+            where menuItem.ItemId == itemId
+            select new MenuItem
+            {
+                ItemId = menuItem.ItemId,
+                ItemName = menuItem.ItemName,
+                Price = menuItem.Price,
+                Picture = menuItem.Picture,
+                TypeOfFoodId = menuItem.TypeOfFoodId,
+                TypeOfFood = menuItem.TypeOfFood,
+                OrderDetails = menuItem.OrderDetails,
+                ItemRecipes = menuItem.ItemRecipes.Select(r => new ItemRecipe
+                {
+                    ItemId = r.ItemId,
+                    IngredientId = r.IngredientId,
+                    Quantity = r.Quantity,
+                    Ingredient = new Ingredient
+                    {
+                        IngredientId = ingredient.IngredientId,
+                        IngredientName = ingredient.IngredientName,
+                        Unit = ingredient.Unit,
+                    }
+                }).ToList()
+            }).FirstOrDefaultAsync();
+
+            return menuItemWithRecipes;
+        }
+    }
 }

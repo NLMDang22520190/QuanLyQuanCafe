@@ -225,5 +225,20 @@ namespace QuanLyQuanCafe.Server.Controllers
             return Ok(staffs);
         }
 
+        [HttpGet("get-staff-id-by-user/{userId}")]
+        public async Task<IActionResult> GetStaffIdByUserId(string userId)
+        {
+            var staff = await _context.Staffs
+                .FirstOrDefaultAsync(s => s.UserId == userId && s.DateEndWorking == null); // Kiểm tra nếu staff còn làm việc
+
+            if (staff == null)
+            {
+                return NotFound(new { message = "Staff not found for the given UserId." });
+            }
+
+            return Ok(new { staffId = staff.StaffId });
+        }
+
+
     }
 }

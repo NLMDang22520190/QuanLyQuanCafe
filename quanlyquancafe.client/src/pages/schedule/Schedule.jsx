@@ -3,12 +3,17 @@ import { RoundedButton } from "../../components/buttons/RoundedButton";
 import { useState,useEffect, useRef } from "react";
 import { Day, WorkWeek, Week, ScheduleComponent, Inject } from '@syncfusion/ej2-react-schedule';
 import instance from "../../features/AxiosInstance/AxiosInstance";
-import {Input,TimePicker, DatePicker,Form, message,ConfigProvider,Modal, Table, Button, Select,theme,Card } from 'antd';
+import {Popconfirm,Input,TimePicker, DatePicker,Form, message,ConfigProvider,Modal, Table, Button, Select,theme,Card } from 'antd';
+import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import axios from "axios";
 import moment from 'moment';
 
 import "./schedule.css";
 
 const Schedule = () => {
+    dayjs.extend(isSameOrBefore);
+
     const navigate = useNavigate();
     const scheduleRef = useRef(null);
     const [formCreateShift] = Form.useForm();
@@ -16,13 +21,21 @@ const Schedule = () => {
     const [assignStartDate, setAssignStartDate] = useState(null);
     const [assignEndDate, setAssignEndDate] = useState(null);
     const [role, setRole] = useState("admin");
+    const [schedule1, setSchedule] = useState([]);
     const [openModal, setOpenModal] = useState(false);//assign
     const [openReport,setOpenReport]=useState(false);//see report
+
+    const[week,setWeek]=useState([]);
     const [selectedMonth, setSelectedMonth] = useState(moment().startOf('month')); 
     const handleMonthChange = (date, dateString) => {
-        setSelectedMonth(dateString);
-        console.log('Selected month:', dateString); 
-      };
+        if(date){
+            setSelectedMonth(moment(dateString, 'YYYY-MM').startOf('month'));
+            setAssignStartDate(null)
+            console.log('Selected month:', date.format('YYYY-MM')); 
+        }
+    };
+    
+
     const [selectedShift, setSelectedShift] = useState(null);
     const [selectedEmployees, setSelectedEmployees] = useState([]);
     const [staffAssignedToShift, setStaffAssignedToShift] = useState([]); 
@@ -48,18 +61,62 @@ const Schedule = () => {
 
     const [openCreateModal, setOpenCreateModal] = useState(false); // Control Create Shift Modal
     const [openEditModal, setOpenEditModal] = useState(false); // Control Create Shift Modal
+    const [staffsNotInShift,setStaffsNotInShift]=useState([]);
+    const [selectedShiftInTable,setSelectedShiftInTable]=useState(null);
+    useEffect(() => {
+        console.log("Selected month changed:", selectedMonth);
 
-    const [newShift, setNewShift] = useState({
-        name: "",
-        startTime: null,
-        endTime: null,
-    });
+        fetchStaffsNotInShift();
+      }, [selectedShiftInTable, selectedMonth]);
+    const fetchStaffsNotInShift = async() => {
+        try {
+            if(selectedShiftInTable===null)
+                return;
+            const response = await instance.get(`api/staff/staff-not-in-shift/${selectedShiftInTable.shiftId}?month=${selectedMonth.format('M')}&year=${selectedMonth.format('YYYY')}`);
+            console.log(response.data);
+            setStaffsNotInShift(response.data.map(staff => ({
+                key: staff.staffId, 
+                value: staff.staffId, 
+                name: staff.name, 
+            })));   
+        } catch (err) {
+            
+            console.error(err);
+        }
+    }
+
+
+    const [pageIndexStaffInShift,setPageIndexStaffInShift]=useState(1);
+    const [totalStaffInShift, setTotalStaffInShift]=useState(1)
     const [totalMShift, setTotalMShift]=useState(1);
     const [pageIndexMShift,setPageIndexMShift]=useState(1);
     useEffect(()=>{
         fetchShift(pageIndexMShift,5);
     },[pageIndexMShift])
+    useEffect(()=>{
+        fetchStaffInShift(pageIndexStaffInShift,5);
+    },[selectedMonth,selectedShiftInTable,pageIndexStaffInShift])
 
+    const fetchStaffInShift = async(pageIndex, pageSize) => {
+ 
+        try {
+            if(selectedShiftInTable===null||selectedMonth==null){
+                console.log("selected shift null")
+                return
+            }
+            const response = await instance.get(`/api/staff/staff-in-shift/${selectedShiftInTable.shiftId}?month=${selectedMonth.format('M')}&year=${selectedMonth.format('YYYY')}&pageIndex=${pageIndex}&pageSize=${pageSize}`);
+            console.log("fetch ok",response.data);
+            setStaffAssignedToShift(response.data.data);   
+            setTotalStaffInShift(response.data.totalRecords);
+            
+
+        } catch (err) {
+            setStaffAssignedToShift([]);   
+            setTotalStaffInShift(0);
+            message.info("No staff is assigned");
+            console.error(err);
+        }
+    }
     const fetchShift = async(pageIndexMShift, pageSize) => {
  
         try {
@@ -73,28 +130,133 @@ const Schedule = () => {
         }
     }
     
-    const handleEditShift = () => {
-        formCreateShift.validateFields()
-            .then((values) => {
-                const { startTime, endTime } = values;
 
-                const newShift = {
-                    name: values.name,
-                    startTime: startTime.format("HH:mm"),
-                    endTime: endTime.format("HH:mm"),
-                };
 
-                // Replace with API call or state update logic
-                console.log("New Shift Data: ", newShift);
+    const fetchSchedule = () => {
+        try {
 
-                message.success("Shift created successfully!");
-                formCreateShift.resetFields(); 
-                setOpenEditModal(false); 
-            })
-            .catch((error) => {
-                console.error("Validation Failed:", error);
+            const formattedShifts = shiftData.flatMap((shift) => {
+                const [startHour, startMinute] = shift.startTime.split(":").map(Number);
+                const [endHour, endMinute] = shift.endTime.split(":").map(Number);
+            
+                const startOfWeek = new Date(week[0]); 
+                const daysInWeek = 6;
+            
+                const shiftsForWeek = [];
+            
+                for (let i = 0; i < daysInWeek; i++) {
+                    const currentDay = new Date(startOfWeek);
+                    currentDay.setDate(startOfWeek.getDate() + i); 
+            
+                    shiftsForWeek.push({
+                        Id: shift.shiftId,
+                        Subject: shift.shiftName,
+                        StartTime: new Date(
+                            currentDay.getFullYear(),
+                            currentDay.getMonth(),
+                            currentDay.getDate(),
+                            startHour,
+                            startMinute
+                        ),
+                        EndTime: new Date(
+                            currentDay.getFullYear(),
+                            currentDay.getMonth(),
+                            currentDay.getDate(),
+                            endHour,
+                            endMinute
+                        ),
+                        Date: currentDay.toISOString().split("T")[0],
+                        Staff: shift.staffIds || [],
+                    });
+                }
+            
+                return shiftsForWeek;
             });
+            setSchedule(formattedShifts); 
+            console.log("Formatted Schedule:", formattedShifts);
+        } catch (error) {
+            console.error("Error fetching schedule data:", error);
+        }
     };
+    
+
+    if(!schedule1){
+        fetchSchedule();
+    }
+    useEffect(() => {
+        fetchSchedule(); 
+    }, [shiftData]);
+
+
+    const handleEditShift = async () => {
+        try {
+            const startTime = formEditShift.getFieldValue("startTime");
+            const endTime = formEditShift.getFieldValue("endTime");
+    
+            const shiftData = {
+                shiftId: selectedShift.shiftId,
+                shiftName: formEditShift.getFieldValue("name"),
+                startTime: startTime.format("HH:mm"),
+                endTime: endTime.format("HH:mm"),
+            };
+    
+            const response = await fetch(`https://localhost:7087/api/shifts/${selectedShift.shiftId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(shiftData),
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('API error details:', errorData);
+                throw new Error(`Error: ${response.statusText}. ${errorData.error || 'Unknown error'}`);
+            }
+    
+            const responseData = await response.json();
+            console.log('Shift updated successfully:', responseData);
+    
+            setSelectedShift((prevShift) => ({
+                ...prevShift,
+                shiftName: responseData.shiftName,
+                startTime: responseData.startTime,
+                endTime: responseData.endTime,
+            }));
+    
+            setOpenEditModal(false);
+    
+        } catch (error) {
+            console.error('Error during shift update:', error);
+            alert(error.message);
+        }
+    };
+    
+
+    
+    const handleDeleteShift = async (shiftId) => {    
+        try {
+            const response = await instance.delete(`/api/shifts/${shiftId}`);
+    
+            if (response.status === 200) {
+                message.success("Shift deleted successfully!");
+                fetchShift(pageIndexMShift, 5); 
+            } else {
+                throw new Error(response.data.error || "Failed to delete the shift.");
+            }
+        } catch (error) {
+            console.error("Error during shift deletion:", error);
+            message.error(
+                error.response?.data?.error || "An error occurred while deleting the shift."
+            );
+        }
+    };
+    
+    
+    
+    
+    
+    
     const handleCreateShift = async () => {
         try {
             const values = await formCreateShift.validateFields();
@@ -122,26 +284,39 @@ const Schedule = () => {
             message.error(`Failed to create shift. ${error.response.data.title}`);
         }
     };
-    
-    const handleOpenReport = (shift) => {
-        setSelectedShift(shift);
-    
-        const staffInShift = availableStaff.filter(staff =>
-            shift.Staff.includes(staff.key)
+    const [shiftId,setShiftId]=useState(null);
+
+
+    const handleOpenReport = async (shift) => {
+    console.log("Shift ID:", shift.Id);
+    console.log("Report Date:", shift.StartTime);
+
+    setSelectedShift(shift); // Lưu thông tin ca làm được chọn
+    setOpenReport(true); // Hiển thị modal báo cáo
+
+    try {
+        const formattedDate = `year,${shift.StartTime.getFullYear()},month,${shift.StartTime.getMonth() + 1},day,${shift.StartTime.getDate()},dayOfWeek,${shift.StartTime.getDay()}`;
+        const response = await instance.get(
+            `/api/attendances/shift/${shift.Id}/date/${formattedDate}?pageIndex=1&pageSize=10`
         );
-    
-        const combinedData = staffInShift.map(staff => {
-            const attendance = (attendanceData[shift.Id] || []).find(a => a.key === staff.key);
-            return {
-                ...staff,
-                checkIn: attendance?.checkIn || "N/A",
-                checkOut: attendance?.checkOut || "N/A",
-            };
-        });
-    
-        setStaffAttendance(combinedData);
-        setOpenReport(true);
-    };
+
+        console.log("Attendance Data:", response.data);
+
+        // Lấy dữ liệu nhân viên và thông tin điểm danh
+        const attendanceData = response.data.data.map((record) => ({
+            key: record.staffId,
+            name: record.staffName,
+            checkIn: record.checkIn ? moment(record.checkIn).format("HH:mm:ss") : "N/A",
+            checkOut: record.checkOut ? moment(record.checkOut).format("HH:mm:ss") : "N/A",
+        }));
+
+        setStaffAttendance(attendanceData); // Lưu dữ liệu vào state
+    } catch (error) {
+        console.error("Failed to fetch attendance report:", error);
+        message.error("Failed to fetch attendance report. Please try again.");
+    }
+};
+
     
 
     const handleCloseReport = () => {
@@ -161,49 +336,64 @@ const Schedule = () => {
 
   
 
-    const handleShiftSelect = (shift) => {
-        setSelectedShift(shift);
-        setStaffAssignedToShift([]);  
+    const handleEditClick = (shift) => {
+
+        if (!shift || !shift.shiftName || !shift.startTime || !shift.endTime) {
+            console.error("Invalid shift data:", shift);
+            return;
+        }
+
+
+        console.log("Editing shift:", shift);
+            setSelectedShift(shift); 
+            
+        
+            formEditShift.setFieldsValue({
+                name: shift.shiftName,
+                startTime: moment(shift.startTime, "HH:mm:ss"), 
+                endTime: moment(shift.endTime, "HH:mm:ss"), 
+            });
+            console.log("Form values set:", formEditShift.getFieldsValue());
+            setOpenEditModal(true);
     };
 
     const handleEmployeeSelect = (selectedRowKeys) => {
         setSelectedEmployees(selectedRowKeys);
     };
 
-    const handleAddNewStaff = () => {
-        if (!selectedNewStaff || !startDate || !endDate) {
+    const handleAddNewStaff = async () => {
+        if (!selectedNewStaff || !assignStartDate || !assignEndDate||!selectedShiftInTable) {
             message.error("Please select a staff, start date, and end date.");
             return;
           }
-        if (selectedNewStaff) {
-            const newStaff = availableStaff.find(staff => staff.key === selectedNewStaff);
-            setStaffAssignedToShift([...staffAssignedToShift, newStaff]);
-            setSelectedNewStaff(null); 
+          const scheduleData = {
+            StaffId: selectedNewStaff,
+            StartDate: dayjs(assignStartDate).format('YYYY-MM-DD'),
+            EndDate: dayjs(assignEndDate).format('YYYY-MM-DD'),
+            ShiftId: selectedShiftInTable.shiftId, 
+        };
+        try {
+            const response = await instance.post('/api/schedules/create-schedule', scheduleData);
+            console.log(response.data)
+            if (response.status === 200 || response.status === 201) {
+                
+                message.success('Staff assigned successfully!');
+                fetchStaffInShift(pageIndexStaffInShift, 5);
+                fetchStaffsNotInShift();
+                setSelectedNewStaff(null);
+                setAssignStartDate(null);
+                setAssignEndDate(null)
+            } else {
+                message.error('Failed to assign staff. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error adding staff:', error);
+            message.error('An error occurred while assigning staff.');
         }
+    
     };
 
-    const handleCloseModal = () => {
-        setOpenModal(false);  
-    };
 
-    const schedule = [
-        {
-            Id: 1,
-            Subject: "Morning Shift",
-            StartTime: new Date(2024, 11, 26, 8, 0), 
-            EndTime: new Date(2024, 11, 26, 9, 0), 
-            Date: "2024-11-26",
-            Staff: [1, 2, 3],
-        },
-        {
-            Id: 2,
-            Subject: "Afternoon Shift",
-            StartTime: new Date(2024, 11, 26, 10, 0),
-            EndTime: new Date(2024, 11, 26, 11, 0),
-            Date: "2024-11-26",
-            Staff: [2, 3, 4],
-        },
-    ];
 
 
     const mainShiftColumns = [
@@ -217,41 +407,53 @@ const Schedule = () => {
                 <>
                 <Button
                     type="default"
-                    onClick={() => setOpenEditModal(true)}
+                    onClick={() => handleEditClick(record)}
                 >
                     Edit
                 </Button>
                 <Button
                     type="default"
-                    onClick={() => handleModalOpen()}
+                    onClick={() => {
+                        setSelectedShiftInTable(record);
+                        setOpenModal(true);
+                        }
+                    }
                     className=" ml-4"
                 >
                     Assign
                 </Button>
-                <Button
-                    type="primary"
-                    onClick={() => handleEditShift(record)}
-                    className="bg-amber-500 hover:bg-amber-400 ml-4"
-                    danger
+                <Popconfirm
+                    title="Are you sure you want to remove this shift?"
+                    onConfirm={() => handleDeleteShift(record.shiftId)} 
+                    onCancel={() => console.log("Cancelled")}
+                    okText="Yes"
+                    cancelText="No"
                 >
-                    Remove
-                </Button>
+                    <Button
+                        type="primary"
+                        className="bg-amber-500 hover:bg-amber-400 ml-4"
+                        danger
+                    >
+                        Remove
+                    </Button>
+                </Popconfirm>
+
                 </>
                 
             ),
         },
     ];
 
-    const shiftColumns = [
-        { title: 'Shift Name', dataIndex: 'Subject', key: 'subject' },
-        { title: 'Start Time', dataIndex: 'StartTime', key: 'startTime' },
-        { title: 'End Time', dataIndex: 'EndTime', key: 'endTime' },
-        {
-            title: 'Action', key: 'action', render: (text, record) => (
-                <Button onClick={() => handleShiftSelect(record)}>Select</Button>
-            )
-        },
+    const data = [
+        { key: 1, name: 'John Doe', EndDate: '2024-12-31' },
+        { key: 2, name: 'Jane Smith', EndDate: '2025-01-15' },
     ];
+
+    const [editingKey, setEditingKey] = useState(null); 
+    const [selectedDateUpdate, setSelectedDateUpdate] = useState(null);
+    const eventSettings = {
+        dataSource: schedule1,
+    };
 
     const employeeColumns = [
         { title: 'Employee Name', dataIndex: 'name', key: 'name' },
@@ -259,16 +461,86 @@ const Schedule = () => {
 
     const staffColumns = [
         { title: 'Staff Name', dataIndex: 'name', key: 'name' },
+        { title: 'StartDate', dataIndex: 'startDate', key: 'startDate' },
+
+        { title: 'EndDate', dataIndex: 'endDate', key: 'endDate' },
         {
-            title: 'Action', key: 'action', render: (_, record) => (
-                <Button onClick={() => handleRemoveStaff(record.key)}>Remove</Button>
-            )
+            title: 'Actions',
+            key: 'actions',
+            render: (text, record) => {
+                if (editingKey === record.staffId) {
+                    return (
+                        <div>
+                            <DatePicker
+                                value={selectedDateUpdate}
+                                defaultValue={record.endDate ? moment(record.endDate) : null}
+                                onChange={(date) => setSelectedDateUpdate(date)}
+                                format="YYYY-MM-DD"
+                                disabledDate={(currentDate) =>
+                                    currentDate && currentDate <= moment().endOf('day')
+                                }
+                            />
+                            <Button onClick={() => handleSaveEndDate(record.staffId)} type="default" style={{ marginLeft: 8 }}>
+                                Save
+                            </Button>
+                            <Button onClick={handleCancelEdit} style={{ marginLeft: 8 }}>
+                                Cancel
+                            </Button>
+                        </div>
+                    );
+                }
+                return (
+                    <Button onClick={() => {
+                        console.log("aa",record.staffId)
+                        handleUpdateEndDate(record.staffId)}}>
+                        Update EndDate
+                    </Button>
+                );
+            },
         },
     ];
-
-    const handleRemoveStaff = (staffKey) => {
-        setStaffAssignedToShift(staffAssignedToShift.filter(staff => staff.key !== staffKey));
+    const [selectedDates, setSelectedDates] = useState({}); 
+    const handleUpdateEndDate = (key) => {
+        setEditingKey(key); 
+        const currentRecord = staffAssignedToShift.find((record) => record.staffId === key);
+        setSelectedDateUpdate(moment(currentRecord.endDate, 'YYYY-MM-DD'));
     };
+    const handleSaveEndDate = async (staffId) => {
+        if (selectedDateUpdate && selectedDateUpdate.isAfter(moment())) {
+            try {
+
+                console.log("staff",staffId);
+                console.log("shift",selectedShiftInTable.shiftId)
+                const response = await instance.put(
+                    `/api/schedules/update-end-date?staffId=${staffId}&shiftId=${selectedShiftInTable.shiftId}`,
+                    dayjs(selectedDateUpdate).format('YYYY-MM-DD')
+                );
+    
+                if (response.status === 200 || response.status === 201) {
+                    message.success("Update new end date success");
+                    setEditingKey(null);
+                    fetchStaffInShift(pageIndexStaffInShift, 5); 
+                } else {
+                    message.error("Failed to update end date. Please try again.");
+                    console.error("Error response:", response);
+                }
+            } catch (error) {
+          
+                console.error("API call failed:", error);
+                message.error("An error occurred while updating the end date.");
+            }
+        } else {
+            message.error("Selected date must be greater than today.");
+        }
+    };
+    
+    const handleCancelEdit = () => {
+        setEditingKey(null); // Thoát chế độ chỉnh sửa
+        setSelectedDateUpdate(null); // Reset giá trị DatePicker
+    };
+
+    
+
     const quickInfoEventTemplate = (props) => (
         <div className="custom-quick-info">
             {!props.Subject && (
@@ -289,6 +561,7 @@ const Schedule = () => {
             )}
         </div>
     );
+
     const footerTemplate = (props) => {
         return (
             <div className="quick-info-footer">
@@ -314,9 +587,7 @@ const Schedule = () => {
             </div>
         );
     };
-    const eventSettings = {
-        dataSource: schedule,
-    };
+    
     return (
         <ConfigProvider
         theme={{
@@ -354,6 +625,9 @@ const Schedule = () => {
                         setPageIndexMShift(page);
                     },
                   }}
+                  onClick={(record) => ({
+                    onClick: () => handleShiftSelect(record),
+                })}
             />
             <div className="flex justify-between items-center">
                 <h2 className="text-amber-500 font-medium text-3xl">Schedule</h2>
@@ -363,7 +637,7 @@ const Schedule = () => {
             <div className="max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)] overflow-auto">
             <ScheduleComponent
                     ref={scheduleRef} 
-                    selectedDate={new Date(2024, 11, 26)}
+                    selectedDate={new Date()}
                     eventSettings={eventSettings}
                     quickInfoTemplates={{
                         content: quickInfoEventTemplate,
@@ -373,6 +647,13 @@ const Schedule = () => {
                     endHour="22:00"   
                     showTimeIndicator={true}
                     readonly={true} 
+                    navigating={(args) => {
+                        const selectedWeekStart = args.currentDate; 
+                        const selectedWeekEnd = new Date(selectedWeekStart);
+                        selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6); 
+                        setWeek([selectedWeekStart, selectedWeekEnd]);
+                        fetchSchedule();
+                    }}
                 >
                     <Inject services={[Day, Week, WorkWeek]} />
                 </ScheduleComponent>
@@ -396,33 +677,59 @@ const Schedule = () => {
                                 style={{ width: 200 }}
                                 placeholder="Select a new staff"
                             >
-                                {availableStaff
-                                    .filter(staff => !staffAssignedToShift.some(s => s.key === staff.key)) 
+                                {staffsNotInShift
                                     .map(staff => (
-                                        <Select.Option key={staff.key} value={staff.key}>
+                                        <Select.Option key={staff.key} value={staff.value}>
                                             {staff.name}
                                         </Select.Option>
                                     ))}
                             </Select>
-                            <DatePicker
-                                value={assignStartDate}
-                                onChange={setAssignStartDate}
+                            <Select
+                                value={assignStartDate ? assignStartDate.format('YYYY-MM-DD') : null}
+                                onChange={(value) => setAssignStartDate(moment(value))}
                                 style={{ width: 200, marginLeft: 10 }}
                                 placeholder="Select Start Date"
-                                format="YYYY-MM-DD"
-                            />
+                            >
+                                {selectedMonth &&
+                                    Array.from(
+                                        { length: moment(selectedMonth, 'YYYY-MM').daysInMonth() },
+                                        (_, i) => {
+                                            const date = moment(selectedMonth, 'YYYY-MM')
+                                                .startOf('month')
+                                                .add(i, 'days');
+                                            return (
+                                                <Select.Option key={date.format('YYYY-MM-DD')} value={date.format('YYYY-MM-DD')}>
+                                                    {date.format('YYYY-MM-DD')}
+                                                </Select.Option>
+                                            );
+                                        }
+                                    )}
+                            </Select>
+        
                             
                             <DatePicker
                                 value={assignEndDate}
-                                onChange={setAssignEndDate}
+                                disabled={!assignStartDate} 
+                                onChange={(value) => {
+                                    if (assignStartDate && dayjs(value).isSameOrBefore(assignStartDate, 'day')) {
+                                        message.error('End Date must be after Start Date');
+                                    } else {
+                                        setAssignEndDate(value);
+                                    }
+                                }}
                                 style={{ width: 200, marginLeft: 10 }}
                                 placeholder="Select End Date"
                                 format="YYYY-MM-DD"
+                                disabledDate={(currentDate) => {
+                                    return assignStartDate && currentDate.isSameOrBefore(assignStartDate, 'day');
+                                }}
                             />
+
                             <Button
                                 type="primary"
                                 onClick={handleAddNewStaff}
                                 className="ml-2"
+                                disabled={!assignEndDate}
                             >
                                 Add Staff
                             </Button>
@@ -436,14 +743,23 @@ const Schedule = () => {
                                 onChange={handleMonthChange}
                                 picker="month" 
                                 format="YYYY-MM" 
-                                value={selectedMonth ? moment(selectedMonth, 'YYYY-MM') : null}
+                                value={selectedMonth.isValid() ? selectedMonth : null}
                                 placeholder="Select Month"
+                                inputReadOnly 
                             />
                             </>}
                             columns={staffColumns}
                             dataSource={staffAssignedToShift}
-                            rowKey="key"
-                            pagination={false}
+                            rowKey="staffId"
+                            pagination={{
+                                current: pageIndexStaffInShift,
+                                pageSize: 5,
+                                total: totalStaffInShift, 
+                                onChange: (page) => {
+                                    fetchStaffInShift(page, 5);
+                                    setPageIndexStaffInShift(page);
+                                },}
+                              }
                             style={{ marginTop: "12px" }}
 
                         />
@@ -462,7 +778,8 @@ const Schedule = () => {
                         <p><strong>Date:</strong> {selectedShift.Date}</p>
                         <p>
                             <strong>Time:</strong>{" "}
-                            {`${selectedShift.StartTime.toLocaleTimeString()} - ${selectedShift.EndTime.toLocaleTimeString()}`}
+                            {`${selectedShift?.StartTime?.toLocaleTimeString() || '00:00:00'} - ${selectedShift?.EndTime?.toLocaleTimeString() || '00:00:00'}`}
+
                         </p>
 
                         <Table
