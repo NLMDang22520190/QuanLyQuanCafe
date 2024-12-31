@@ -18,12 +18,16 @@ namespace QuanLyQuanCafe.Server.Controllers
 	{
 		private readonly IOrderRepository _orderRepository;
 		private readonly IMenuItemRepository _menuItemRepository;
+		private readonly IVoucherDetailRepository _voucherDetailRepository;
+		private readonly IIngredientRepository _ingredientRepository;
 		 private readonly IMapper _mapper;
 
-		public OrderController(IOrderRepository orderRepository, IMenuItemRepository menuItemRepository, IMapper mapper)
+		public OrderController(IOrderRepository orderRepository, IMenuItemRepository menuItemRepository, IVoucherDetailRepository voucherDetailRepository, IIngredientRepository ingredientRepository, IMapper mapper)
 		{
 			_orderRepository = orderRepository;
-			_menuItemRepository = menuItemRepository;	
+			_menuItemRepository = menuItemRepository;
+			_voucherDetailRepository = voucherDetailRepository;	
+			_ingredientRepository = ingredientRepository;	
 			_mapper = mapper;
 		}
 
@@ -79,17 +83,47 @@ namespace QuanLyQuanCafe.Server.Controllers
                 return BadRequest("Order data is null.");
             }
 
+			double totalPrice = 0;
+
             // Fetch item prices and calculate total price
-            double totalPrice = 0;
+            
             foreach (var orderDetail in requestDTO.OrderDetails)
             {
 				var menuItem = await _menuItemRepository.GetByIdAsync(m => m.ItemId == orderDetail.itemId);
+
+				var ingredientInStock = await _menuItemRepository.CheckStockOfItemIngredientAsync(orderDetail.itemId);
+				if (!ingredientInStock) {
+					return BadRequest($"Not enough ingredients to make this item.");
+				}
+				
                 if (menuItem == null)
                 {
                     return BadRequest($"Menu item with ID {orderDetail.itemId} not found.");
                 }
                 totalPrice += menuItem.Price * orderDetail.quantity;
             }
+
+			if (requestDTO.VoucherApplied.HasValue)
+			{
+				var voucher = await _voucherDetailRepository.GetByIdAsync(v => v.VoucherId == requestDTO.VoucherApplied.Value);
+				if (voucher == null)
+				{
+					return BadRequest($"Voucher with ID {requestDTO.VoucherApplied.Value} not found.");
+				}
+
+				if (voucher.VoucherEndDate.ToDateTime(TimeOnly.MinValue) < DateTime.Now || voucher.VoucherStartDate.ToDateTime(TimeOnly.MinValue) > DateTime.Now)
+				{
+					return BadRequest("Voucher time is not valid.");
+				}
+
+				if (voucher.MinOrderAmount > totalPrice)
+				{
+					return BadRequest("Total price is not enough to apply this voucher.");
+				}
+
+				double discountAmount = totalPrice * voucher.PercentDiscount / 100;
+				totalPrice -= discountAmount;			
+			}
 
             var orderDomain = _mapper.Map<Order>(requestDTO);
             if (orderDomain == null)
@@ -99,7 +133,13 @@ namespace QuanLyQuanCafe.Server.Controllers
 
             orderDomain.TotalPrice = totalPrice;
 
-            orderDomain = await _orderRepository.CreateAsync(orderDomain);
+			orderDomain.OrderDetails = requestDTO.OrderDetails.Select(od => new OrderDetail
+			{
+				ItemId = od.itemId,
+				Quantity = od.quantity
+			}).ToList();		
+
+            orderDomain = await _orderRepository.CreateOrderAsync(orderDomain);
 
             if (orderDomain == null)
             {

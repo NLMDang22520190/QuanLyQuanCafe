@@ -154,5 +154,19 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             return menuItemWithRecipes;
         }
+
+        public Task<bool> CheckStockOfItemIngredientAsync(int itemId)
+        {
+            var itemRecipes = _dbContext.ItemRecipes.Where(r => r.ItemId == itemId).ToList();
+            foreach (var itemRecipe in itemRecipes)
+            {
+                var ingredient = _dbContext.Ingredients.FirstOrDefault(i => i.IngredientId == itemRecipe.IngredientId);
+                if (ingredient == null || ingredient.QuantityInStock < itemRecipe.Quantity)
+                {
+                    return Task.FromResult(false);
+                }
+            }
+            return Task.FromResult(true);
+        }
     }
 }

@@ -95,12 +95,32 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         }
 
 		public async Task<Order> CreateOrderAsync(Order order)
-		{
-			order.TotalPrice = order.OrderDetails.Sum(item => item.Quantity * item.Item.Price);
+		 {
 			var createdOrder = _dbContext.Orders.Add(order);
-			await _dbContext.SaveChangesAsync();
-			return createdOrder.Entity;
-		}
+            await _dbContext.SaveChangesAsync();
+
+            foreach (var orderDetail in order.OrderDetails)
+            {
+                var item = await _dbContext.MenuItems
+                    .Include(i => i.ItemRecipes)
+                    .ThenInclude(ir => ir.Ingredient)
+                    .FirstOrDefaultAsync(i => i.ItemId == orderDetail.ItemId);
+
+                if (item != null)
+                {
+                    foreach (var itemRecipe in item.ItemRecipes)
+                    {
+                        var ingredient = itemRecipe.Ingredient;
+                        ingredient.QuantityInStock -= itemRecipe.Quantity * orderDetail.Quantity;
+                        _dbContext.Ingredients.Update(ingredient);
+                    }
+                }
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return createdOrder.Entity;
+        }
+
     }
 
 }
