@@ -66,9 +66,10 @@ const OrderHistoryTable = () => {
     async function fetchAndMapOrders() {
       try {
         const response = await api.get(
-          "api/orders/GetOrderDetailsByUserId/33ec8700-d47c-4a45-a11e-48ddb18583a5"
+          "api/Order/GetOrderDetailsByUserId/33ec8700-d47c-4a45-a11e-48ddb18583a5"
         );
         const apiData = response.data;
+        console.log("apiData", apiData);
 
         const mappedData = apiData.map((order) => ({
           id: order.orderId,

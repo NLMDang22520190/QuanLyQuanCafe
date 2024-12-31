@@ -4,7 +4,7 @@ import { Minus, Plus, X } from "lucide-react";
 import { Button, Card, Pagination, Dropdown } from "flowbite-react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { fetchCartDetailsByCustomerId } from "../../../features/Cart/Cart";
+import { deleteItemFromCart } from "../../../features/Cart/Cart";
 import CartSummary from "../../../components/Users/CartSummary/CartSummary";
 
 const Cart = () => {
@@ -20,7 +20,8 @@ const Cart = () => {
   const fetchCart = () => {
     if (cart.items.length !== items.length) {
       const mappedItems = cart.items.map((item) => ({
-        id: item.itemId,
+        cartDetailId: item.cartDetailId,
+        itemId: item.itemId,
         name: item.item.itemName,
         price: item.item.price,
         quantity: item.quantity,
@@ -42,7 +43,7 @@ const Cart = () => {
   const updateQuantity = (id, change) => {
     setItems(
       items.map((item) => {
-        if (item.id === id) {
+        if (item.cartDetailId === id) {
           const newQuantity = Math.max(1, item.quantity + change);
           return { ...item, quantity: newQuantity };
         }
@@ -52,7 +53,9 @@ const Cart = () => {
   };
 
   const removeItem = (id) => {
-    setItems(items.filter((item) => item.id !== id));
+    console.log("Removing item with ID:", id);
+    dispatch(deleteItemFromCart(id));
+    fetchCart();
   };
 
   const subtotal = items.reduce(
@@ -99,7 +102,7 @@ const Cart = () => {
                 paginatedItems.map((item, index) => (
                   <>
                     <motion.div
-                      key={item.id}
+                      key={item.cartDetailId}
                       layout
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -123,7 +126,7 @@ const Cart = () => {
                         <Button
                           gradientDuoTone="redToYellow"
                           size="icon"
-                          onClick={() => updateQuantity(item.id, -1)}
+                          onClick={() => updateQuantity(item.cartDetailId, -1)}
                         >
                           <Minus className="h-4 w-4 text-white" />
                         </Button>
@@ -133,7 +136,7 @@ const Cart = () => {
                         <Button
                           gradientDuoTone="redToYellow"
                           size="icon"
-                          onClick={() => updateQuantity(item.id, 1)}
+                          onClick={() => updateQuantity(item.cartDetailId, 1)}
                         >
                           <Plus className="h-4 w-4 text-white" />
                         </Button>
@@ -147,7 +150,7 @@ const Cart = () => {
                         <Button
                           gradientDuoTone="pinkToOrange"
                           size="icon"
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item.cartDetailId)}
                         >
                           <X className="h-4 w-4 text-white" />
                         </Button>
