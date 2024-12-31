@@ -131,11 +131,8 @@ const Schedule = () => {
     
 
 
-    const fetchSchedule = async () => {
+    const fetchSchedule = () => {
         try {
-            const response = await axios.get("https://localhost:7087/api/shifts?pageIndex=1&pageSize=10");
-            const shiftData = response.data.data;
-
             const formattedShifts = shiftData.flatMap((shift) => {
                 const [startHour, startMinute] = shift.startTime.split(":").map(Number);
                 const [endHour, endMinute] = shift.endTime.split(":").map(Number);
@@ -179,11 +176,12 @@ const Schedule = () => {
             console.error("Error fetching schedule data:", error);
         }
     };
-    
-
+    if(!schedule1){
+        fetchSchedule();
+    }
     useEffect(() => {
         fetchSchedule(); 
-    }, []);
+    }, [shiftData]);
 
 
     const handleEditShift = async () => {
