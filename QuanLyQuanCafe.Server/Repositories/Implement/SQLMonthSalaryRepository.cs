@@ -2,7 +2,9 @@
 using QuanLyQuanCafe.Server.Migrations;
 using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Models.Domain;
+using QuanLyQuanCafe.Server.Models.DTO;
 using QuanLyQuanCafe.Server.Models.DTOs;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace QuanLyQuanCafe.Server.Repositories.Implement
 {
@@ -37,7 +39,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             await dbContext.SaveChangesAsync();
         }
-        public async Task<List<MonthSalary>> GetAllMonthSalariesByStaffIdAsync(int staffId)
+        public async Task<PagedResult<MonthSalaryDto>> GetAllMonthSalariesByStaffIdAsync(int staffId, int pageIndex, int pageSize)
         {
             var salaryIds = await dbContext.Salaries
                 .Where(s => s.StaffId == staffId)
@@ -46,14 +48,42 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             if (salaryIds.Count == 0)
             {
-                return new List<MonthSalary>();
+                return new PagedResult<MonthSalaryDto>();
             }
+            var currentDate = DateTime.Now;
+            var currentYear = currentDate.Year;
+            var currentMonth = currentDate.Month;
 
-            var monthSalaries = await _dbSet
-                .Where(ms => salaryIds.Contains(ms.SalaryId))
+            var currentYearMonth = $"{currentYear}-{currentMonth.ToString("D2")}";
+
+            var query = dbContext.MonthSalaries
+                .Where(ms => salaryIds.Contains(ms.SalaryId) &&
+                             string.Compare(ms.Month, currentYearMonth) <= 0) 
+                .Include(ms => ms.Salary);
+
+            var totalRecords = await query.CountAsync();
+
+            var monthSalaries = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            return monthSalaries;
+            var monthSalariesDto = monthSalaries.Select(a => new MonthSalaryDto
+            {
+                MSalaryId = a.MSalaryId,
+                Month=a.Month,
+                TotalHours=a.TotalHours,
+                HourWage=a.Salary.HourWage
+            }).ToList();
+
+            return new PagedResult<MonthSalaryDto>
+            {
+                TotalRecords = totalRecords,
+                CurrentPage = pageIndex,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
+                Data = monthSalariesDto
+            };
         }
 
         public async Task<List<MonthSalaryStatisticDTO>> GetTotalMonthSalariesByMonthsAsync()

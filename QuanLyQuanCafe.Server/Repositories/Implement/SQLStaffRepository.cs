@@ -33,7 +33,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             var staffNotInShift = await dbContext.Staffs
                 .Include(s => s.User)
-                .Where(staff => !staffInShift.Contains(staff.StaffId))
+                .Where(staff => !staffInShift.Contains(staff.StaffId) &&   staff.DateEndWorking == null)
                 .ToListAsync();
             var staffDtos = staffNotInShift.Select(s => new StaffDto
             {
@@ -45,7 +45,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             }).ToList();
             return staffDtos;
         }
-        public async Task<PagedResult<StaffDto>> GetStaffInShiftAsync(int shiftId, int month, int year, int pageIndex, int pageSize)
+        public async Task<PagedResult<StaffScheduleDto>> GetStaffInShiftAsync(int shiftId, int month, int year, int pageIndex, int pageSize)
         {
             var startDate = new DateOnly(year, month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
@@ -54,37 +54,46 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 .Where(s => s.ShiftId == shiftId &&
                             s.StartDate <= endDate &&
                             s.EndDate >= startDate)
-                .Select(s => s.StaffId)
+                .Select(s => new
+                {
+                    s.StaffId,
+                    s.EndDate,
+                    s.StartDate
+                })
                 .ToListAsync();
 
-            var query = dbContext.Staffs
-                .Include(s => s.User)
-                .Where(staff => staffInShift.Contains(staff.StaffId));
+            var staffQuery = dbContext.Staffs
+                .Include(s => s.User) 
+                .Where(s => staffInShift.Select(si => si.StaffId).Contains(s.StaffId) && s.DateEndWorking == null);
 
-            var totalRecords = await query.CountAsync();
+            var totalRecords = await staffQuery.CountAsync();
 
-            var staffs = await query
+            var staffData = await staffQuery
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
+                .AsNoTracking()
                 .ToListAsync();
 
-            if (staffs == null || !staffs.Any())
-            {
-                return null;
-            }
+            var staffDtos = staffData
+                .Select(staff =>
+                {
+                    var matchingSchedule = staffInShift.FirstOrDefault(si => si.StaffId == staff.StaffId);
+                    return new StaffScheduleDto
+                    {
+                        StaffId = staff.StaffId,
+                        Name = staff.User?.UserName ?? "Unknown",
+                        Email = staff.User?.Email ?? "No email",
+                        UserId = staff.User?.Id ?? "",
+                        DateStartedWorking = staff.DateStartedWorking,
+                        EndDate = matchingSchedule.EndDate ,
+                        StartDate = matchingSchedule.StartDate ,
+                    };
+                })
+                .ToList();
 
             var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
 
-            var staffDtos = staffs.Select(s => new StaffDto
-            {
-                StaffId = s.StaffId,
-                Name = s.User?.UserName ?? "Unknown",
-                Email = s.User?.Email ?? "No email",
-                UserId = s.User?.Id ?? "",
-                DateStartedWorking = s.DateStartedWorking
-            }).ToList();
-
-            return new PagedResult<StaffDto>
+            return new PagedResult<StaffScheduleDto>
             {
                 TotalRecords = totalRecords,
                 TotalPages = totalPages,
@@ -93,6 +102,8 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 Data = staffDtos
             };
         }
+
+
 
 
         public Task<List<Staff>> GetNewestStaffAsync(int count)
