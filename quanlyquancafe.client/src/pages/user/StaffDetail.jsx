@@ -1,4 +1,5 @@
 import { Modal, Table, Input, Button, Form, DatePicker, message, Card } from "antd";
+import instance from "../../features/AxiosInstance/AxiosInstance";
 import { useState, useEffect } from "react";
 import React from "react";
 import axios from "axios";
@@ -41,8 +42,8 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
     try {
       setLoading(true);
       setSalaryHistoryData([]);
-      const response = await axios.get(
-        `https://localhost:7087/api/salaries/${staff.staffId}?pageIndex=1&pageSize=10`
+      const response = await instance.get(
+        `/api/salaries/${staff.staffId}?pageIndex=1&pageSize=10`
       );
       if (response.data && response.data.data) {
         const formattedData = response.data.data.map((item) => ({
@@ -67,8 +68,8 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
     try {
       setLoading(true);
       const [monthlyResponse, statisticsResponse] = await Promise.all([
-        axios.get(`https://localhost:7087/api/month-salary/${staff.staffId}?pageIndex=1&pageSize=10`),
-        axios.get("https://localhost:7087/api/month-salary/statistics"),
+        instance.get(`/api/month-salary/${staff.staffId}?pageIndex=1&pageSize=10`),
+        instance.get("/api/month-salary/statistics"),
       ]);
       const monthlyData = monthlyResponse.data.data;
       const statisticsData = statisticsResponse.data;

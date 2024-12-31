@@ -2,10 +2,22 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import "./MenuItem.css";
 
-const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
+const MenuItem = ({
+  item,
+  userId,
+  editMode,
+  onRemove,
+  onEditToggle,
+  onSaveEdit,
+}) => {
+  // Ensure item and item.item are defined before accessing properties
+  if (!item || !item.item) {
+    return <div className="cart-item">Invalid item data</div>;
+  }
+
   const [quantity, setQuantity] = useState(item.quantity);
   const [notes, setNotes] = useState(item.notes || "");
-  const [size, setSize] = useState(item.size || "Medium");
+  const [adjustment, setAdjustment] = useState(item.adjustment || "None");
 
   const handleSave = () => {
     if (quantity < 1) {
@@ -13,7 +25,8 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
       return;
     }
 
-    onSaveEdit(item.itemId, { quantity, notes, size });
+    // Pass updated data back to the parent component (CartInfo)
+    onSaveEdit(item.cartDetailId, { quantity, notes, adjustment });
   };
 
   return (
@@ -23,9 +36,9 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
           <div className="edit-mode">
             {/* Quantity */}
             <div className="form-group">
-              <label htmlFor={`quantity-${item.itemId}`}>Số lượng:</label>
+              <label htmlFor={`quantity-${item.cartDetailId}`}>Số lượng:</label>
               <input
-                id={`quantity-${item.itemId}`}
+                id={`quantity-${item.cartDetailId}`}
                 type="number"
                 value={quantity}
                 min="1"
@@ -35,27 +48,25 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
 
             {/* Notes */}
             <div className="form-group">
-              <label htmlFor={`notes-${item.itemId}`}>Ghi chú:</label>
+              <label htmlFor={`notes-${item.cartDetailId}`}>Ghi chú:</label>
               <textarea
-                id={`notes-${item.itemId}`}
+                id={`notes-${item.cartDetailId}`}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Ghi chú đặc biệt"
               />
             </div>
 
-            {/* Size */}
+            {/* Adjustment */}
             <div className="form-group">
-              <label htmlFor={`size-${item.itemId}`}>Kích thước:</label>
-              <select
-                id={`size-${item.itemId}`}
-                value={size}
-                onChange={(e) => setSize(e.target.value)}
-              >
-                <option value="Small">Nhỏ</option>
-                <option value="Medium">Vừa</option>
-                <option value="Large">Lớn</option>
-              </select>
+              <label htmlFor={`adjustment-${item.cartDetailId}`}>
+                Điều chỉnh:
+              </label>
+              <input
+                id={`adjustment-${item.cartDetailId}`}
+                value={adjustment}
+                onChange={(e) => setAdjustment(e.target.value)}
+              />
             </div>
 
             {/* Buttons */}
@@ -74,7 +85,7 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
               {quantity} x {item.item.itemName}
             </p>
             <div className="item-options">
-              <span>Kích thước: {size}</span>
+              <span>Điều chỉnh: {adjustment}</span>
               <p className="item-price">{item.item.price.toLocaleString()}đ</p>
               <p>Ghi chú: {notes || "Không có"}</p>
             </div>
@@ -85,7 +96,10 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
       <div className="button-container">
         {!editMode && (
           <>
-            <button className="remove-item" onClick={onRemove}>
+            <button
+              className="remove-item"
+              onClick={() => onRemove(userId, item.item.itemId)}
+            >
               Xóa
             </button>
             <button className="edit-item-button" onClick={onEditToggle}>
@@ -99,16 +113,8 @@ const MenuItem = ({ item, editMode, onRemove, onEditToggle, onSaveEdit }) => {
 };
 
 MenuItem.propTypes = {
-  item: PropTypes.shape({
-    itemId: PropTypes.number.isRequired,
-    quantity: PropTypes.number.isRequired,
-    notes: PropTypes.string,
-    size: PropTypes.string,
-    item: PropTypes.shape({
-      itemName: PropTypes.string.isRequired,
-      price: PropTypes.number.isRequired,
-    }).isRequired,
-  }).isRequired,
+  item: PropTypes.object.isRequired,
+  userId: PropTypes.string.isRequired, // Make sure to pass userId
   editMode: PropTypes.bool.isRequired,
   onRemove: PropTypes.func.isRequired,
   onEditToggle: PropTypes.func.isRequired,

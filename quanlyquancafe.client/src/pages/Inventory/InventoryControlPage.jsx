@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { RoundedButton } from "../../components/buttons/RoundedButton";
 import { Modal, Table, Input, Select, Switch, Button, Checkbox, Pagination } from 'antd';
 import { RoundedTextField } from "../../components/textfields/RoundedTextField";
+import instance from "../../features/AxiosInstance/AxiosInstance";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { StatusBadge } from "../../components/badges/StatusBadge";
@@ -89,7 +90,7 @@ export const InventoryControlPage = () => {
    
     const fetchRowMaterials = async () => {
         try {
-            const response = await axios.get("https://localhost:7087/api/ingredient");
+            const response = await instance.get(`/api/ingredient`);
 
             const items = response.data || [];
             const ingredients = items.map((item) => ({
@@ -113,14 +114,14 @@ export const InventoryControlPage = () => {
     
     const fetchImportRecords = async (page = 1, size = 5) => {
         try {
-            const ingredientsResponse = await axios.get("https://localhost:7087/api/ingredient");
+            const ingredientsResponse = await instance.get(`/api/ingredient`);
             const ingredientMapping = ingredientsResponse.data.reduce((map, item) => {
                 map[item.ingredientId] = item.ingredientName;
                 return map;
             }, {});
     
           
-            const importRecordsResponse = await axios.get("https://localhost:7087/api/import-record", {
+            const importRecordsResponse = await instance.get(`/api/import-record`, {
                 params: {page, pageSize: size},
             });
             const { items, total } = importRecordsResponse.data;

@@ -21,17 +21,45 @@ const Employee = () => {
     { title: "Start Date", dataIndex: "date", key: "date" },
     { title: "Hourly Wage", dataIndex: "hourlyWage", key: "hourlyWage" },
   ];
+  const [pageIndexMSalary,setPageIndexMSalary]=useState(1);
+  const [totalMSalary,setTotalMSalary]=useState(0);
+  useEffect(()=>{
+    fetchMonthSalary();
+  },[pageIndexMSalary])
+  const fetchMonthSalary = async ()=>{
+    try{
+      const response = await instance.get(`/api/month-salary/${userId}?pageIndex=${pageIndexMSalary}&pageSize=5`)
+      if (response.status===200 ||response.status===201) {
+        console.log(response.data);
+        setMonthlySalaryData(response.data.data);
+        setTotalMSalary(response.data.Totalrecords);
+      }
+      else
+      {
+        console.error("Error fetching monthly salaries:", errorData.message);
+        return null;
+      }
+    }
+    catch (error) {
+        console.error("An error occurred while fetching monthly salaries:", error.message);
+        return null;
+    }
 
+  }
   const monthlySalaryColumns = [
     {
       title: "Month",
       dataIndex: "month",
       key: "month",
-      render: (_, record) => `${record.month}, ${record.year}`,
+      render: (_, record) => `${record.month}`,
     },
-    { title: "Hours Worked", dataIndex: "hoursWorked", key: "hoursWorked" },
-    { title: "Hourly Wage", dataIndex: "hourlyWage", key: "hourlyWage" },
-    { title: "Total Salary", dataIndex: "totalSalary", key: "totalSalary" },
+    { title: "Hours Worked", dataIndex: "totalHours", key: "totalHours" },
+    { title: "Hourly Wage", dataIndex: "hourWage", key: "hourWage" },
+    { 
+      title: "Total Salary", 
+      key: "totalSalary", 
+      render: (_, record) => (record.totalHours * record.hourWage).toFixed(2),
+    },
     {
       title: "",
       key: "action",
@@ -121,8 +149,13 @@ const Employee = () => {
       <Table
         columns={monthlySalaryColumns}
         dataSource={monthlySalaryData}
-        rowKey="month"
-        pagination={{ pageSize: 10 }}
+        rowKey="mSalaryId"
+        pagination={{
+          current: pageIndexMSalary,
+          pageSize: 5,
+          total: totalMSalary,
+          onChange: (page) => setPageIndexMSalary(page),
+        }}
         bordered
         title={() => <span className="custom-table-title">Monthly Salary</span>}
         loading={loading}

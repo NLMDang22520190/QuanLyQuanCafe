@@ -146,9 +146,12 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
                 var staffAttendanceDtos = attendances.Select(a => new StaffAttendanceDto
                 {
-                    StaffName = a.Schedule.Staff.User.UserName ?? "Unknown",
-                    Checkin = a.Checkin,
-                    Checkout = a.Checkout
+                    
+                    StaffName = a.Schedule?.Staff?.User?.UserName ?? "Unknown", 
+                 
+                    Checkin = a.Checkin != default ? a.Checkin : (DateTime?)null,
+                    Checkout = a.Checkout != default ? a.Checkout : (DateTime?)null
+
                 }).ToList();
 
                 return new PagedResult<StaffAttendanceDto>
