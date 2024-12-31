@@ -362,3 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /QuanLyQuanCafe.Server/appsettings1.json
+
+.codegpt

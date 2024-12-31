@@ -62,46 +62,6 @@ const Menu = () => {
     fetchProductsByCategoryId(categoryId);
   };
 
-  // const products = [
-  //   {
-  //     name: "Trà sữa Oolong Nướng (Nóng)",
-  //     price: "55.000đ",
-  //     image: "https://placehold.co/100x100",
-  //     alt: "Trà sữa Oolong Nướng (Nóng)",
-  //   },
-  //   {
-  //     name: "Hồng Trà Sữa Nóng",
-  //     price: "55.000đ",
-  //     image: "https://placehold.co/100x100",
-  //     alt: "Hồng Trà Sữa Nóng",
-  //   },
-  //   {
-  //     name: "Trà Sữa Oolong Tứ Quý Bơ",
-  //     price: "59.000đ",
-  //     image: "https://placehold.co/100x100",
-  //     alt: "Trà Sữa Oolong Tứ Quý Bơ",
-  //   },
-  //   {
-  //     name: "Trà Sữa Oolong BLoa",
-  //     price: "39.000đ",
-  //     image: "https://placehold.co/100x100",
-  //     alt: "Trà Sữa Oolong BLoa",
-  //   },
-  //   {
-  //     name: "Trà Sữa Oolong Nướng Sương Sáo",
-  //     price: "55.000đ",
-  //     image: "https://placehold.co/100x100",
-  //     alt: "Trà Sữa Oolong Nướng Sương Sáo",
-  //   },
-  //   {
-  //     name: "Trà sữa Oolong Nướng Trân Châu",
-  //     price: "55.000đ",
-  //     image: "https://placehold.co/100x100",
-  //     alt: "Trà sữa Oolong Nướng Trân Châu",
-  //     bestSeller: true,
-  //   },
-  // ];
-
   const handleProductClick = (product) => {
     if (!auth.isAuthenticated) {
       navigate("/auth/login");
