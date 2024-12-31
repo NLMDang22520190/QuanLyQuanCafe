@@ -9,7 +9,7 @@ import { CircleButton } from "../../components/buttons/CircleButton";
 import { OverviewTableLayoutWithTab } from "../../components/tables/OverviewTableLayoutWithTab";
 import { useState } from "react";
 import { useEffect } from "react";
-import { Table } from "antd";
+import { message, Table } from "antd";
 import { Tab } from "@material-tailwind/react";
 
 export const ManagerDashboard = () => {
@@ -100,7 +100,7 @@ export const ManagerDashboard = () => {
             const data = await response.json();
             setSaleStatistic(data);
         } catch (error) {
-            console.error(error);
+            message.error("Failed to fetch sale statistic");    
         } finally {
             setLoading(false);
         }
@@ -113,7 +113,7 @@ export const ManagerDashboard = () => {
             const data = await response.json();
             setSaleStatisticByMonths(data);
         } catch (error) {
-            console.error(error);
+            message.error("Failed to fetch sale statistic by months");
         } finally {
             setLoading(false);
         }
@@ -127,7 +127,7 @@ export const ManagerDashboard = () => {
             setShiftStatistic(data);
             
         } catch (error) {
-            console.error(error);
+            message.error("Failed to fetch shift statistic");
         } finally {
             setLoading(false);
         }
@@ -143,7 +143,7 @@ export const ManagerDashboard = () => {
             const sortedIngredients = data.sort((a, b) => b.quantityInStock - a.quantityInStock);
             setIngredients(sortedIngredients.slice(0, 5));
         } catch (error) {
-            console.error(error);
+           message.error("Failed to fetch ingredients stock");
         } finally {
             setLoading(false);
         }
@@ -156,7 +156,7 @@ export const ManagerDashboard = () => {
             const data = await response.json();
             setMenuItemStatistic(data);
         } catch (error) {
-            console.error(error);
+            message.error("Failed to fetch menu item statistic");
         } finally {
             setLoading(false);
         }
@@ -187,7 +187,7 @@ export const ManagerDashboard = () => {
             const data = await response.json();
             setNewestStaffs(data);
         } catch (error) {
-            console.error(error);
+            message.error("Failed to fetch newest staffs"); 
         } finally {
             setLoading(false);
         }
@@ -200,7 +200,7 @@ export const ManagerDashboard = () => {
             const data = await response.json();
             setPendingOrders(data);
         } catch (error) {
-            console.error(error);
+            message.error("Failed to fetch pending orders");
         } finally {
             setLoading(false);
         }

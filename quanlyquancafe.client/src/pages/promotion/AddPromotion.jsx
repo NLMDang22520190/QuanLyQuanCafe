@@ -1,4 +1,4 @@
-import { Input, TimePicker, DatePicker, InputNumber, Select, Steps, Radio, Form, Button } from 'antd';
+import { Input, TimePicker, DatePicker, InputNumber, Select, Steps, Radio, Form, Button, message } from 'antd';
 import axios from 'axios';
 import api from '../../features/AxiosInstance/AxiosInstance';
 
@@ -8,8 +8,9 @@ export const AddPromotion = ({onSubmit, onClose}) => {
         values.voucherEndDate = values.voucherEndDate.format('YYYY-MM-DD');
         api.post('https://localhost:7087/api/voucher-details', values).then(res => {
             onSubmit();
+            message.success(res.data);
         }).catch(err => {
-            console.log(err);
+            message.error(`Error: ${err.response.data}`);
         });
     }
     

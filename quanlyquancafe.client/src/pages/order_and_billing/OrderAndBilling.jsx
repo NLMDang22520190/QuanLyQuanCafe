@@ -3,7 +3,7 @@ import { RoundedButton } from "../../components/buttons/RoundedButton"
 import { TableLayout } from "../../components/tables/TableLayout"
 import { RoundedTextField } from "../../components/textfields/RoundedTextField"
 import { TableDetailType } from "../../constant/TableDetailType";
-import { Table, Tag, Button, Input, Modal, Select } from 'antd';
+import { Table, Tag, Button, Input, Modal, Select, Pagination } from 'antd';
 import api from "../../features/AxiosInstance/AxiosInstance"
 import { useEffect, useState } from "react";
 
@@ -148,9 +148,10 @@ export const OrderAndBilling = () => {
                     </Button>
                 </div>
             </div>
-            <div className=" max-h-[calc(100vh-200px)]  min-h-[calc(100vh-200px)]">
-                <Table columns={columns} dataSource={orders} loading={!orders} />
+            <div className="">
+                <Table columns={columns} dataSource={orders}  loading={!orders} pagination={{pageSize: 7}} />
             </div>
+            
         </div>
         <Modal title="Order Detail" footer={null} open={selectedOrder} onOk={() => setSelectedOrder(null)} onCancel={() => setSelectedOrder(null)} 
         >

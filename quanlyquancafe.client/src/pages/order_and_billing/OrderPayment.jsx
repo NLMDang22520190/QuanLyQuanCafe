@@ -11,11 +11,10 @@ const { Option } = Select;
 const MIN_SIZE = 48;
 const MAX_SIZE = 300;
 
-export const OrderPayment = ({ onBack, totalAmount, discountAmount }) => {
+export const OrderPayment = ({ onBack, totalAmount, discountAmount, finalAmount }) => {
     const [size, setSize] = useState(160);
     const [paymentMethod, setPaymentMethod] = useState(PaymentMethod.Cash);
     const [currency, setCurrency] = useState(Currency.VND);
-    const [finalAmount, setFinalAmount] = useState(totalAmount - discountAmount);
     const [givenMoney, setGivenMoney] = useState(0);
 
     const increase = () => {
@@ -104,6 +103,7 @@ export const OrderPayment = ({ onBack, totalAmount, discountAmount }) => {
                                         value={currency}
                                         onChange={setCurrency}
                                         style={{ width: '100%' }}
+                                        rules={[{ required: true, message: 'Please select currency!' }]}
                                     >
                                         <Option value={Currency.VND}>{Currency.VND}</Option>
                                         <Option value={Currency.USD}>{Currency.USD}</Option>
@@ -117,15 +117,15 @@ export const OrderPayment = ({ onBack, totalAmount, discountAmount }) => {
                     <div className="flex flex-col gap-y-2">
                         <div className="flex justify-between gap-y-2">
                             <p>Total Amount:</p>
-                            <p>${totalAmount}</p>
+                            <p>${totalAmount.toFixed(2)}</p>
                         </div>
                         <div className="flex justify-between">
                             <p>Discount:</p>
-                            <p>${discountAmount}</p>
+                            <p>${discountAmount.toFixed(2)}</p>
                         </div>
                         <div className="flex justify-between">
                             <p>Final Amount:</p>
-                            <p>${finalAmount}</p>
+                            <p>${finalAmount.toFixed(2)}</p>
                         </div>
                         <div className="flex justify-between">
                             <p>Payment Method:</p>
