@@ -96,6 +96,7 @@ const Schedule = () => {
     useEffect(()=>{
         fetchStaffInShift(pageIndexStaffInShift,5);
     },[selectedMonth,selectedShiftInTable,pageIndexStaffInShift])
+
     const fetchStaffInShift = async(pageIndex, pageSize) => {
  
         try {
@@ -133,8 +134,8 @@ const Schedule = () => {
 
     const fetchSchedule = async () => {
         try {
-            const response = await axios.get("https://localhost:7087/api/shifts?pageIndex=1&pageSize=10");
-            const shiftData = response.data.data;
+            // const response = await axios.get("https://localhost:7087/api/shifts?pageIndex=1&pageSize=10");
+            // const shiftData = response.data.data;
 
             const formattedShifts = shiftData.flatMap((shift) => {
                 const [startHour, startMinute] = shift.startTime.split(":").map(Number);
@@ -181,9 +182,12 @@ const Schedule = () => {
     };
     
 
+    if(!schedule1){
+        fetchSchedule();
+    }
     useEffect(() => {
         fetchSchedule(); 
-    }, []);
+    }, [shiftData]);
 
 
     const handleEditShift = async () => {
@@ -283,27 +287,38 @@ const Schedule = () => {
         }
     };
     const [shiftId,setShiftId]=useState(null);
-    const handleOpenReport = (shift) => {
-        console.log("shift",shift.Id)
-        console.log("Report Date: ", shift.StartTime); 
-        setSelectedShift(shift);
-        
-        const staffInShift = availableStaff.filter(staff =>
-            shift.Staff.includes(staff.key)
+
+
+    const handleOpenReport = async (shift) => {
+    console.log("Shift ID:", shift.Id);
+    console.log("Report Date:", shift.StartTime);
+
+    setSelectedShift(shift); // Lưu thông tin ca làm được chọn
+    setOpenReport(true); // Hiển thị modal báo cáo
+
+    try {
+        const formattedDate = `year,${shift.StartTime.getFullYear()},month,${shift.StartTime.getMonth() + 1},day,${shift.StartTime.getDate()},dayOfWeek,${shift.StartTime.getDay()}`;
+        const response = await instance.get(
+            `/api/attendances/shift/${shift.Id}/date/${formattedDate}?pageIndex=1&pageSize=10`
         );
-    
-        const combinedData = staffInShift.map(staff => {
-            const attendance = (attendanceData[shift.Id] || []).find(a => a.key === staff.key);
-            return {
-                ...staff,
-                checkIn: attendance?.checkIn || "N/A",
-                checkOut: attendance?.checkOut || "N/A",
-            };
-        });
-    
-        setStaffAttendance(combinedData);
-        setOpenReport(true);
-    };
+
+        console.log("Attendance Data:", response.data);
+
+        // Lấy dữ liệu nhân viên và thông tin điểm danh
+        const attendanceData = response.data.data.map((record) => ({
+            key: record.staffId,
+            name: record.staffName,
+            checkIn: record.checkIn ? moment(record.checkIn).format("HH:mm:ss") : "N/A",
+            checkOut: record.checkOut ? moment(record.checkOut).format("HH:mm:ss") : "N/A",
+        }));
+
+        setStaffAttendance(attendanceData); // Lưu dữ liệu vào state
+    } catch (error) {
+        console.error("Failed to fetch attendance report:", error);
+        message.error("Failed to fetch attendance report. Please try again.");
+    }
+};
+
     
 
     const handleCloseReport = () => {
@@ -639,6 +654,7 @@ const Schedule = () => {
                         const selectedWeekEnd = new Date(selectedWeekStart);
                         selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6); 
                         setWeek([selectedWeekStart, selectedWeekEnd]);
+                        fetchSchedule();
                     }}
                 >
                     <Inject services={[Day, Week, WorkWeek]} />

@@ -1,17 +1,21 @@
-import { Table, Button } from "antd";
+import { Table, Button, message } from "antd";
 import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import instance from "../../features/AxiosInstance/AxiosInstance";
 import RollCallReport from "./RollCallReport";
 
 const Employee = () => {
+  const userId = useSelector((state) => state.auth.user);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [salaryHistoryData, setSalaryHistoryData] = useState([]);
   const [monthlySalaryData, setMonthlySalaryData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const userId = useSelector((state) => state.user?.id);
+  const [loading, setLoading] = useState(false);
+  const [staffId, setStaffId] = useState(null);
+  const [totalSalaryRecords, setTotalSalaryRecords] = useState(0);
+  const [currentSalaryPage, setCurrentSalaryPage] = useState(1);
+  const salaryPageSize = 10;
 
   const hourlyWageHistoryColumns = [
     { title: "Start Date", dataIndex: "date", key: "date" },
@@ -45,28 +49,38 @@ const Employee = () => {
     },
   ];
 
-  const fetchStaffId = async (userId) => {
+  const fetchStaffId = async () => {
     try {
-      const response = await axios.get(`https://localhost:7087/api/staff/get-staff-id-by-user/${userId}`);
-      const staffId = response.data.staffId;
-      fetchSalaryData(staffId);
+      const response = await instance.get(`/api/staff/get-staff-id-by-user/${userId}`);
+      setStaffId(response.data.staffId);
     } catch (error) {
       console.error("Error fetching staff ID:", error);
+      message.error("Failed to fetch staff ID.");
     }
   };
 
-  const fetchSalaryData = async (staffId) => {
-    setLoading(true); 
-    try {
-      const [hourlyResponse, monthlyResponse] = await Promise.all([
-        axios.get(`https://localhost:7087/api/salaries/${staffId}?pageIndex=1&pageSize=10`),
-        axios.get(`https://localhost:7087/api/month-salary/${staffId}?pageIndex=1&pageSize=10`),
-      ]);
+  const fetchHourlyWageHistoryData = async (pageIndex = 1, pageSize = salaryPageSize) => {
+    if (!staffId) return;
 
-      setSalaryHistoryData(hourlyResponse.data.data || []);
-      setMonthlySalaryData(monthlyResponse.data.data || []);
+    try {
+      setLoading(true);
+      const response = await instance.get(
+        `/api/salaries/${staffId}?pageIndex=${pageIndex}&pageSize=${pageSize}`
+      );
+
+      if (response.data && response.data.data) {
+        const formattedData = response.data.data.map((item) => ({
+          date: item.startDate.slice(0, 7), 
+          hourlyWage: item.hourWage,
+        }));
+        setSalaryHistoryData(formattedData);
+      } else {
+        message.info("No hourly wage history found.");
+        setSalaryHistoryData([]);
+      }
     } catch (error) {
-      console.error("Error fetching salary data:", error);
+      console.error("Error fetching hourly wage history:", error);
+      message.error("Failed to load hourly wage history.");
     } finally {
       setLoading(false);
     }
@@ -74,14 +88,15 @@ const Employee = () => {
 
   useEffect(() => {
     if (userId) {
-      fetchStaffId(userId); 
+      fetchStaffId();
     }
   }, [userId]);
 
- 
-  if (!userId) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    if (staffId) {
+      fetchHourlyWageHistoryData(currentSalaryPage, salaryPageSize);
+    }
+  }, [staffId, currentSalaryPage]);
 
   return (
     <div>
@@ -91,7 +106,12 @@ const Employee = () => {
         columns={hourlyWageHistoryColumns}
         dataSource={salaryHistoryData}
         rowKey="date"
-        pagination={3}
+        pagination={{
+          current: currentSalaryPage,
+          pageSize: salaryPageSize,
+          total: totalSalaryRecords,
+          onChange: (page) => setCurrentSalaryPage(page),
+        }}
         bordered
         title={() => <span className="custom-table-title">Hourly Wage History</span>}
         loading={loading}
@@ -102,7 +122,7 @@ const Employee = () => {
         columns={monthlySalaryColumns}
         dataSource={monthlySalaryData}
         rowKey="month"
-        pagination={3}
+        pagination={{ pageSize: 10 }}
         bordered
         title={() => <span className="custom-table-title">Monthly Salary</span>}
         loading={loading}
