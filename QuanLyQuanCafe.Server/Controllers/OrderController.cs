@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Collections.Generic;
+using AutoMapper;
 using QuanLyQuanCafe.Server.Models.DTOs;
 using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTO.GET;
 using QuanLyQuanCafe.Server.Repositories;
 
 namespace QuanLyQuanCafe.Server.Controllers
@@ -15,11 +17,13 @@ namespace QuanLyQuanCafe.Server.Controllers
 	public class OrderController : ControllerBase
 	{
 		private readonly IOrderRepository _orderRepository;
+        private readonly IMapper _mapper;
 
-		public OrderController(IOrderRepository orderRepository)
+		public OrderController(IOrderRepository orderRepository, IMapper mapper)
 		{
 			_orderRepository = orderRepository;
-		}
+            _mapper = mapper;
+        }
 
 		[HttpGet("statistics")]
 		public async Task<ActionResult<List<OrderStatisticDTO>>> GetOrderStatistics()
@@ -58,7 +62,20 @@ namespace QuanLyQuanCafe.Server.Controllers
 			return Ok(orders);
 		}
 
-		[HttpPut("{orderId}/state")]
+
+        [HttpGet("GetOrderDetailsByUserId/{userId}")]
+        public async Task<IActionResult> GetOrderDetailsByUserId(string userId)
+        {
+            var order = await _orderRepository.GetOrderDetailsByUserIdAsync(userId);
+            if (order == null || !order.Any())
+            {
+                return NotFound($"No orders found for UserId {userId}");
+            }
+            return Ok(_mapper.Map<List<OrderWithOrderDetailDTO>>(order));
+        }
+
+
+        [HttpPut("{orderId}/state")]
 		public async Task<IActionResult> UpdateOrderState(int orderId, [FromBody] string newState)
 		{
 			var updated = await _orderRepository.UpdateOrderStateAsync(orderId, newState);

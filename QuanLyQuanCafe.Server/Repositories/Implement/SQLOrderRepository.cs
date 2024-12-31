@@ -22,7 +22,15 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 								   .FirstOrDefaultAsync(o => o.OrderId == orderId);
 		}
 
-		public async Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId)
+        public Task<List<Order>> GetOrderDetailsByUserIdAsync(string userId)
+        {
+            var orders = _dbContext.Orders.Where(x => x.UserId == userId)
+                .Include(x => x.OrderDetails)
+                .ThenInclude(x => x.Item);
+            return orders.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId)
 		{
 			return await _dbContext.Orders
 								   .Where(o => o.UserId== userId)

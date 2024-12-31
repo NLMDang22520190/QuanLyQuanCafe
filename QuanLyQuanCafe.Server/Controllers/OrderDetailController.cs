@@ -26,6 +26,7 @@ namespace QuanLyQuanCafe.Server.Controllers
 			return Ok(orderDetails);
 		}
 
+
 		[HttpPut("{orderDetailId}")]
 		public async Task<IActionResult> UpdateNotesOrAdjustments(int orderDetailId, [FromBody] dynamic payload)
 		{
