@@ -134,9 +134,6 @@ const Schedule = () => {
 
     const fetchSchedule = async () => {
         try {
-            // const response = await axios.get("https://localhost:7087/api/shifts?pageIndex=1&pageSize=10");
-            // const shiftData = response.data.data;
-
             const formattedShifts = shiftData.flatMap((shift) => {
                 const [startHour, startMinute] = shift.startTime.split(":").map(Number);
                 const [endHour, endMinute] = shift.endTime.split(":").map(Number);
@@ -256,9 +253,6 @@ const Schedule = () => {
     
     
     
-    
-    
-    
     const handleCreateShift = async () => {
         try {
             const values = await formCreateShift.validateFields();
@@ -288,23 +282,24 @@ const Schedule = () => {
     };
     const [shiftId,setShiftId]=useState(null);
 
-
     const handleOpenReport = async (shift) => {
     console.log("Shift ID:", shift.Id);
     console.log("Report Date:", shift.StartTime);
 
-    setSelectedShift(shift); // Lưu thông tin ca làm được chọn
-    setOpenReport(true); // Hiển thị modal báo cáo
+    setSelectedShift(shift); 
+    setOpenReport(true); 
 
     try {
-        const formattedDate = `year,${shift.StartTime.getFullYear()},month,${shift.StartTime.getMonth() + 1},day,${shift.StartTime.getDate()},dayOfWeek,${shift.StartTime.getDay()}`;
+        // const formattedDate = `${shift.StartTime.getFullYear()}-${String(shift.StartTime.getMonth() + 1).padStart(2, "0")}-${String(shift.StartTime.getDate()).padStart(2, "0")}`;
+        const dateOnly = new Date(shift.StartTime.getFullYear(), shift.StartTime.getMonth(), shift.StartTime.getDate());
+        console.log("dateonly:", dateOnly);
+        const formattedDate = dateOnly.toISOString().split('T')[0];
         const response = await instance.get(
             `/api/attendances/shift/${shift.Id}/date/${formattedDate}?pageIndex=1&pageSize=10`
         );
 
         console.log("Attendance Data:", response.data);
 
-        // Lấy dữ liệu nhân viên và thông tin điểm danh
         const attendanceData = response.data.data.map((record) => ({
             key: record.staffId,
             name: record.staffName,
@@ -312,7 +307,7 @@ const Schedule = () => {
             checkOut: record.checkOut ? moment(record.checkOut).format("HH:mm:ss") : "N/A",
         }));
 
-        setStaffAttendance(attendanceData); // Lưu dữ liệu vào state
+        setStaffAttendance(attendanceData); 
     } catch (error) {
         console.error("Failed to fetch attendance report:", error);
         message.error("Failed to fetch attendance report. Please try again.");
@@ -324,14 +319,14 @@ const Schedule = () => {
     const handleCloseReport = () => {
         setOpenReport(false);
         setSelectedShift(null);
-        setStaffList([]);
+        // setStaffList([]);
     };
 
     const handleModalOpen = () => {  
         setOpenModal(!openModal);
         setSelectedShift(null);
         setSelectedEmployees([]);
-        setStaffAssignedToShift([]); // Reset staff assigned
+        setStaffAssignedToShift([]); 
     };
 
 

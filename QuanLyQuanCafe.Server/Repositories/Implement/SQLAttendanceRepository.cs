@@ -128,33 +128,43 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         public async Task<PagedResult<StaffAttendanceDto>> GetStaffAttendanceForShiftOnDateAsync(
             int shiftId, DateOnly date, int pageIndex, int pageSize)
         {
-            var query = dbContext.Attendances
-                .Include(a => a.Schedule)
-                .ThenInclude(s => s.Staff)
-                .Where(a => a.Schedule.ShiftId == shiftId && a.Date == date);
-
-            var totalRecords = await query.CountAsync();
-
-            var attendances = await query
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            var staffAttendanceDtos = attendances.Select(a => new StaffAttendanceDto
+            try
             {
-                StaffName = a.Schedule.Staff.User.UserName ?? "Unknown",
-                Checkin = a.Checkin,
-                Checkout = a.Checkout
-            }).ToList();
+                Console.WriteLine($"Fetching attendances for ShiftId: {shiftId}, Date: {date}, PageIndex: {pageIndex}, PageSize: {pageSize}");
 
-            return new PagedResult<StaffAttendanceDto>
+                var query = dbContext.Attendances
+                    .Include(a => a.Schedule)
+                    .ThenInclude(s => s.Staff)
+                    .Where(a => a.Schedule.ShiftId == shiftId && a.Date == date);
+
+                var totalRecords = await query.CountAsync();
+
+                var attendances = await query
+                    .Skip((pageIndex - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                var staffAttendanceDtos = attendances.Select(a => new StaffAttendanceDto
+                {
+                    StaffName = a.Schedule.Staff.User.UserName ?? "Unknown",
+                    Checkin = a.Checkin,
+                    Checkout = a.Checkout
+                }).ToList();
+
+                return new PagedResult<StaffAttendanceDto>
+                {
+                    TotalRecords = totalRecords,
+                    CurrentPage = pageIndex,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
+                    Data = staffAttendanceDtos
+                };
+            }
+            catch (Exception ex)
             {
-                TotalRecords = totalRecords,
-                CurrentPage = pageIndex,
-                PageSize = pageSize,
-                TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
-                Data = staffAttendanceDtos
-            };
+                Console.WriteLine($"Error in repository: {ex.Message}");
+                throw;
+            }
         }
 
 
