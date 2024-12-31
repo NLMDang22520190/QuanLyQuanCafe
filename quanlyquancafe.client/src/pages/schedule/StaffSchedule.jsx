@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Modal, Button, ConfigProvider, theme } from "antd";
+import instance from "../../features/AxiosInstance/AxiosInstance";
 import { Day, WorkWeek, Week, ScheduleComponent, Inject } from "@syncfusion/ej2-react-schedule";
 import axios from "axios";
+import moment from 'moment';
 import "./schedule.css";
 
 const StaffSchedule = () => {
@@ -11,37 +13,83 @@ const StaffSchedule = () => {
     const [checkInTime, setCheckInTime] = useState(null);
     const [checkOutTime, setCheckOutTime] = useState(null);
     const [schedule, setSchedule] = useState([]); 
+    const [week,setWeek]=useState([]);
+    const [shiftData, setShiftData] = useState([]);
+    const [totalMShift, setTotalMShift]=useState(1);
+    const [pageIndexMShift,setPageIndexMShift]=useState(1);
 
- 
-    const fetchShifts = async () => {
+    const fetchShifts = async (pageIndexMShift, pageSize) => {
         try {
-            const response = await axios.get("https://localhost:7087/api/shifts?pageIndex=1&pageSize=10");
-            const shiftData = response.data.data;
+            const response = await instance.get(`/api/shifts?pageIndex=${pageIndexMShift}&pageSize=${pageSize}`);
+            console.log(response.data);
+            setShiftData(response.data.data);   
+            setTotalMShift(response.data.totalRecords);   
 
-
-            const formattedShifts = shiftData.map((shift) => {
-                const [startHour, startMinute] = shift.startTime.split(":").map(Number);
-                const [endHour, endMinute] = shift.endTime.split(":").map(Number);
-
-                const today = new Date();
-                return {
-                    Id: shift.shiftId,
-                    Subject: shift.shiftName,
-                    StartTime: new Date(today.getFullYear(), today.getMonth(), today.getDate(), startHour, startMinute),
-                    EndTime: new Date(today.getFullYear(), today.getMonth(), today.getDate(), endHour, endMinute),
-                    Date: today.toISOString().split("T")[0], 
-                };
-            });
-
-            setSchedule(formattedShifts);
         } catch (error) {
-            console.error("Error fetching shifts:", error);
+            message.error("Failed to fetch shifts. Please try again.");
+            console.error(err);
         }
     };
 
+
+    const fetchSchedule = async () => {
+        try {
+          
+
+            const formattedShifts = shiftData.flatMap((shift) => {
+                const [startHour, startMinute] = shift.startTime.split(":").map(Number);
+                const [endHour, endMinute] = shift.endTime.split(":").map(Number);
+            
+                const startOfWeek = new Date(week[0]); 
+                const daysInWeek = 6;
+            
+                const shiftsForWeek = [];
+            
+                for (let i = 0; i < daysInWeek; i++) {
+                    const currentDay = new Date(startOfWeek);
+                    currentDay.setDate(startOfWeek.getDate() + i); 
+            
+                    shiftsForWeek.push({
+                        Id: shift.shiftId,
+                        Subject: shift.shiftName,
+                        StartTime: new Date(
+                            currentDay.getFullYear(),
+                            currentDay.getMonth(),
+                            currentDay.getDate(),
+                            startHour,
+                            startMinute
+                        ),
+                        EndTime: new Date(
+                            currentDay.getFullYear(),
+                            currentDay.getMonth(),
+                            currentDay.getDate(),
+                            endHour,
+                            endMinute
+                        ),
+                        Date: currentDay.toISOString().split("T")[0],
+                        Staff: shift.staffIds || [],
+                    });
+                }
+            
+                return shiftsForWeek;
+            });
+            setSchedule(formattedShifts); 
+            console.log("Formatted Schedule:", formattedShifts);
+        } catch (error) {
+            console.error("Error fetching schedule data:", error);
+        }
+    };
+
+    if(!schedule){
+        fetchSchedule();
+    }
     useEffect(() => {
-        fetchShifts(); 
-    }, []);
+        fetchSchedule(); 
+    }, [shiftData]);
+
+    useEffect(()=>{
+        fetchShifts(pageIndexMShift,5);
+    },[pageIndexMShift])
 
     const handleOpenRollCall = (shift) => {
         setSelectedShift(shift);
@@ -146,6 +194,13 @@ const StaffSchedule = () => {
                         endHour="22:00"
                         showTimeIndicator={true}
                         readonly={true} 
+                        navigating={(args) => {
+                            const selectedWeekStart = args.currentDate; 
+                            const selectedWeekEnd = new Date(selectedWeekStart);
+                            selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6); 
+                            setWeek([selectedWeekStart, selectedWeekEnd]);
+                            fetchShifts();
+                        }}
                     >
                         <Inject services={[Day, Week, WorkWeek]} />
                     </ScheduleComponent>
