@@ -128,47 +128,46 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         public async Task<PagedResult<StaffAttendanceDto>> GetStaffAttendanceForShiftOnDateAsync(
             int shiftId, DateOnly date, int pageIndex, int pageSize)
         {
-            var schedules = dbContext.Schedules
-                .Include(s => s.Staff)
-                .Where(s => s.ShiftId == shiftId);
+            try
+            {
+                Console.WriteLine($"Fetching attendances for ShiftId: {shiftId}, Date: {date}, PageIndex: {pageIndex}, PageSize: {pageSize}");
 
-            var query = dbContext.Attendances
-                .Join(
-                    schedules,
-                    attendance => attendance.ScheduleId,
-                    schedule => schedule.ScheduleId,
-                    (attendance, schedule) => new { attendance, schedule }
-                )
-                .Where(x => x.attendance.Date == date)
-                .Select(x => new
+                var query = dbContext.Attendances
+                    .Include(a => a.Schedule)
+                    .ThenInclude(s => s.Staff)
+                    .Where(a => a.Schedule.ShiftId == shiftId && a.Date == date);
+
+                var totalRecords = await query.CountAsync();
+
+                var attendances = await query
+                    .Skip((pageIndex - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                var staffAttendanceDtos = attendances.Select(a => new StaffAttendanceDto
                 {
-                    x.attendance.Checkin,
-                    x.attendance.Checkout,
-                    StaffName = x.schedule.Staff.User.UserName
-                });
+                    
+                    StaffName = a.Schedule?.Staff?.User?.UserName ?? "Unknown", 
+                 
+                    Checkin = a.Checkin != default ? a.Checkin : (DateTime?)null,
+                    Checkout = a.Checkout != default ? a.Checkout : (DateTime?)null
 
-            var totalRecords = await query.CountAsync();
+                }).ToList();
 
-            var results = await query
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            var staffAttendanceDtos = results.Select(r => new StaffAttendanceDto
+                return new PagedResult<StaffAttendanceDto>
+                {
+                    TotalRecords = totalRecords,
+                    CurrentPage = pageIndex,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
+                    Data = staffAttendanceDtos
+                };
+            }
+            catch (Exception ex)
             {
-                StaffName = r.StaffName ?? "Unknown",
-                Checkin = r.Checkin != default ? r.Checkin : (DateTime?)null,
-                Checkout = r.Checkout != default ? r.Checkout : (DateTime?)null
-            }).ToList();
-
-            return new PagedResult<StaffAttendanceDto>
-            {
-                TotalRecords = totalRecords,
-                CurrentPage = pageIndex,
-                PageSize = pageSize,
-                TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
-                Data = staffAttendanceDtos
-            };
+                Console.WriteLine($"Error in repository: {ex.Message}");
+                throw;
+            }
         }
 
 

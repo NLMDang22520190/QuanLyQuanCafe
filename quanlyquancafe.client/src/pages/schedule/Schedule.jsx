@@ -254,9 +254,6 @@ const Schedule = () => {
     
     
     
-    
-    
-    
     const handleCreateShift = async () => {
         try {
             const values = await formCreateShift.validateFields();
@@ -291,8 +288,8 @@ const Schedule = () => {
     console.log("Shift ID:", shift.Id);
     console.log("Report Date:", shift.StartTime);
 
-    setSelectedShift(shift); // Lưu thông tin ca làm được chọn
-    setOpenReport(true); // Hiển thị modal báo cáo
+    setSelectedShift(shift); 
+    setOpenReport(true); 
 
     try {
         
@@ -327,6 +324,7 @@ const Schedule = () => {
     const handleCloseReport = () => {
         setOpenReport(false);
         setSelectedShift(null);
+        // setStaffList([]);
         setStaffAttendance([]);
     };
 
@@ -334,7 +332,7 @@ const Schedule = () => {
         setOpenModal(!openModal);
         setSelectedShift(null);
         setSelectedEmployees([]);
-        setStaffAssignedToShift([]); // Reset staff assigned
+        setStaffAssignedToShift([]); 
     };
 
 
