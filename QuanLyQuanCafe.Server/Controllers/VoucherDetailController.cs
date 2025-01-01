@@ -69,7 +69,7 @@ namespace QuanLyQuanCafe.Server.Controllers
                 }
 
                 await _voucherDetailRepo.CreateAsync(voucherDetail);
-                return Ok("Voucher detail created successfully.");
+                return Ok("Voucher created successfully.");
             }
             catch (Exception ex)
             {

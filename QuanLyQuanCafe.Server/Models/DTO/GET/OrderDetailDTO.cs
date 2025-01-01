@@ -1,4 +1,7 @@
-﻿namespace QuanLyQuanCafe.Server.Models.DTO.GET
+
+using System;
+
+namespace QuanLyQuanCafe.Server.Models.DTO.GET
 {
     public class OrderDetailDTO
     {

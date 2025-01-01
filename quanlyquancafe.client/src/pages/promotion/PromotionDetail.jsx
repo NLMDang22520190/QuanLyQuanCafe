@@ -1,4 +1,4 @@
-import { Input, TimePicker, DatePicker, InputNumber, Select, Steps, Radio, Form, Button } from 'antd';
+import { Input, TimePicker, DatePicker, InputNumber, Select, Steps, Radio, Form, Button, message } from 'antd';
 import axios from 'axios';
 import api from '../../features/AxiosInstance/AxiosInstance';
 import { use, useEffect, useState } from 'react';
@@ -30,14 +30,14 @@ export const PromotionDetail = ({voucherId ,onSubmit, onClose}) => {
     }
 
     const updateVoucher = (values) => {
-        console.log(voucherId);
         api.put(`https://localhost:7087/api/voucher-details/${voucherId}`, values)
         .then(res => {
             onSubmit();
+            message.success(res.data);
             console.log(res);
         })
         .catch(err => {
-            console.log(err);
+            message.error(`Error: ${err.response.data}`);
         })
     }
 

@@ -9,7 +9,7 @@ import { CircleButton } from "../../components/buttons/CircleButton";
 import { OverviewTableLayoutWithTab } from "../../components/tables/OverviewTableLayoutWithTab";
 import { useState } from "react";
 import { useEffect } from "react";
-import { Table } from "antd";
+import { message, Table } from "antd";
 import { Tab } from "@material-tailwind/react";
 
 export const ManagerDashboard = () => {
@@ -24,52 +24,6 @@ export const ManagerDashboard = () => {
     const [newestStaffs, setNewestStaffs] = useState();
     const [menuItemTab, setMenuItemTab] = useState(0);
 
-    const sampleData = [
-        {
-            id: "ORD001",
-
-            totalAmount: "$25.50",
-            status: "Completed",
-
-        },
-        {
-            id: "ORD002",
-
-            totalAmount: "$50.00",
-            status: "Pending",
-
-        },
-        {
-            id: "ORD003",
-
-            totalAmount: "$15.75",
-            status: "Cancelled",
-
-        },
-        {
-            id: "ORD004",
-
-            totalAmount: "$20.00",
-            status: "In Progress",
-
-        },
-        {
-            id: "ORD005",
-
-            totalAmount: "$40.00",
-            status: "Completed",
-
-        },
-
-    ];
-
-    const columnData = [
-        { header: "ID", key: "id", type: TableDetailType.Info },
-
-        { header: "Total Amount", key: "totalAmount", type: TableDetailType.Info },
-        { header: "Order Status", key: "status", type: TableDetailType.Badge },
-    ];
-
     const stockCol = [
         { title: "Ingredient", dataIndex: "ingredientName", key: "ingredientName" },
         { title: "Quantity in stock", dataIndex: "quantityInStock", key: "quantityInStock" },
@@ -82,9 +36,9 @@ export const ManagerDashboard = () => {
     ]
 
     const staffCol = [
-        { header: "ID", key: "staffId", type: TableDetailType.Info },
-        { header: "Name", key: "user", type: TableDetailType.Info },
-        { header: "Start Working", key: "dateStartedWorking", type: TableDetailType.Info },
+        { title: "ID", dataIndex: "staffId", key: "staffId" },
+        { title: "Name", dataIndex: "name", key: "name" },
+        { title: "Start Working", dataIndex: "dateStartedWorking", key: "dateStartedWorking" },
     ]
 
     const orderCol = [
@@ -100,7 +54,7 @@ export const ManagerDashboard = () => {
             const data = await response.json();
             setSaleStatistic(data);
         } catch (error) {
-            console.error(error);
+            message.error("Failed to fetch sale statistic");    
         } finally {
             setLoading(false);
         }
@@ -113,7 +67,7 @@ export const ManagerDashboard = () => {
             const data = await response.json();
             setSaleStatisticByMonths(data);
         } catch (error) {
-            console.error(error);
+            message.error("Failed to fetch sale statistic by months");
         } finally {
             setLoading(false);
         }
@@ -127,7 +81,7 @@ export const ManagerDashboard = () => {
             setShiftStatistic(data);
             
         } catch (error) {
-            console.error(error);
+            message.error("Failed to fetch shift statistic");
         } finally {
             setLoading(false);
         }
@@ -143,7 +97,7 @@ export const ManagerDashboard = () => {
             const sortedIngredients = data.sort((a, b) => b.quantityInStock - a.quantityInStock);
             setIngredients(sortedIngredients.slice(0, 5));
         } catch (error) {
-            console.error(error);
+           message.error("Failed to fetch ingredients stock");
         } finally {
             setLoading(false);
         }
@@ -156,7 +110,7 @@ export const ManagerDashboard = () => {
             const data = await response.json();
             setMenuItemStatistic(data);
         } catch (error) {
-            console.error(error);
+            message.error("Failed to fetch menu item statistic");
         } finally {
             setLoading(false);
         }
@@ -187,7 +141,7 @@ export const ManagerDashboard = () => {
             const data = await response.json();
             setNewestStaffs(data);
         } catch (error) {
-            console.error(error);
+            message.error("Failed to fetch newest staffs"); 
         } finally {
             setLoading(false);
         }
@@ -200,7 +154,7 @@ export const ManagerDashboard = () => {
             const data = await response.json();
             setPendingOrders(data);
         } catch (error) {
-            console.error(error);
+            message.error("Failed to fetch pending orders");
         } finally {
             setLoading(false);
         }
@@ -252,7 +206,7 @@ export const ManagerDashboard = () => {
                         value={saleStatisticByMonths ? saleStatisticByMonths[0].totalExpense : 0} />
                     </div>
 
-                    <div className="flex gap-x-4 h-3/5">
+                    <div className="flex gap-x-4 h-4/5">
                         <div className="flex flex-col w-1/2 h-full bg-gray-500/30 rounded-[20px] p-4 shadow-lg">
                             <p className="font-semibold text-xl">Time Chart</p>
 
@@ -266,7 +220,7 @@ export const ManagerDashboard = () => {
                         <div className="flex flex-col w-1/2 h-full bg-gray-500/30 rounded-[20px] p-4 pb-8 shadow-lg">
                             <p className="font-semibold text-xl">New Staff</p>
 
-                            <OverviewTableLayout columns={staffCol} data={newestStaffs} />
+                            <Table columns={staffCol} dataSource={newestStaffs} pagination={{pageSize: 3}} />
 
                         </div>
                     </div>
@@ -300,12 +254,12 @@ export const ManagerDashboard = () => {
                         columns={menuItemCol} data={menuItemTab == 0 ? (menuItemStatistic?.mostSoldMenuItems ?? []) : (menuItemStatistic?.leastSoldMenuItems ?? [])} />
                     </div>
                     <div className="flex flex-col gap-y-2 bg-gray-500/30 rounded-[20px] p-6 shadow-lg">
-                        <p className="font-semibold text-xl">On Transaction</p>
-                        <Table columns={orderCol} dataSource={pendingOrders} pagination={false} />
+                        <p className="font-semibold text-xl">On Pending Orders</p>
+                        <Table columns={orderCol} dataSource={pendingOrders} pagination={{ pageSize: 3 }} />
                     </div>
                     <div className="flex flex-col gap-y-2 bg-gray-500/30 rounded-[20px] p-6 shadow-lg">
                         <p className="font-semibold text-xl">Inventory Status</p>
-                        <Table loading={!ingredients} className="bg-transparent" columns={stockCol} dataSource={ingredients} pagination={false} />
+                        <Table loading={!ingredients} className="bg-transparent" columns={stockCol} dataSource={ingredients} pagination={{ pageSize: 3 }} />
                     </div>
                 </div>
             </div>

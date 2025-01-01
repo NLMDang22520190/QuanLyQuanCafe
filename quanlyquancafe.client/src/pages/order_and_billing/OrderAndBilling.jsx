@@ -3,125 +3,72 @@ import { RoundedButton } from "../../components/buttons/RoundedButton"
 import { TableLayout } from "../../components/tables/TableLayout"
 import { RoundedTextField } from "../../components/textfields/RoundedTextField"
 import { TableDetailType } from "../../constant/TableDetailType";
-import { Table, Tag, Button, Input } from 'antd';
+import { Table, Tag, Button, Input, Modal, Select, Pagination } from 'antd';
+import api from "../../features/AxiosInstance/AxiosInstance"
+import { useEffect, useState } from "react";
 
 export const OrderAndBilling = () => {
     const navigate = useNavigate();
+    const [orders, setOrders] = useState()
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
-    const sampleData = [
-        {
-            id: "ORD001",
-            dateAndTime: "2024-11-12 14:30",
-            orderDetail: "Toothpaste x 2, Shampoo x 1",
-            totalAmount: "$25.50",
-            status: "Completed",
-            action: "View Details",
-        },
-        {
-            id: "ORD002",
-            dateAndTime: "2024-11-12 15:00",
-            orderDetail: "Rice x 1, Chicken x 2",
-            totalAmount: "$50.00",
-            status: "Pending",
-            action: "View Details",
-        },
-        {
-            id: "ORD003",
-            dateAndTime: "2024-11-12 16:00",
-            orderDetail: "Milk x 3, Bread x 1, Butter x 2",
-            totalAmount: "$15.75",
-            status: "Cancelled",
-            action: "View Details",
-        },
-        {
-            id: "ORD004",
-            dateAndTime: "2024-11-13 09:00",
-            orderDetail: "Washing Powder x 1, Soap x 2",
-            totalAmount: "$20.00",
-            status: "In Progress",
-            action: "View Details",
-        },
-        {
-            id: "ORD005",
-            name: "2024-11-13 11:30",
-            orderDetail: "Cereal x 1, Oatmeal x 1, Honey x 1",
-            totalAmount: "$40.00",
-            status: "Completed",
-            action: "View Details",
-        },
-        {
-            id: "ORD006",
-            dateAndTime: "2024-11-13 13:45",
-            orderDetail: "Potatoes x 5, Onion x 2",
-            totalAmount: "$12.00",
-            status: "Completed",
-            action: "View Details",
-        },
-        {
-            id: "ORD007",
-            dateAndTime: "2024-11-14 10:00",
-            orderDetail: "Eggs x 12, Bacon x 1",
-            totalAmount: "$30.00",
-            status: "Pending",
-            action: "View Details",
-        },
-        {
-            id: "ORD008",
-            dateAndTime: "2024-11-14 11:00",
-            orderDetail: "Apple x 6, Orange x 4, Banana x 5",
-            totalAmount: "$18.50",
-            status: "In Progress",
-            action: "View Details",
-        },
-        {
-            id: "ORD009",
-            dateAndTime: "2024-11-14 13:00",
-            orderDetail: "Pasta x 2, Tomato Sauce x 1",
-            totalAmount: "$22.75",
-            status: "Completed",
-            action: "View Details",
-        },
-        {
-            id: "ORD010",
-            dateAndTime: "2024-11-15 10:00",
-            orderDetail: "Chicken x 3, Carrots x 1",
-            totalAmount: "$35.00",
-            status: "Pending",
-            action: "View Details",
-        },
-    ];
+    const fetchOrder = async () => {
+        const response = await api.get("api/orders")
+        .then((response) => {
+            setOrders(response.data)
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
 
+    const updateOrderStatus = async (status) => {
+        const orderId = selectedOrder.orderId;
+        const state = status.state;
+        console.log(orderId)    
+        const response = await api.put(`api/orders/${orderId}/state`, state).then((response) => {
+            fetchOrder();
+            console.log(response)
+          }).catch((error) => { console.log(error) })
+    }
 
-
-
-
-
+    useEffect(() => {
+        fetchOrder();
+    }, [])
 
     const columns = [
         {
             title: 'Order ID',
-            dataIndex: 'id',
-            key: 'id',
+            dataIndex: 'orderId',
+            key: 'orderId', 
         },
         {
             title: 'Date & Time',
-            dataIndex: 'dateAndTime',
-            key: 'dateAndTime',
+            dataIndex: 'orderTime',
+            key: 'orderTime',
         },
         {
-            title: 'Order',
-            dataIndex: 'orderDetail',
-            key: 'orderDetail',
+            title: 'Order Detail',  
+            dataIndex: 'orderDetails',
+            key: 'orderDetails',
+            render: orderDetails => (
+                <ul>
+                    {orderDetails?.map(detail => (
+                        <li key={detail.itemId}>
+                            {detail.itemName} x {detail.quantity}
+                        </li>
+                    ))}
+                </ul>
+            ),
         },
         {
             title: 'Total Amount',
-            dataIndex: 'totalAmount',
-            key: 'totalAmount',
+            dataIndex: 'totalPrice',
+            key: 'totalPrice',
         },
         {
             title: 'Order Status',
-            dataIndex: 'status',
-            key: 'status',
+            dataIndex: 'orderState',
+            key: 'orderState',
             render: status => {
                 let color = 'geekblue';
                 if (status === 'Completed') {
@@ -140,14 +87,41 @@ export const OrderAndBilling = () => {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
-                <Button type="link" onClick={() => navigate(`/orderAndBilling/${record.id}`)}>
-                    View Details
+                <Button type="link" onClick={() => setSelectedOrder(record)}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
                 </Button>
             ),
         },
     ];
 
+    const orderDetailsColumns = [
+        {
+            title: 'Item Name',
+            dataIndex: 'itemName',
+            key: 'itemName',
+        },
+        {
+            title: 'Quantity',
+            dataIndex: 'quantity',
+            key: 'quantity',
+            render: quantity => {
+                return <p>x{quantity}</p>
+            }
+        },
+        {
+            title: 'Price',
+            dataIndex: 'itemPrice',
+            key: 'itemPrice', 
+            render: price => {
+                return <p>${price}</p>
+            }  
+        }
+    ]
+
     return (
+        <>
         <div className="flex flex-col gap-y-4 overflow-hidden h-full">
             <div className="flex justify-between items-center">
                 <h2 className="text-amber-500 font-medium text-3xl">Order & Billing</h2>
@@ -174,13 +148,39 @@ export const OrderAndBilling = () => {
                     </Button>
                 </div>
             </div>
-            <div className=" max-h-[calc(100vh-200px)]  min-h-[calc(100vh-200px)]">
-                <Table columns={columns} dataSource={sampleData} />
+            <div className="">
+                <Table columns={columns} dataSource={orders}  loading={!orders} pagination={{pageSize: 7}} />
             </div>
-
-
-
-
+            
         </div>
+        <Modal title="Order Detail" footer={null} open={selectedOrder} onOk={() => setSelectedOrder(null)} onCancel={() => setSelectedOrder(null)} 
+        >
+            {selectedOrder && (
+                <div className="flex flex-col gap-y-2">
+                    <p><strong>Order ID:</strong> {selectedOrder.orderId}</p>
+                    <p><strong>Date & Time:</strong> {selectedOrder.orderTime}</p>
+                    <p className="flex items-center gap-x-2"><strong>Order Status:</strong> 
+                        <Select  
+                            defaultValue={selectedOrder.orderState} 
+                            style={{ width: 120 }} 
+                            onChange={(value) => updateOrderStatus({ state: value })}
+                        >
+                            <Select.Option value="Pending">Pending</Select.Option>
+                            <Select.Option value="In Progress">In Progress</Select.Option>
+                            <Select.Option value="Completed">Completed</Select.Option>
+                            <Select.Option value="Cancelled">Cancelled</Select.Option>
+                        </Select>
+                    </p>
+                    <p><strong>Order Items:</strong></p>
+                    <Table columns={orderDetailsColumns} dataSource={selectedOrder.orderDetails}/>
+                    <p className="flex gap-2"><strong>Applied Voucher:</strong> 
+                    {
+                        selectedOrder.voucherApplied ? selectedOrder.voucherApplied.voucherCode : "No voucher applied"
+                    } </p>
+                    <p><strong>Total Amount:</strong> {selectedOrder.totalPrice}</p>
+                </div>
+            )}
+        </Modal>
+        </>
     )
 }
