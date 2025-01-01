@@ -9,10 +9,11 @@ import {
   Radio,
   Dropdown,
 } from "flowbite-react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import api from "../../../features/AxiosInstance/AxiosInstance";
+import { fetchCartDetailsByCustomerId } from "../../../features/Cart/Cart";
 
 const apiKey = "a84f0896-7c1a-11ef-8e53-0a00184fe694";
 
@@ -40,8 +41,10 @@ const Checkout = () => {
   const [isDataLoaded, setIsDataLoaded] = useState(false); // flag to track if data is loaded
 
   const auth = useSelector((state) => state.auth);
+  const cart = useSelector((state) => state.cart);
   const userId = auth.user;
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!auth.user || !auth.isAuthenticated) {
@@ -72,7 +75,11 @@ const Checkout = () => {
         });
 
         setEmail(userData.email);
-        setIsDataLoaded(true); // Set flag to true after user data is loaded
+
+        // Chờ một thời gian trước khi setIsDataLoaded
+        setTimeout(() => {
+          setIsDataLoaded(true);
+        }, 150); // Chờ 200ms (bạn có thể thay đổi thời gian này)
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -205,12 +212,9 @@ const Checkout = () => {
     if (cities.length > 0) {
       if (formData.city) setSelectedCity(parseInt(formData.city));
       if (formData.district) setSelectedDistrict(parseInt(formData.district));
-      if (isDataLoaded == false) {
-        if (formData.ward) setSelectedWard(parseInt(formData.ward));
-        setIsDataLoaded(true);
-      }
+      if (formData.ward) setSelectedWard(parseInt(formData.ward));
     }
-  }, [cities, formData]);
+  }, [cities, isDataLoaded, formData.ward]);
 
   const [items, setItems] = useState([]);
   const cart = useSelector((state) => state.cart);
@@ -376,9 +380,67 @@ const Checkout = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+
+    // Kiểm tra các giá trị bắt buộc
+    if (!selectedCity || !selectedDistrict || !selectedWard) {
+      alert("Vui lòng chọn đầy đủ Thành phố, Quận và Phường.");
+      return;
+    }
+
+    if (!formData.phoneNumber.match(/^(\+84|0)[1-9][0-9]{8}$/)) {
+      alert("Số điện thoại không hợp lệ. Vui lòng kiểm tra lại.");
+      return;
+    }
+
+    // Gộp địa chỉ
+    const cityName =
+      cities.find((city) => city.ProvinceID === selectedCity)?.ProvinceName ||
+      "";
+    const districtName =
+      districts.find((district) => district.DistrictID === selectedDistrict)
+        ?.DistrictName || "";
+    const wardName =
+      wards.find((ward) => ward.WardCode === selectedWard)?.WardName || "";
+    const fullAddress = `${cityName}, ${districtName}, ${wardName}, ${formData.detailAddress}`;
+
+    // Chuẩn bị dữ liệu cho API
+    const orderData = {
+      userId: userId,
+      voucherApplied: 0, // Hiện tại để trống
+      paymentMethod: formData.paymentMethod,
+      fullName: formData.name,
+      phoneNumber: formData.phoneNumber,
+      address: fullAddress,
+    };
+
+    console.log(orderData);
+
+    try {
+      setIsLoading(true);
+
+      // Gọi API đặt hàng
+      const response = await api.post(
+        "https://localhost:7087/api/Order/CreateNewOrder",
+        orderData
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        alert("Đặt hàng thành công!");
+        dispatch(fetchCartDetailsByCustomerId(userId)); // Cập nhật giỏ hàng
+        if (cart.status === "succeeded") {
+          navigate("/Cart"); // Chuyển hướng người dùng đến trang thành công
+        }
+      } else {
+        throw new Error("Đặt hàng thất bại. Vui lòng thử lại.");
+      }
+    } catch (error) {
+      console.error("Error creating order:", error);
+      alert("Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -400,6 +462,7 @@ const Checkout = () => {
                     <div>
                       <Label htmlFor="fullName" value="Họ và Tên người nhận" />
                       <TextInput
+                        required
                         id="fullName"
                         name="fullName"
                         placeholder="Nhập họ và tên"
@@ -411,6 +474,7 @@ const Checkout = () => {
                     <div>
                       <Label htmlFor="phone" value="Số điện thoại người nhận" />
                       <TextInput
+                        required
                         id="phone"
                         name="phone"
                         type="tel"
@@ -552,9 +616,11 @@ const Checkout = () => {
                 <Button
                   gradientDuoTone="greenToBlue"
                   type="submit"
+                  isProcessing={isLoading}
+                  disabled={isLoading}
                   className="w-full "
                 >
-                  Đặt Hàng
+                  {isLoading ? "Đang xử lý..." : "Đặt Hàng"}
                 </Button>
               </form>
             </Card>

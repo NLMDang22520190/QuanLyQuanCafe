@@ -1,14 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Minus, Plus, X } from "lucide-react";
 import { Button, Card, Pagination, Dropdown } from "flowbite-react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { deleteItemFromCart } from "../../../features/Cart/Cart";
+import {
+  fetchCartDetailsByCustomerId,
+  deleteItemFromCart,
+  updateItemInCart,
+} from "../../../features/Cart/Cart";
 import CartSummary from "../../../components/Users/CartSummary/CartSummary";
 
 const Cart = () => {
   const [items, setItems] = useState([]);
+  const debounceRef = useRef({}); // Lưu trữ các timeout cho từng item
 
   const cart = useSelector((state) => state.cart);
   const userId = useSelector((state) => state.auth.user);
@@ -18,18 +23,19 @@ const Cart = () => {
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const fetchCart = () => {
-    if (cart.items.length !== items.length) {
-      const mappedItems = cart.items.map((item) => ({
-        cartDetailId: item.cartDetailId,
-        itemId: item.itemId,
-        name: item.item.itemName,
-        price: item.item.price,
-        quantity: item.quantity,
-        image: item.item.picture,
-      }));
+    dispatch(fetchCartDetailsByCustomerId(userId));
+    const mappedItems = cart.items.map((item) => ({
+      cartDetailId: item.cartDetailId,
+      itemId: item.itemId,
+      name: item.item.itemName,
+      price: item.item.price,
+      quantity: item.quantity,
+      image: item.item.picture,
+    }));
 
-      setItems(mappedItems); // Cập nhật items
-    }
+    //if (JSON.stringify(mappedItems) !== JSON.stringify(items)) {
+    setItems(mappedItems); // Cập nhật items chỉ khi có sự khác biệt
+    //}
   };
 
   useEffect(() => {
@@ -40,16 +46,43 @@ const Cart = () => {
     return price.toLocaleString("vi-VN") + "đ";
   };
 
-  const updateQuantity = (id, change) => {
-    setItems(
-      items.map((item) => {
-        if (item.cartDetailId === id) {
-          const newQuantity = Math.max(1, item.quantity + change);
-          return { ...item, quantity: newQuantity };
-        }
-        return item;
-      })
+  const updateQuantity = (item, change) => {
+    const newQuantity = Math.max(1, item.quantity + change);
+
+    // Cập nhật giao diện ngay lập tức
+    setItems((prevItems) =>
+      prevItems.map((currentItem) =>
+        currentItem.cartDetailId === item.cartDetailId
+          ? { ...currentItem, quantity: newQuantity }
+          : currentItem
+      )
     );
+
+    // Xóa timer cũ nếu có
+    if (debounceRef.current[item.cartDetailId]) {
+      clearTimeout(debounceRef.current[item.cartDetailId]);
+    }
+
+    // Tạo timer mới để gửi API sau 300ms
+    debounceRef.current[item.cartDetailId] = setTimeout(async () => {
+      try {
+        await dispatch(
+          updateItemInCart({
+            cartDetailId: item.cartDetailId,
+            quantity: newQuantity,
+            notes: item.notes || "",
+            adjustments: item.adjustments || "",
+          })
+        ).unwrap();
+        console.log(`Updated quantity for item ${item.cartDetailId}`);
+      } catch (error) {
+        console.error(
+          `Failed to update quantity for item ${item.cartDetailId}`,
+          error
+        );
+        // Rollback UI nếu cần thiết
+      }
+    }, 300); // Đợi 300ms trước khi gửi API
   };
 
   const removeItem = (id) => {
@@ -126,7 +159,8 @@ const Cart = () => {
                         <Button
                           gradientDuoTone="redToYellow"
                           size="icon"
-                          onClick={() => updateQuantity(item.cartDetailId, -1)}
+                          disabled={item.quantity === 1}
+                          onClick={() => updateQuantity(item, -1)}
                         >
                           <Minus className="h-4 w-4 text-white" />
                         </Button>
@@ -136,7 +170,7 @@ const Cart = () => {
                         <Button
                           gradientDuoTone="redToYellow"
                           size="icon"
-                          onClick={() => updateQuantity(item.cartDetailId, 1)}
+                          onClick={() => updateQuantity(item, 1)}
                         >
                           <Plus className="h-4 w-4 text-white" />
                         </Button>
