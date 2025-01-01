@@ -47,15 +47,6 @@ export const InventoryControlPage = () => {
             key: "status",
             render: (text) => <StatusBadge status={text} label={text} />,
         },
-        {
-            title: '',
-            dataIndex: 'action',
-            key: 'action',
-            render: (text, record) => <Button onClick={() => setIsProductDetailModalVisible(true)} type="text"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>
-            </Button>
-        }
     ];
 
    
@@ -184,7 +175,7 @@ export const InventoryControlPage = () => {
                                     className={`inline-block p-4 border-b-2 rounded-t-lg ${
                                         currentTab === index ? "border-amber-500 text-amber-500" : ""
                                     }`}
-                                >``
+                                >
                                     {tab.name}
                                 </button>
                             </li>

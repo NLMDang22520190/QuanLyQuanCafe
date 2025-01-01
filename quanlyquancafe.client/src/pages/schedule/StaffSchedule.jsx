@@ -149,21 +149,32 @@ const StaffSchedule = () => {
     };
     
 
-    const quickInfoEventTemplate = (props) => (
-        <div className="custom-quick-info">
-            {!props.Subject && <h1 className="text-2xl text-black-80">No schedule available</h1>}
-            {props.Subject && (
-                <div className="mt-4 flex flex-col items-start">
-                    <button
-                        className="px-4 py-2 text-sm bg-[#ffc107] text-black rounded hover:bg-[#ffb300]"
-                        onClick={() => handleOpenRollCall(props)}
-                    >
-                        Roll Call
-                    </button>
-                </div>
-            )}
-        </div>
-    );
+    const quickInfoEventTemplate = (props) => {
+        const today = new Date(); 
+        const isToday = props.StartTime?.toDateString() === today.toDateString();
+    
+        return (
+            <div className="custom-quick-info">
+                {!props.Subject && (
+                    <h1 className="text-2xl text-black-80">No schedule available</h1>
+                )}
+                {props.Subject && (
+                    <div className="mt-4 flex flex-col items-start">
+                        <button
+                            className={`px-4 py-2 text-sm rounded ${
+                                isToday ? "bg-[#ffc107] text-black hover:bg-[#ffb300]" : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                            }`}
+                            onClick={() => isToday && handleOpenRollCall(props)}
+                            disabled={!isToday} 
+                        >
+                            Roll Call
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
+    };
+    
 
     const eventSettings = {
         dataSource: schedule, 

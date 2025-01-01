@@ -13,6 +13,9 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
   const [startDate, setStartDate] = useState(null);
   const [hourlyWage, setHourlyWage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1); 
+  const [totalRecords, setTotalRecords] = useState(0); 
+
 
   const hourlyWageHistoryColumns = [
     { title: "Start Date", dataIndex: "date", key: "date" },
@@ -66,39 +69,42 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
 
   const fetchMonthlySalaryData = async (pageIndex = 1, pageSize = 10) => {
     if (!staff || !staff.staffId) {
-      console.error("Invalid staff ID.");
-      message.error("Staff information is missing or invalid.");
-      return;
+        console.error("Invalid staff ID.");
+        message.error("Staff information is missing or invalid.");
+        return;
     }
     try {
-      setLoading(true);
-      const response = await instance.get(
-        `/api/month-salary/Staff/${staff.staffId}?pageIndex=${pageIndex}&pageSize=${pageSize}`
-      );
-  
-      if (response.status === 200 || response.status === 201) {
-        const monthlyData = response.data.data;
-        const formattedData = monthlyData.map((item) => ({
-          month: item.month,
-          hoursWorked: item.totalHours || 0,
-          hourlyWage: item.hourWage || 0,
-          totalSalary: (item.totalHours * item.hourWage).toFixed(2),
-        }));
-  
-        setMonthlySalaryData(formattedData);
-      } else {
-        console.error("Error fetching monthly salaries:", response.statusText);
-        message.error("Failed to fetch monthly salary data.");
-      }
+        setLoading(true);
+        setMonthlySalaryData([]);
+        const response = await instance.get(
+            `/api/month-salary/Staff/${staff.staffId}?pageIndex=${pageIndex}&pageSize=${pageSize}`
+        );
+
+        if (response.status === 200 || response.status === 201) {
+            const monthlyData = response.data.data;
+            const formattedData = monthlyData.map((item) => ({
+                month: item.month,
+                hoursWorked: item.totalHours || 0,
+                hourlyWage: item.hourWage || 0,
+                totalSalary: (item.totalHours * item.hourWage).toFixed(2),
+            }));
+
+            setMonthlySalaryData(formattedData);
+
+            setCurrentPage(response.data.currentPage || pageIndex);
+            setTotalRecords(response.data.totalRecords || 0);
+        } else {
+            console.error("Error fetching monthly salaries:", response.statusText);
+            message.error("Failed to fetch monthly salary data.");
+        }
     } catch (error) {
-      console.error("Error fetching monthly salary data:", error);
-      message.error("An error occurred while fetching monthly salary data.");
+        console.error("Error fetching monthly salary data:", error);
+        message.error("An error occurred while fetching monthly salary data.");
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
-  
-  
+};
+
 
   useEffect(() => {
     if (visible && staff.staffId) {
@@ -127,7 +133,7 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
         startDate: startDate.format("YYYY-MM-DD"), 
       };
 
-      const response = await axios.post("https://localhost:7087/api/salaries", payload);
+      const response = await instance.post(`/api/salaries`, payload);
 
       if (response.status === 201) {
         const newSalaryData = {
@@ -213,8 +219,10 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
           rowKey="month"
           loading={loading}
           pagination={{
-            pageSize: 5, // Số bản ghi trên mỗi trang
-            onChange: (page) => fetchMonthlySalaryData(page, 5),
+            current: currentPage, 
+            pageSize: 5, 
+            total: totalRecords, 
+            onChange: (page) => fetchMonthlySalaryData(page, 5), 
           }}
           bordered
           title={() => <span className="custom-table-title">Monthly Salary</span>}

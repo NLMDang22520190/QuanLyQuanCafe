@@ -1,7 +1,6 @@
 import { useState,useEffect  } from "react";
 import { Table, Select, message, Button, ConfigProvider, theme, Modal, Input ,InputNumber,Popconfirm } from "antd";
 import "./user.css";
-import axios from "axios";
 import instance from "../../features/AxiosInstance/AxiosInstance"; 
 import StaffDetail from "./StaffDetail";
 import OrderHistory from "./OrderHistory";
@@ -153,7 +152,7 @@ const UserPage = () => {
           <Button
             type="primary"
             ghost
-            onClick={() => handleViewDetail(record.id)}
+            onClick={() => handleViewDetail(record.staffId)}
           >
             View Detail
           </Button>
@@ -211,7 +210,7 @@ const UserPage = () => {
           <Button
             type="primary"
             ghost
-            onClick={() => handleViewDetail1(record.id)}
+            onClick={() => handleViewDetail1(record.staffId)}
           >
             View Detail
           </Button>
@@ -271,23 +270,23 @@ const UserPage = () => {
   const [isOrderModalVisible, setIsOrderModalVisible] = useState(false);
 
   const handleViewOrderList = (id) => {
-    setSelectedUserId(id); // Lưu lại ID của user
-    setIsOrderModalVisible(true); // Hiển thị modal
+    setSelectedUserId(id); 
+    setIsOrderModalVisible(true); 
   };
   const handleCloseOrderModal = () => {
-    setIsOrderModalVisible(false); // Ẩn modal
-    setSelectedUserId(null); // Reset user ID
+    setIsOrderModalVisible(false); 
+    setSelectedUserId(null); 
   };
 
   const handleViewDetail = (id) => {
-    const staff = staffData.find((staff) => staff.id === id);
+    const staff = staffData.find((staff) => staff.staffId === id);
     setSelectedStaff(staff);
     setIsFormer(false);
     setIsDetailModalVisible(true);
   };
 
-  const handleViewDetail1 = (id) => {
-    const staff = staffData.find((staff) => staff.id === id);
+  const handleViewDetail1 = (staffId) => {
+    const staff = formerStaff.find((staff) => staff.staffId === staffId);
     setSelectedStaff(staff);
     setIsFormer(true);
     setIsDetailModalVisible(true);

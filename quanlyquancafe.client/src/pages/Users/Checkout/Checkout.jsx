@@ -217,7 +217,7 @@ const Checkout = () => {
   }, [cities, isDataLoaded, formData.ward]);
 
   const [items, setItems] = useState([]);
-  const cart = useSelector((state) => state.cart);
+  // const cart = useSelector((state) => state.cart);
 
   // Improved fetchCart function
   const fetchCart = () => {
