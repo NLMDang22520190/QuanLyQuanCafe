@@ -24,52 +24,6 @@ export const ManagerDashboard = () => {
     const [newestStaffs, setNewestStaffs] = useState();
     const [menuItemTab, setMenuItemTab] = useState(0);
 
-    const sampleData = [
-        {
-            id: "ORD001",
-
-            totalAmount: "$25.50",
-            status: "Completed",
-
-        },
-        {
-            id: "ORD002",
-
-            totalAmount: "$50.00",
-            status: "Pending",
-
-        },
-        {
-            id: "ORD003",
-
-            totalAmount: "$15.75",
-            status: "Cancelled",
-
-        },
-        {
-            id: "ORD004",
-
-            totalAmount: "$20.00",
-            status: "In Progress",
-
-        },
-        {
-            id: "ORD005",
-
-            totalAmount: "$40.00",
-            status: "Completed",
-
-        },
-
-    ];
-
-    const columnData = [
-        { header: "ID", key: "id", type: TableDetailType.Info },
-
-        { header: "Total Amount", key: "totalAmount", type: TableDetailType.Info },
-        { header: "Order Status", key: "status", type: TableDetailType.Badge },
-    ];
-
     const stockCol = [
         { title: "Ingredient", dataIndex: "ingredientName", key: "ingredientName" },
         { title: "Quantity in stock", dataIndex: "quantityInStock", key: "quantityInStock" },
