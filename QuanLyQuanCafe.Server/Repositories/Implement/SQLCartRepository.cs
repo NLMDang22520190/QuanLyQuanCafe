@@ -54,7 +54,20 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 			return cart;
 		}
 
-		// CreateCartForCustomer method implementation
+        public async Task<bool> ClearCartByCustomerId(string userId)
+        {
+            var cart = await GetCartByUserIdAsync(userId);
+            if (cart == null)
+            {
+                return false;
+            }
+			dbContext.CartDetails.RemoveRange(cart.CartDetails);
+            await dbContext.SaveChangesAsync();
+            return true;
+
+        }
+
+        // CreateCartForCustomer method implementation
 		public async Task<Cart> CreateCartForCustomer(string userId)
 		{
 			// Create a new cart for the customer
@@ -179,9 +192,9 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
 		public async Task ClearCartAsync(Cart cart)
 		{
-			dbContext.CartDetails.RemoveRange(cart.CartDetails);
-			dbContext.Carts.Remove(cart);
-			await dbContext.SaveChangesAsync();
+			//dbContext.CartDetails.RemoveRange(cart.CartDetails);
+			//dbContext.Carts.Remove(cart);
+			//await dbContext.SaveChangesAsync();
 		}
 	}
 }
