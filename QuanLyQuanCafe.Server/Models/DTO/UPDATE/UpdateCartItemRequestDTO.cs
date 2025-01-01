@@ -2,11 +2,9 @@
 {
     public class UpdateCartItemRequestDTO
     {
-		public string UserId { get; set; } // The ID of the user
-		public int CartId { get; set; } // The ID of the cart
-		public int CartDetailId { get; set; } // The ID of the specific item to update
-		public int Quantity { get; set; } // The new quantity for the item
-		public string Notes { get; set; } // New notes for the item
-		public string Adjustment { get; set; } // The new adjustment (size, etc.)
-	}
+        public int CartDetailId { get; set; }
+        public int Quantity { get; set; }
+        public string? Notes { get; set; }
+        public string? Adjustments { get; set; }
+    }
 }

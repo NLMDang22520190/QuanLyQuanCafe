@@ -69,7 +69,10 @@ const UpdatePersonalData = () => {
         });
 
         setEmail(userData.email);
-        setIsDataLoaded(true); // Set flag to true after user data is loaded
+        // Chờ một thời gian trước khi setIsDataLoaded
+        setTimeout(() => {
+          setIsDataLoaded(true);
+        }, 150); // Chờ 200ms (bạn có thể thay đổi thời gian này)
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -197,17 +200,13 @@ const UpdatePersonalData = () => {
     }
   }, [selectedDistrict, formData.ward]);
 
-  // Sync formData with selected address values
   useEffect(() => {
     if (cities.length > 0) {
       if (formData.city) setSelectedCity(parseInt(formData.city));
       if (formData.district) setSelectedDistrict(parseInt(formData.district));
-      if (isDataLoaded == false) {
-        if (formData.ward) setSelectedWard(parseInt(formData.ward));
-        setIsDataLoaded(true);
-      }
+      if (formData.ward) setSelectedWard(parseInt(formData.ward));
     }
-  }, [cities, formData]);
+  }, [cities, isDataLoaded, formData.ward]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -435,6 +434,7 @@ const UpdatePersonalData = () => {
                 size="xl"
                 disabled={isLoading}
                 pill
+                isProcessing={isLoading}
                 gradientDuoTone="redToYellow"
                 className="text-white"
               >

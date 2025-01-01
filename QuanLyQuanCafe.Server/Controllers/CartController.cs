@@ -45,7 +45,7 @@ namespace QuanLyQuanCafe.Server.Controllers
             }
 
             var cartDetailsDomain = await _cartDetailRepository.GetCartDetailByCartId(cartDomain.CartId);
-            if (cartDetailsDomain == null || !cartDetailsDomain.Any())
+            if (cartDetailsDomain == null)
             {
                 return NotFound($"No cart details found for CartId {cartDomain.CartId}");
             }
@@ -101,7 +101,11 @@ namespace QuanLyQuanCafe.Server.Controllers
                     return NotFound($"Cart detail with ID {requestDto.CartDetailId} not found.");
                 }
 
-                return Ok("Cart item updated successfully!");
+                var cartDetailsDomain = await _cartDetailRepository.GetCartDetailByCartId(updatedCartDetail.CartId);
+
+                var cartDomain = cartDetailsDomain.FirstOrDefault(x => x.CartDetailId == updatedCartDetail.CartDetailId);
+
+                return Ok(_mapper.Map<CartItemDetailDTO>(cartDomain));
             }
             catch (Exception ex)
             {

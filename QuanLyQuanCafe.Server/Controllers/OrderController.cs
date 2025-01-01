@@ -9,8 +9,10 @@ using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Models.DTO.GET;
 using QuanLyQuanCafe.Server.Repositories;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using QuanLyQuanCafe.Server.Models.DTO.ADD;
 using QuanLyQuanCafe.Server.Models.DTO.UPDATE;
 
 namespace QuanLyQuanCafe.Server.Controllers
@@ -114,8 +116,55 @@ namespace QuanLyQuanCafe.Server.Controllers
 			return CreatedAtAction(nameof(GetOrderById), new { orderId = newOrder.OrderId }, newOrder);
 		}
 
-		// Cập nhật trạng thái của đơn hàng
-		[HttpPut("update-order-state/{orderId}")]
+		[HttpPost("CreateNewOrder")]
+		public async Task<IActionResult> CreateNewOrder([FromBody] AddNewOrderRequestDTO request)
+        {
+            try
+            {
+                if (request.UserId == null)
+                {
+                    return BadRequest("UserId is required.");
+                }
+
+                var cart = await _cartRepository.GetCartByCustomerId(request.UserId);
+                if (cart.CartDetails.Count == 0)
+                {
+                    return BadRequest("Cart is empty.");
+                }
+
+                var order = _mapper.Map<Order>(request);
+                order.OrderState = "Pending";
+                order.TotalPrice = cart.CartDetails.Sum(cd => cd.Quantity * cd.Item.Price);
+                order.OrderTime = DateTime.Now;
+                order.OrderDetails = _mapper.Map<List<OrderDetail>>(cart.CartDetails);
+
+                Debug.WriteLine(order);
+                var newOrder = await _orderRepository.AddAsync(order);
+                var result = await _cartRepository.ClearCartByCustomerId(request.UserId);
+                if (!result)
+                {
+                    return BadRequest("Error clearing cart.");
+                }
+                return (Ok(_mapper.Map<OrderWithOrderDetailDTO>(newOrder)));
+            }
+            catch (Exception ex)
+            {
+				return BadRequest($"Error creating order: {ex.Message}");
+            }
+
+
+        }
+
+
+
+
+
+
+
+
+
+        // Cập nhật trạng thái của đơn hàng
+        [HttpPut("update-order-state/{orderId}")]
 		public async Task<ActionResult> UpdateOrderState(int orderId, [FromBody] string newState)
 		{
 			var result = await _orderRepository.UpdateOrderStateAsync(orderId, newState);
