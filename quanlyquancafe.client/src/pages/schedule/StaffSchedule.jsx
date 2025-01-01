@@ -1,31 +1,97 @@
-import { useState, useRef } from "react";
-import { Modal, Button, Table, ConfigProvider, theme } from "antd";
+import { useState, useEffect, useRef } from "react";
+import { Modal, Button, ConfigProvider, theme, message } from "antd";
+import { useSelector } from "react-redux";
+import instance from "../../features/AxiosInstance/AxiosInstance";
 import { Day, WorkWeek, Week, ScheduleComponent, Inject } from "@syncfusion/ej2-react-schedule";
+import axios from "axios";
+import moment from 'moment';
 import "./schedule.css";
 
 const StaffSchedule = () => {
     const scheduleRef = useRef(null);
-    const [openRollCall, setOpenRollCall] = useState(false); // Modal Roll Call
+    const [openRollCall, setOpenRollCall] = useState(false); 
     const [selectedShift, setSelectedShift] = useState(null);
-    const [checkInTime, setCheckInTime] = useState(null);
+    const [checkin, setCheckInTime] = useState(null);
     const [checkOutTime, setCheckOutTime] = useState(null);
+    const [schedule, setSchedule] = useState([]); 
+    const [week,setWeek]=useState([]);
+    const [shiftData, setShiftData] = useState([]);
+    const [totalMShift, setTotalMShift]=useState(1);
+    const [pageIndexMShift,setPageIndexMShift]=useState(1);
+    const userId = useSelector((state) => state.auth.user);
 
-    const schedule = [
-        {
-            Id: 1,
-            Subject: "Morning Shift",
-            StartTime: new Date(2024, 11, 26, 8, 0),
-            EndTime: new Date(2024, 11, 26, 12, 0),
-            Date: "2024-11-26",
-        },
-        {
-            Id: 2,
-            Subject: "Afternoon Shift",
-            StartTime: new Date(2024, 11, 26, 13, 0),
-            EndTime: new Date(2024, 11, 26, 17, 0),
-            Date: "2024-11-26",
-        },
-    ];
+    const fetchShifts = async (pageIndexMShift, pageSize) => {
+        try {
+            const response = await instance.get(`/api/shifts?pageIndex=${pageIndexMShift}&pageSize=${pageSize}`);
+            console.log(response.data);
+            setShiftData(response.data.data);   
+            setTotalMShift(response.data.totalRecords);   
+
+        } catch (error) {
+            message.error("Failed to fetch shifts. Please try again.");
+            console.error(err);
+        }
+    };
+
+
+    const fetchSchedule = async () => {
+        try {
+          
+
+            const formattedShifts = shiftData.flatMap((shift) => {
+                const [startHour, startMinute] = shift.startTime.split(":").map(Number);
+                const [endHour, endMinute] = shift.endTime.split(":").map(Number);
+            
+                const startOfWeek = new Date(week[0]); 
+                const daysInWeek = 6;
+            
+                const shiftsForWeek = [];
+            
+                for (let i = 0; i < daysInWeek; i++) {
+                    const currentDay = new Date(startOfWeek);
+                    currentDay.setDate(startOfWeek.getDate() + i); 
+            
+                    shiftsForWeek.push({
+                        Id: shift.shiftId,
+                        Subject: shift.shiftName,
+                        StartTime: new Date(
+                            currentDay.getFullYear(),
+                            currentDay.getMonth(),
+                            currentDay.getDate(),
+                            startHour,
+                            startMinute
+                        ),
+                        EndTime: new Date(
+                            currentDay.getFullYear(),
+                            currentDay.getMonth(),
+                            currentDay.getDate(),
+                            endHour,
+                            endMinute
+                        ),
+                        Date: currentDay.toISOString().split("T")[0],
+                        Staff: shift.staffIds || [],
+                    });
+                }
+            
+                return shiftsForWeek;
+            });
+            setSchedule(formattedShifts); 
+            console.log("Formatted Schedule:", formattedShifts);
+        } catch (error) {
+            console.error("Error fetching schedule data:", error);
+        }
+    };
+
+    if(!schedule){
+        fetchSchedule();
+    }
+    useEffect(() => {
+        fetchSchedule(); 
+    }, [shiftData]);
+
+    useEffect(()=>{
+        fetchShifts(pageIndexMShift,5);
+    },[pageIndexMShift])
 
     const handleOpenRollCall = (shift) => {
         setSelectedShift(shift);
@@ -39,38 +105,79 @@ const StaffSchedule = () => {
         setSelectedShift(null);
     };
 
-    const handleCheckIn = () => {
-        if (!checkInTime) {
-            setCheckInTime(new Date());
+    const handleCheckIn = async () => {
+        if (!checkin) {
+            try {
+                const payload = {
+                    userId,
+                    shiftId: selectedShift.Id, 
+                    checkin: new Date().toISOString(), 
+                };
+                const response = await instance.post(`/api/attendances/checkin`, payload);
+                console.log("Check-In Successful:", response.data);
+                setCheckInTime(new Date());
+                message.success("Checked in successfully!");
+            } catch (error) {
+                console.error("Error during Check-In:", error.response?.data || error.message);
+                message.error(error.response?.data?.message || "Failed to check in. Please try again.");
+            }
         }
     };
+    
 
-    const handleCheckOut = () => {
-        if (checkInTime && !checkOutTime) {
-            setCheckOutTime(new Date());
+    const handleCheckOut = async () => {
+        if (checkin && !checkOutTime) {
+            try {
+                const payload = {
+                    UserId: userId, 
+                    ShiftId: selectedShift.Id, 
+                    Checkin: checkin.toISOString().split("T")[0], 
+                    Checkout: new Date().toISOString().split("T")[0], 
+                };
+    
+                const queryString = new URLSearchParams(payload).toString();
+                const response = await instance.put(`/api/attendances/checkout?${queryString}`);
+    
+                console.log("Check-Out Successful:", response.data);
+                setCheckOutTime(new Date());
+                message.success("Checked out successfully!");
+            } catch (error) {
+                console.error("Error during Check-Out:", error.response?.data || error.message);
+                message.error(error.response?.data?.message || "Failed to check out. Please try again.");
+            }
         }
     };
+    
 
-    const quickInfoEventTemplate = (props) => (
-        <div className="custom-quick-info">
-            {!props.Subject && <h1 className="text-2xl text-black-80">No schedule available</h1>}
-            {props.Subject && (
-                <div className="mt-4 flex flex-col items-start">
-                    <button
-                        className="px-4 py-2 text-sm bg-[#ffc107] text-black rounded hover:bg-[#ffb300]"
-                        onClick={() => handleOpenRollCall(props)}
-                    >
-                        Roll Call
-                    </button>
-                </div>
-            )}
-        </div>
-    );
-
-
+    const quickInfoEventTemplate = (props) => {
+        const today = new Date(); 
+        const isToday = props.StartTime?.toDateString() === today.toDateString();
+    
+        return (
+            <div className="custom-quick-info">
+                {!props.Subject && (
+                    <h1 className="text-2xl text-black-80">No schedule available</h1>
+                )}
+                {props.Subject && (
+                    <div className="mt-4 flex flex-col items-start">
+                        <button
+                            className={`px-4 py-2 text-sm rounded ${
+                                isToday ? "bg-[#ffc107] text-black hover:bg-[#ffb300]" : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                            }`}
+                            onClick={() => isToday && handleOpenRollCall(props)}
+                            disabled={!isToday} 
+                        >
+                            Roll Call
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
+    };
+    
 
     const eventSettings = {
-        dataSource: schedule,
+        dataSource: schedule, 
     };
 
     return (
@@ -91,7 +198,7 @@ const StaffSchedule = () => {
                 <div className="max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)] overflow-auto">
                     <ScheduleComponent
                         ref={scheduleRef}
-                        selectedDate={new Date(2024, 11, 26)}
+                        selectedDate={new Date()}
                         eventSettings={eventSettings}
                         quickInfoTemplates={{
                             content: quickInfoEventTemplate,
@@ -100,6 +207,13 @@ const StaffSchedule = () => {
                         endHour="22:00"
                         showTimeIndicator={true}
                         readonly={true} 
+                        navigating={(args) => {
+                            const selectedWeekStart = args.currentDate; 
+                            const selectedWeekEnd = new Date(selectedWeekStart);
+                            selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6); 
+                            setWeek([selectedWeekStart, selectedWeekEnd]);
+                            fetchSchedule();
+                        }}
                     >
                         <Inject services={[Day, Week, WorkWeek]} />
                     </ScheduleComponent>
@@ -130,15 +244,15 @@ const StaffSchedule = () => {
                                 <Button
                                     type="primary"
                                     onClick={handleCheckIn}
-                                    disabled={!!checkInTime}
+                                    disabled={!!checkin}
                                     className="mr-2"
                                 >
-                                    {checkInTime ? `Checked In: ${checkInTime.toLocaleTimeString()}` : "Check In"}
+                                    {checkin ? `Checked In: ${checkin.toLocaleTimeString()}` : "Check In"}
                                 </Button>
                                 <Button
                                     type="primary"
                                     onClick={handleCheckOut}
-                                    disabled={!checkInTime || !!checkOutTime}
+                                    disabled={!checkin || !!checkOutTime}
                                 >
                                     {checkOutTime
                                         ? `Checked Out: ${checkOutTime.toLocaleTimeString()}`
@@ -154,3 +268,6 @@ const StaffSchedule = () => {
 };
 
 export default StaffSchedule;
+
+
+

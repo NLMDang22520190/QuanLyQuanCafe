@@ -8,9 +8,12 @@ import {
   Dropdown,
 } from "flowbite-react";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import api from "../../../features/AxiosInstance/AxiosInstance";
 import ChangePasswordCard from "../../../components/Users/ChangePasswordCard/ChangePasswordCard";
+import { logout } from "../../../features/Auth/Auth";
+import { clearCart } from "../../../features/Cart/Cart";
 
 const apiKey = "a84f0896-7c1a-11ef-8e53-0a00184fe694";
 
@@ -25,6 +28,9 @@ const UpdatePersonalData = () => {
     district: "",
     ward: "",
   });
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const userId = useSelector((state) => state.auth.user);
 
@@ -63,7 +69,10 @@ const UpdatePersonalData = () => {
         });
 
         setEmail(userData.email);
-        setIsDataLoaded(true); // Set flag to true after user data is loaded
+        // Chờ một thời gian trước khi setIsDataLoaded
+        setTimeout(() => {
+          setIsDataLoaded(true);
+        }, 150); // Chờ 200ms (bạn có thể thay đổi thời gian này)
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -191,17 +200,13 @@ const UpdatePersonalData = () => {
     }
   }, [selectedDistrict, formData.ward]);
 
-  // Sync formData with selected address values
   useEffect(() => {
     if (cities.length > 0) {
       if (formData.city) setSelectedCity(parseInt(formData.city));
       if (formData.district) setSelectedDistrict(parseInt(formData.district));
-      if (isDataLoaded == false) {
-        if (formData.ward) setSelectedWard(parseInt(formData.ward));
-        setIsDataLoaded(true);
-      }
+      if (formData.ward) setSelectedWard(parseInt(formData.ward));
     }
-  }, [cities, formData]);
+  }, [cities, isDataLoaded, formData.ward]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -256,6 +261,12 @@ const UpdatePersonalData = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    dispatch(clearCart());
+    navigate("/auth/login");
   };
 
   return (
@@ -417,16 +428,28 @@ const UpdatePersonalData = () => {
               </div>
             </div>
 
-            <div className="flex justify-center">
+            <div className="justify-center grid grid-cols-1 md:grid-cols-2 gap-8">
               <Button
                 type="submit"
                 size="xl"
                 disabled={isLoading}
                 pill
+                isProcessing={isLoading}
                 gradientDuoTone="redToYellow"
                 className="text-white"
               >
                 {isLoading ? "Đang xử lý..." : "Cập Nhật Thông Tin"}
+              </Button>
+              <Button
+                size="xl"
+                disabled={isLoading}
+                pill
+                outline
+                onClick={handleLogout}
+                gradientDuoTone="redToYellow"
+                className="text-white"
+              >
+                {isLoading ? "Đang xử lý..." : "Đăng xuất"}
               </Button>
             </div>
           </form>

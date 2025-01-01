@@ -9,7 +9,7 @@ namespace QuanLyQuanCafe.Server.Repositories
         Task<List<StaffDto>> GetNewestStaffAsync(int count);
         Task<PagedResult<StaffDto>> GetAllCurrentStaffAsync(int pageIndex, int pageSize);
         Task<PagedResult<StaffDto>> GetFormerStaffAsync(int pageIndex, int pageSize);
-        Task<PagedResult<StaffDto>> GetStaffInShiftAsync(int shiftId, int month, int year, int pageIndex, int pageSize);
+        Task<PagedResult<StaffScheduleDto>> GetStaffInShiftAsync(int shiftId, int month, int year, int pageIndex, int pageSize);
         Task<Staff> GetStaffByUserid(string userId);
     }
 }

@@ -6,7 +6,7 @@
 # User-specific files
 *.rsuser
 *.suo
-*.user
+*.user  
 *.userosscache
 *.sln.docstates
 
@@ -362,3 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /QuanLyQuanCafe.Server/appsettings1.json
+
+.codegpt

@@ -19,6 +19,11 @@ public partial class Order
 
     public string PaymentMethod { get; set; } = null!;
 
+    public string? FullName { get; set; } = null!;
+    public string? PhoneNumber { get; set; } = null!;
+    public string? Address { get; set; } = null!;
+
+
     public virtual ApplicationUser User { get; set; } = null!;
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();

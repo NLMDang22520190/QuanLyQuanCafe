@@ -25,7 +25,7 @@ const OrderConfirmation = () => {
 
   return (
     <div className="order-confirmation">
-      <h2>Xác nhận đơn hàng</h2>
+      {/* <h2>Xác nhận đơn hàng</h2> */}
 
       {/* Điều chỉnh thứ tự các component dựa trên kích thước màn hình */}
       {isMobile ? (

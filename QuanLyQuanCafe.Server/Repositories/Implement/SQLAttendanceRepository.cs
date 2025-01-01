@@ -128,34 +128,48 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         public async Task<PagedResult<StaffAttendanceDto>> GetStaffAttendanceForShiftOnDateAsync(
             int shiftId, DateOnly date, int pageIndex, int pageSize)
         {
-            var query = dbContext.Attendances
-                .Include(a => a.Schedule)
-                .ThenInclude(s => s.Staff)
-                .Where(a => a.Schedule.ShiftId == shiftId && a.Date == date);
-
-            var totalRecords = await query.CountAsync();
-
-            var attendances = await query
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            var staffAttendanceDtos = attendances.Select(a => new StaffAttendanceDto
+            try
             {
-                StaffName = a.Schedule.Staff.User.UserName ?? "Unknown",
-                Checkin = a.Checkin,
-                Checkout = a.Checkout
-            }).ToList();
+                Console.WriteLine($"Fetching attendances for ShiftId: {shiftId}, Date: {date}, PageIndex: {pageIndex}, PageSize: {pageSize}");
 
-            return new PagedResult<StaffAttendanceDto>
+                var query = dbContext.Attendances
+                    .Include(a => a.Schedule)
+                    .ThenInclude(s => s.Staff)
+                    .Where(a => a.Schedule.ShiftId == shiftId && a.Date == date);
+
+                var totalRecords = await query.CountAsync();
+
+                var attendances = await query
+                    .Skip((pageIndex - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                var staffAttendanceDtos = attendances.Select(a => new StaffAttendanceDto
+                {
+                    
+                    StaffName = a.Schedule?.Staff?.User?.UserName ?? "Unknown", 
+                 
+                    Checkin = a.Checkin != default ? a.Checkin : (DateTime?)null,
+                    Checkout = a.Checkout != default ? a.Checkout : (DateTime?)null
+
+                }).ToList();
+
+                return new PagedResult<StaffAttendanceDto>
+                {
+                    TotalRecords = totalRecords,
+                    CurrentPage = pageIndex,
+                    PageSize = pageSize,
+                    TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
+                    Data = staffAttendanceDtos
+                };
+            }
+            catch (Exception ex)
             {
-                TotalRecords = totalRecords,
-                CurrentPage = pageIndex,
-                PageSize = pageSize,
-                TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
-                Data = staffAttendanceDtos
-            };
+                Console.WriteLine($"Error in repository: {ex.Message}");
+                throw;
+            }
         }
+
 
 
         public async Task<List<Attendance>> CreateAttendancesForRangeAsync(int scheduleId, DateOnly startDate, DateOnly endDate)
@@ -225,6 +239,73 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 Checkout = attendance.Checkout
             };
         }
+        public async Task<PagedResult<AttendanceShiftDto>> GetAttendancesByUserIdAndMonthAsync(string userId, int month, int year, int pageIndex = 1, int pageSize = 10)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new ArgumentException("User ID must be provided.");
+            }
+
+            if (month < 1 || month > 12)
+            {
+                throw new ArgumentException("Month must be between 1 and 12.");
+            }
+
+            if (year < 1)
+            {
+                throw new ArgumentException("Year must be greater than 0.");
+            }
+
+            if (pageIndex <= 0 || pageSize <= 0)
+            {
+                throw new ArgumentException("Page index and page size must be greater than zero.");
+            }
+
+            var staff = await dbContext.Staffs.FirstOrDefaultAsync(s => s.UserId == userId && s.DateEndWorking == null);
+            if (staff == null)
+            {
+                throw new Exception("Staff not found for the given userId.");
+            }
+
+            var staffId = staff.StaffId;
+
+            var query = dbContext.Attendances
+                .Include(a => a.Schedule)
+                .ThenInclude(s => s.Shift)
+                .Where(a =>
+                    a.Schedule.StaffId == staffId &&
+                    a.Date.Month == month &&
+                    a.Date.Year == year &&
+                    a.Checkin != null &&
+                    a.Checkout != null);
+
+            var totalRecords = await query.CountAsync();
+
+            var attendances = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var attendanceDtos = attendances.Select(a => new AttendanceShiftDto
+            {
+                AttendanceId = a.AttendanceId,
+                ScheduleId = a.ScheduleId,
+                Date = a.Date,
+                Checkin = a.Checkin,
+                Checkout = a.Checkout,
+                ShiftName = a.Schedule.Shift.ShiftName
+            }).ToList();
+
+            return new PagedResult<AttendanceShiftDto>
+            {
+                TotalRecords = totalRecords,
+                CurrentPage = pageIndex,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
+                Data = attendanceDtos
+            };
+        }
+
 
     }
 }

@@ -29,14 +29,14 @@ namespace QuanLyQuanCafe.Server.Mapping
             CreateMap<Order, AddOrderRequestDTO>().ReverseMap();
             CreateMap<OrderDetail, AddOrderDetailRequestDTO>().ReverseMap();
             CreateMap<Order, OrderDTO>()
-           .ForMember(dest => dest.VoucherApplied, opt => opt.Ignore());
-
+                .ForMember(dest => dest.VoucherApplied, opt => opt.Ignore());
             CreateMap<OrderDetail, OrderDetailDTO>()
-                .ForMember(dest => dest.ItemName, opt => opt.MapFrom(src => src.Item.ItemName))
-                .ForMember(dest => dest.ItemPrice, opt => opt.MapFrom(src => src.Item.Price))
                 .ReverseMap();
-
             CreateMap<VoucherDetail, VoucherDTO>().ReverseMap();
+            CreateMap<Order, OrderWithOrderDetailDTO>().ReverseMap();
+            CreateMap<OrderDetail, OrderDetailDTO>().ReverseMap();
+            CreateMap<OrderDetail, CartDetail>().ReverseMap();
+            CreateMap<Order, AddNewOrderRequestDTO>().ReverseMap();
         }
     }
 }

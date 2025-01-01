@@ -20,7 +20,7 @@ public partial class ApplicationUser:IdentityUser
 
     public int? CustomerPoint { get; set; }
 
-    public override string? NormalizedEmail { get; set; }
+    //public override string? NormalizedEmail { get; set; }
 
 
     public virtual ICollection<Staff>? Staffs { get; set; } = new List<Staff>();
