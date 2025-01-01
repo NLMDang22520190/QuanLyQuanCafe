@@ -36,9 +36,15 @@ namespace QuanLyQuanCafe.Server.Controllers
 			return Ok(orderDetails);
 		}
 
+
+
+		//[HttpPut("{orderDetailId}")]
+		//public async Task<IActionResult> UpdateNotesOrAdjustments(int orderDetailId, [FromBody] dynamic payload)
+
 		// Lấy chi tiết đơn hàng theo ID
 		[HttpGet("{orderDetailId}")]
 		public async Task<ActionResult<OrderDetail>> GetOrderDetailById(int orderDetailId)
+
 		{
 			if (orderDetailId <= 0)
 			{

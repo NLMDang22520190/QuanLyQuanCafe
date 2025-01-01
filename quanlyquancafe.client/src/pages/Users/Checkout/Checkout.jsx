@@ -1,18 +1,216 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Label, TextInput, Select, Button, Card, Radio } from "flowbite-react";
+import {
+  Label,
+  TextInput,
+  Select,
+  Button,
+  Card,
+  Radio,
+  Dropdown,
+} from "flowbite-react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
+import api from "../../../features/AxiosInstance/AxiosInstance";
+
+const apiKey = "a84f0896-7c1a-11ef-8e53-0a00184fe694";
 
 const Checkout = () => {
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
     email: "",
-    phone: "",
-    country: "",
-    province: "",
+    phoneNumber: "",
+    city: "",
     district: "",
+    ward: "",
     detailAddress: "",
     paymentMethod: "cash",
   });
+
+  const [email, setEmail] = useState("");
+  const [cities, setCities] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedWard, setSelectedWard] = useState("");
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(false); // flag to track if data is loaded
+
+  const auth = useSelector((state) => state.auth);
+  const userId = auth.user;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!auth.user || !auth.isAuthenticated) {
+      navigate("/auth/login");
+    }
+  }, []);
+
+  // Fetch user data
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get(`api/account/GetUserById/${userId}`);
+        const userData = response.data;
+
+        // Điền thông tin người dùng vào formData
+        setFormData({
+          name: userData.fullName || "",
+          email: userData.email || "",
+          phoneNumber: userData.phoneNumber || "",
+          city:
+            userData.city && userData.city !== "string" ? userData.city : "",
+          district:
+            userData.district && userData.district !== "string"
+              ? userData.district
+              : "",
+          ward:
+            userData.ward && userData.ward !== "string" ? userData.ward : "",
+        });
+
+        setEmail(userData.email);
+        setIsDataLoaded(true); // Set flag to true after user data is loaded
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    if (userId) {
+      fetchUserData();
+    }
+  }, [userId]);
+
+  // Fetch cities
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const response = await fetch(
+          "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Token: apiKey,
+            },
+          }
+        );
+        const data = await response.json();
+
+        if (data && data.data) {
+          setCities(data.data);
+        } else {
+          console.error("No cities data found:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching cities:", error);
+      }
+    };
+
+    fetchCities();
+  }, []);
+
+  // Fetch districts when city changes or if city has existing data
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      try {
+        const response = await fetch(
+          "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/district",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Token: apiKey,
+            },
+            body: JSON.stringify({ province_id: selectedCity }),
+          }
+        );
+        const data = await response.json();
+
+        if (data && data.data) {
+          setDistricts(data.data);
+
+          if (
+            formData.district &&
+            data.data.some((d) => d.DistrictID === formData.district)
+          ) {
+            setSelectedDistrict(formData.district);
+          } else {
+            setSelectedDistrict("");
+          }
+        } else {
+          console.error("No districts data found:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+      }
+    };
+
+    if (selectedCity) {
+      fetchDistricts();
+    } else {
+      setDistricts([]);
+      setSelectedDistrict("");
+    }
+  }, [selectedCity, formData.district]);
+
+  // Fetch wards when district changes or if district has existing data
+  useEffect(() => {
+    const fetchWards = async () => {
+      try {
+        const response = await fetch(
+          "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/ward",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Token: apiKey,
+            },
+            body: JSON.stringify({ district_id: selectedDistrict }),
+          }
+        );
+        const data = await response.json();
+
+        if (data && data.data) {
+          setWards(data.data);
+
+          if (
+            formData.ward &&
+            data.data.some((w) => w.WardCode === formData.ward)
+          ) {
+            setSelectedWard(formData.ward);
+          } else {
+            setSelectedWard("");
+          }
+        } else {
+          console.error("No wards data found:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching wards:", error);
+      }
+    };
+
+    if (selectedDistrict) {
+      fetchWards();
+    } else {
+      setWards([]);
+      setSelectedWard("");
+    }
+  }, [selectedDistrict, formData.ward]);
+
+  // Sync formData with selected address values
+  useEffect(() => {
+    if (cities.length > 0) {
+      if (formData.city) setSelectedCity(parseInt(formData.city));
+      if (formData.district) setSelectedDistrict(parseInt(formData.district));
+      if (isDataLoaded == false) {
+        if (formData.ward) setSelectedWard(parseInt(formData.ward));
+        setIsDataLoaded(true);
+      }
+    }
+  }, [cities, formData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,74 +239,105 @@ const Checkout = () => {
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="fullName" value="Họ và Tên" />
+                      <Label htmlFor="fullName" value="Họ và Tên người nhận" />
                       <TextInput
                         id="fullName"
                         name="fullName"
                         placeholder="Nhập họ và tên"
-                        value={formData.fullName}
+                        value={formData.name}
                         onChange={handleChange}
                       />
                     </div>
+
                     <div>
-                      <Label htmlFor="email" value="Email" />
-                      <TextInput
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="Nhập địa chỉ email"
-                        value={formData.email}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone" value="Số Điện Thoại" />
+                      <Label htmlFor="phone" value="Số điện thoại người nhận" />
                       <TextInput
                         id="phone"
                         name="phone"
                         type="tel"
                         placeholder="Nhập số điện thoại"
-                        value={formData.phone}
+                        value={formData.phoneNumber}
                         onChange={handleChange}
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                     <div>
-                      <Label htmlFor="country" value="Quốc Gia / Khu Vực" />
-                      <Select
-                        id="country"
-                        name="country"
-                        value={formData.country}
-                        onChange={handleChange}
+                      <Label className="text-gray-700">Thành Phố</Label>
+                      <Dropdown
+                        size="md"
+                        color="teal"
+                        className="h-64 overflow-auto"
+                        label={
+                          selectedCity
+                            ? cities.find(
+                                (city) => city.ProvinceID === selectedCity
+                              )?.ProvinceName
+                            : "Chọn Thành Phố"
+                        }
                       >
-                        <option value="">Chọn</option>
-                        <option value="vietnam">Việt Nam</option>
-                      </Select>
+                        {cities.map((city) => (
+                          <Dropdown.Item
+                            key={city.ProvinceID}
+                            onClick={() => setSelectedCity(city.ProvinceID)}
+                          >
+                            {city.ProvinceName}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown>
                     </div>
                     <div>
-                      <Label htmlFor="province" value="Tỉnh / Thành Phố" />
-                      <Select
-                        id="province"
-                        name="province"
-                        value={formData.province}
-                        onChange={handleChange}
+                      <Label className="text-gray-700">Quận</Label>
+                      <Dropdown
+                        size="md"
+                        className="h-64 overflow-auto"
+                        color="teal"
+                        label={
+                          selectedDistrict
+                            ? districts.find(
+                                (district) =>
+                                  district.DistrictID === selectedDistrict
+                              )?.DistrictName
+                            : "Chọn Quận"
+                        }
+                        disabled={!selectedCity}
                       >
-                        <option value="">Chọn</option>
-                        <option value="hanoi">Hà Nội</option>
-                      </Select>
+                        {districts.map((district) => (
+                          <Dropdown.Item
+                            key={district.DistrictID}
+                            onClick={() =>
+                              setSelectedDistrict(district.DistrictID)
+                            }
+                          >
+                            {district.DistrictName}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown>
                     </div>
                     <div>
-                      <Label htmlFor="district" value="Quận / Huyện" />
-                      <Select
-                        id="district"
-                        name="district"
-                        value={formData.district}
-                        onChange={handleChange}
+                      <Label className="text-gray-700">Phường</Label>
+                      <Dropdown
+                        size="md"
+                        color="teal"
+                        className="h-64 overflow-auto"
+                        label={
+                          selectedWard
+                            ? wards.find(
+                                (ward) => ward.WardCode === selectedWard
+                              )?.WardName
+                            : "Chọn Phường"
+                        }
+                        disabled={!selectedDistrict}
                       >
-                        <option value="">Chọn</option>
-                        <option value="district1">Quận 1</option>
-                      </Select>
+                        {wards.map((ward) => (
+                          <Dropdown.Item
+                            key={ward.WardCode}
+                            onClick={() => setSelectedWard(ward.WardCode)}
+                          >
+                            {ward.WardName}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown>
                     </div>
                   </div>
                   <div className="mt-4">
@@ -162,8 +391,9 @@ const Checkout = () => {
                 </div>
 
                 <Button
+                  gradientDuoTone="greenToBlue"
                   type="submit"
-                  className="w-full bg-green-500 hover:bg-green-600"
+                  className="w-full "
                 >
                   Đặt Hàng
                 </Button>

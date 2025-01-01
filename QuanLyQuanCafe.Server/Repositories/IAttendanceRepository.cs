@@ -12,6 +12,6 @@ namespace QuanLyQuanCafe.Server.Repositories
         Task<List<Attendance>> CreateAttendancesForRangeAsync(int scheduleId, DateOnly startDate, DateOnly endDate);
         Task DeleteAttendancesForRangeAsync(int scheduleId, DateOnly startDate, DateOnly endDate);
         Task<AttendanceDto?> GetAttendanceByUserIdShiftIdDate(string userId, int shiftId, DateOnly date);
-
+        Task<PagedResult<AttendanceShiftDto>> GetAttendancesByUserIdAndMonthAsync(string userId, int month, int year, int pageIndex = 1, int pageSize = 10);
     }
 }

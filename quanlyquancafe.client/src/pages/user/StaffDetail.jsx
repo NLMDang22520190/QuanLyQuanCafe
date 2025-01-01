@@ -1,12 +1,12 @@
 import { Modal, Table, Input, Button, Form, DatePicker, message, Card } from "antd";
-import instance from "../../features/AxiosInstance/AxiosInstance";
 import { useState, useEffect } from "react";
 import React from "react";
 import axios from "axios";
 import "./user.css";
+import instance from "../../features/AxiosInstance/AxiosInstance";
 
 const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
-  if (!staff) return null; // Tránh render nếu không có staff
+  if (!staff) return null; 
 
   const [salaryHistoryData, setSalaryHistoryData] = useState(staff.hourlyWageHistory || []);
   const [monthlySalaryData, setMonthlySalaryData] = useState([]);
@@ -21,10 +21,10 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
 
   const monthlySalaryColumns = [
     {
-      title: "Month",
-      dataIndex: "month",
-      key: "month",
-      render: (_, record) => `${record.month}, ${record.year}`, 
+    title: "Month",
+    dataIndex: "month",
+    key: "month",
+    render: (_, record) => `${record.month}`,
     },
     { title: "Hours Worked", dataIndex: "hoursWorked", key: "hoursWorked" },
     { title: "Hourly Wage", dataIndex: "hourlyWage", key: "hourlyWage", render: (value) => (value !== "N/A" ? `$${value}` : value) },
@@ -38,7 +38,7 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
   
 
 
-  const fetchHourlyWageHistoryData = async (pageIndex = 1, pageSize = 2) => {
+  const fetchHourlyWageHistoryData = async (pageIndex = 1, pageSize = 10) => {
     try {
       setLoading(true);
       setSalaryHistoryData([]);
@@ -64,35 +64,40 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
   };
 
 
-  const fetchMonthlySalaryData = async () => {
+  const fetchMonthlySalaryData = async (pageIndex = 1, pageSize = 10) => {
+    if (!staff || !staff.staffId) {
+      console.error("Invalid staff ID.");
+      message.error("Staff information is missing or invalid.");
+      return;
+    }
     try {
       setLoading(true);
-      const [monthlyResponse, statisticsResponse] = await Promise.all([
-        instance.get(`/api/month-salary/${staff.staffId}?pageIndex=1&pageSize=10`),
-        instance.get("/api/month-salary/statistics"),
-      ]);
-      const monthlyData = monthlyResponse.data.data;
-      const statisticsData = statisticsResponse.data;
+      const response = await instance.get(
+        `/api/month-salary/Staff/${staff.staffId}?pageIndex=${pageIndex}&pageSize=${pageSize}`
+      );
   
-        const combinedData = monthlyData.map((item) => {
-          const stats = statisticsData.find((stat) => stat.month === item.month);
-          const monthValue = item.month || "Unknown Month";
-          return {
-            month: monthValue,
-            hoursWorked: item.totalHours || 0,
-            hourlyWage: stats ? (stats.totalSalaryPayed / stats.totalHours).toFixed(2) : "N/A",
-            totalSalary: stats ? stats.totalSalaryPayed : "N/A",
-          };
-        });
-
-        setMonthlySalaryData(combinedData);
-      } catch (error) {
-        console.error("Error fetching monthly salary data:", error);
-        message.error("Failed to load monthly salary data.");
-      } finally {
-        setLoading(false);
+      if (response.status === 200 || response.status === 201) {
+        const monthlyData = response.data.data;
+        const formattedData = monthlyData.map((item) => ({
+          month: item.month,
+          hoursWorked: item.totalHours || 0,
+          hourlyWage: item.hourWage || 0,
+          totalSalary: (item.totalHours * item.hourWage).toFixed(2),
+        }));
+  
+        setMonthlySalaryData(formattedData);
+      } else {
+        console.error("Error fetching monthly salaries:", response.statusText);
+        message.error("Failed to fetch monthly salary data.");
       }
+    } catch (error) {
+      console.error("Error fetching monthly salary data:", error);
+      message.error("An error occurred while fetching monthly salary data.");
+    } finally {
+      setLoading(false);
+    }
   };
+  
   
 
   useEffect(() => {
@@ -100,7 +105,7 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
       fetchHourlyWageHistoryData();
       fetchMonthlySalaryData();
     }
-  }, [visible, staff.staffId]);
+  }, [visible, staff]);
 
   const handleSubmit = async () => {
     const currentDate = new Date();
@@ -207,7 +212,10 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
           dataSource={monthlySalaryData}
           rowKey="month"
           loading={loading}
-          pagination={{ pageSize: 2 }}
+          pagination={{
+            pageSize: 5, // Số bản ghi trên mỗi trang
+            onChange: (page) => fetchMonthlySalaryData(page, 5),
+          }}
           bordered
           title={() => <span className="custom-table-title">Monthly Salary</span>}
         />

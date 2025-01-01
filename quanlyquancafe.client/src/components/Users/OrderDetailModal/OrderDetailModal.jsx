@@ -6,32 +6,30 @@ const OrderDetailModal = ({ show, order, onClose }) => {
 
   return (
     <Modal dismissible show={show} onClose={onClose} size="2xl">
-      <Modal.Header>Order Details</Modal.Header>
+      <Modal.Header>Chi tiết đơn hàng</Modal.Header>
       <Modal.Body>
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm text-gray-500">Order Code</span>
+              <span className="text-sm text-gray-500">Mã đơn hàng</span>
               <h3 className="text-lg font-semibold">{order.id}</h3>
             </div>
             <div className="text-right">
-              <span className="text-sm text-gray-500">Total Amount</span>
-              <h3 className="text-lg font-semibold">
-                ${order.total.toFixed(2)}
-              </h3>
+              <span className="text-sm text-gray-500">Tổng cộng</span>
+              <h3 className="text-lg font-semibold">{order.total}</h3>
             </div>
           </div>
 
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Package2 className="w-5 h-5 text-blue-500" />
-              <h4 className="font-semibold">Products</h4>
+              <h4 className="font-semibold">Sản phẩm</h4>
             </div>
             <Table>
               <Table.Head>
-                <Table.HeadCell>Product</Table.HeadCell>
-                <Table.HeadCell className="text-right">Quantity</Table.HeadCell>
-                <Table.HeadCell className="text-right">Notes</Table.HeadCell>
+                <Table.HeadCell>Sản phẩm</Table.HeadCell>
+                <Table.HeadCell className="text-right">Số lượng</Table.HeadCell>
+                <Table.HeadCell className="text-right">Giá</Table.HeadCell>
               </Table.Head>
               <Table.Body>
                 {order.products.map((product, index) => (
@@ -41,7 +39,7 @@ const OrderDetailModal = ({ show, order, onClose }) => {
                       {product.quantity}
                     </Table.Cell>
                     <Table.Cell className="text-right">
-                      {product.notes}
+                      {product.price}
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -54,19 +52,9 @@ const OrderDetailModal = ({ show, order, onClose }) => {
               <Receipt className="w-5 h-5 text-blue-500" />
               <div>
                 <span className="text-sm text-gray-500">
-                  Applied Promo Code
+                  Mã khuyến mãi áp dụng
                 </span>
                 <p className="font-medium">{order.promoCode}</p>
-              </div>
-            </div>
-          )}
-
-          {order.notes && (
-            <div className="flex items-start gap-2">
-              <StickyNote className="w-5 h-5 text-blue-500 mt-0.5" />
-              <div>
-                <span className="text-sm text-gray-500">Order Notes</span>
-                <p className="font-medium">{order.notes}</p>
               </div>
             </div>
           )}

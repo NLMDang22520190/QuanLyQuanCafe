@@ -12,7 +12,10 @@ namespace QuanLyQuanCafe.Server.Repositories
 		Task<Order?> GetOrderByIdAsync(int orderId);
 		Task<List<Order>> GetPendingOrdersAsync();
 		Task<IEnumerable<Order>> GetOrdersByUserIdAsync(string userId);
-		Task<Order> AddAsync(Order order);
+
+		Task<List<Order>> GetOrderDetailsByUserIdAsync(string userId);
+
+        Task<Order> AddAsync(Order order);
 		Task<bool> UpdateOrderStateAsync(int orderId, string newState);
 		Task<bool> UpdatePaymentMethodAsync(int orderId, string paymentMethod);
 		Task<Order> CreateOrder(Order order);

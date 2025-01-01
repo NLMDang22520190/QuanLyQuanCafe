@@ -88,7 +88,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             var overlappingShift = await _dbContext.Shifts
                 .Where(s =>
-                    (shiftDto.StartTime < s.EndTime && shiftDto.EndTime > s.StartTime) 
+                    (shiftDto.StartTime <= s.EndTime && shiftDto.EndTime >= s.StartTime) 
                 )
                 .FirstOrDefaultAsync();
 

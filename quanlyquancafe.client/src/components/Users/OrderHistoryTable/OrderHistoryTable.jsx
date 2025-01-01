@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import OrderDetailModal from "../OrderDetailModal/OrderDetailModal";
 import { Button, Table, Card } from "flowbite-react";
+import { useSelector } from "react-redux";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 // Mock data for demonstration
 const orders = [
@@ -55,8 +57,42 @@ const orders = [
 
 const OrderHistoryTable = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const userID = useSelector((state) => state.auth.user);
 
   const [showDetailModal, setShowDetailModal] = useState(false);
+
+  useEffect(() => {
+    async function fetchAndMapOrders() {
+      try {
+        const response = await api.get(
+          "api/Order/GetOrderDetailsByUserId/33ec8700-d47c-4a45-a11e-48ddb18583a5"
+        );
+        const apiData = response.data;
+        console.log("apiData", apiData);
+
+        const mappedData = apiData.map((order) => ({
+          id: order.orderId,
+          status: order.orderState.toLowerCase(),
+          total: formatPrice(order.totalPrice),
+          date: new Date(order.orderTime).toISOString().split("T")[0],
+          promoCode: order.voucherApplied,
+          paymentMethod: order.paymentMethod.toLowerCase().replace(/\s/g, "_"),
+          products: order.orderDetails.map((detail) => ({
+            name: detail.item.itemName,
+            quantity: detail.quantity,
+            price: formatPrice(detail.item.price),
+          })),
+        }));
+
+        setOrders(mappedData);
+      } catch (error) {
+        console.error("Failed to fetch and map orders:", error);
+      }
+    }
+
+    fetchAndMapOrders();
+  }, [userID]);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -82,8 +118,12 @@ const OrderHistoryTable = () => {
     }
   };
 
+  const formatPrice = (price) => {
+    return price.toLocaleString("vi-VN") + "đ";
+  };
+
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString("vi-VN", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -124,7 +164,7 @@ const OrderHistoryTable = () => {
                     <span className="capitalize">{order.status}</span>
                   </div>
                 </Table.Cell>
-                <Table.Cell>${order.total.toFixed(2)}</Table.Cell>
+                <Table.Cell>{order.total}</Table.Cell>
                 <Table.Cell>{formatDate(order.date)}</Table.Cell>
                 <Table.Cell>
                   {order.promoCode ? (

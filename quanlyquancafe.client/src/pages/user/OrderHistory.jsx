@@ -79,7 +79,7 @@ const OrderHistory = ({ visible, onCancel, userId }) => {
       setOrderHistory(orders);
     } catch (error) {
       console.error("Error fetching orders:", error);
-      message.error("Failed to load order history.");
+      // message.error("Failed to load order history.");
     } finally {
       setLoading(false);
     }
@@ -91,6 +91,10 @@ const OrderHistory = ({ visible, onCancel, userId }) => {
       fetchOrders();
     }
   }, [visible, userId]);
+
+  if (!visible) {
+    return null; 
+  }
 
   return (
     <Modal

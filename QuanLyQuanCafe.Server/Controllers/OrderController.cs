@@ -1,11 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using QuanLyQuanCafe.Server.Models;
-using QuanLyQuanCafe.Server.Models.DTO.UPDATE;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Collections.Generic;
+using AutoMapper;
 using QuanLyQuanCafe.Server.Models.DTOs;
+using QuanLyQuanCafe.Server.Models;
+using QuanLyQuanCafe.Server.Models.DTO.GET;
 using QuanLyQuanCafe.Server.Repositories;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using QuanLyQuanCafe.Server.Models.DTO.UPDATE;
 
 namespace QuanLyQuanCafe.Server.Controllers
 {
@@ -14,13 +20,17 @@ namespace QuanLyQuanCafe.Server.Controllers
 	public class OrderController : ControllerBase
 	{
 		private readonly IOrderRepository _orderRepository;
-		private readonly ICartRepository _cartRepository;
+        private readonly ICartRepository _cartRepository;
 
-		public OrderController(IOrderRepository orderRepository, ICartRepository cartRepository)
+
+        private readonly IMapper _mapper;
+
+		public OrderController(IOrderRepository orderRepository, IMapper mapper, ICartRepository cartRepository)
 		{
 			_orderRepository = orderRepository;
-			_cartRepository = cartRepository;
-		}
+            _mapper = mapper;
+            _cartRepository = cartRepository;
+        }
 
 		// Lấy tất cả các đơn hàng
 		[HttpGet("get-all")]
@@ -74,6 +84,20 @@ namespace QuanLyQuanCafe.Server.Controllers
 			return Ok(orders);
 		}
 
+        [HttpGet("GetOrderDetailsByUserId/{userId}")]
+        public async Task<IActionResult> GetOrderDetailsByUserId(string userId)
+        {
+            var order = await _orderRepository.GetOrderDetailsByUserIdAsync(userId);
+            if (order == null || !order.Any())
+            {
+                return NotFound($"No orders found for UserId {userId}");
+            }
+            return Ok(_mapper.Map<List<OrderWithOrderDetailDTO>>(order));
+        }
+
+
+  //      [HttpPut("{orderId}/state")]
+		//public async Task<IActionResult> UpdateOrderState(int orderId, [FromBody] string newState)
 		// Thêm mới đơn hàng
 		[HttpPost("add")]
 		public async Task<ActionResult<Order>> AddOrder([FromBody] Order order)
