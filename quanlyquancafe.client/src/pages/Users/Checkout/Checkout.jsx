@@ -212,6 +212,165 @@ const Checkout = () => {
     }
   }, [cities, formData]);
 
+  const [items, setItems] = useState([]);
+  const cart = useSelector((state) => state.cart);
+
+  // Improved fetchCart function
+  const fetchCart = () => {
+    if (!cart.items || cart.items.length === 0) {
+      setItems([]); // Handle empty cart
+      return;
+    }
+
+    const mappedItems = cart.items.map((item) => ({
+      cartDetailId: item.cartDetailId,
+      itemId: item.itemId,
+      name: item.item?.itemName || "Unnamed Item", // Fallback if itemName is missing
+      price: item.item?.price || 0, // Fallback to 0 if price is missing
+      quantity: item.quantity || 0, // Ensure there's always a quantity value
+      image: item.item?.picture || "/default-image.jpg", // Provide a default image if missing
+    }));
+
+    setItems(mappedItems); // Update items
+  };
+
+  useEffect(() => {
+    fetchCart();
+  }, [cart.items]);
+
+  // Calculate total price
+  const totalPrice = items.reduce(
+    (total, item) => total + (item.price * item.quantity || 0), // Ensure quantity defaults to 0
+    0
+  );
+
+  // Voucher state
+  const [isVoucherInputVisible, setIsVoucherInputVisible] = useState(false);
+  const [voucherCode, setVoucherCode] = useState("");
+  const [voucherError, setVoucherError] = useState(""); // To store voucher validation error
+  const [voucherDiscount, setVoucherDiscount] = useState(0); // Discount from valid voucher
+
+  const handleVoucherClick = () => {
+    setIsVoucherInputVisible(true); // Show the input box for voucher code
+  };
+
+  const handleVoucherSubmit = async () => {
+    // Check if the user has entered a voucher code
+    if (!voucherCode) {
+      setVoucherError("Vui lòng nhập mã giảm giá.");
+      return;
+    }
+
+    try {
+      // Fetch voucher data from the API
+      const response = await api.get(
+        `/api/Voucher/GetVoucherByCustomerId/${userId}`
+      );
+
+      // Check if the response and data exist
+      if (!response || !response.data) {
+        setVoucherError("Không nhận được dữ liệu từ máy chủ.");
+        setVoucherDiscount(0);
+        return;
+      }
+
+      const data = response.data;
+
+      // Debugging the response data
+      console.log("API Response Data:", data);
+
+      // Ensure the data is an array and contains voucher details
+      if (Array.isArray(data)) {
+        // Find the matching voucher by voucherCode
+        const voucher = data.find((v) => v.voucherCode === voucherCode);
+
+        if (voucher) {
+          // Check if the voucher is still valid
+          const currentDate = new Date();
+          const voucherEnd = new Date(voucher.voucherEndDate);
+
+          if (voucherEnd >= currentDate) {
+            // Apply the discount and clear any previous errors
+            setVoucherDiscount(voucher.percentDiscount);
+            setVoucherError("");
+          } else {
+            setVoucherError("Mã giảm giá đã hết hạn.");
+            setVoucherDiscount(0);
+          }
+        } else {
+          // If no matching voucher was found
+          setVoucherError("Mã giảm giá không hợp lệ.");
+          setVoucherDiscount(0);
+        }
+      } else {
+        // If the response data is not in the expected format
+        setVoucherError("Dữ liệu phản hồi không hợp lệ.");
+        setVoucherDiscount(0);
+      }
+    } catch (error) {
+      console.error("Error fetching voucher:", error);
+
+      // Handle any errors during the API call
+      setVoucherError("Lỗi khi kiểm tra mã giảm giá. Vui lòng thử lại.");
+      setVoucherDiscount(0);
+    }
+  };
+
+  // Format price to VND
+  const formatPrice = (price) => {
+    if (price === 0) return "Liên hệ"; // In case price is zero, return "Contact"
+    return price.toLocaleString("vi-VN") + "đ";
+  };
+
+  const DiscountCodeSection = ({ userId, totalPrice }) => {
+    const [isVoucherInputVisible, setIsVoucherInputVisible] = useState(false);
+    const [voucherCode, setVoucherCode] = useState("");
+    const [voucherError, setVoucherError] = useState(""); // To store voucher validation error
+    const [voucherDiscount, setVoucherDiscount] = useState(0); // Discount from valid voucher
+
+    // Toggle voucher input visibility
+    const handleVoucherClick = () => {
+      setIsVoucherInputVisible(true); // Show the input box for voucher code
+    };
+
+    // Handle the voucher submission and API validation
+    const handleVoucherSubmit = async () => {
+      if (!voucherCode) {
+        setVoucherError("Vui lòng nhập mã giảm giá.");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `/api/Voucher/GetVoucherByCustomerId/${userId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (data && data.isValid && data.discountAmount) {
+          setVoucherDiscount(data.discountAmount);
+          setVoucherError(""); // Clear any previous errors
+        } else {
+          setVoucherError("Mã giảm giá không hợp lệ.");
+          setVoucherDiscount(0);
+        }
+      } catch (error) {
+        console.error("Error fetching voucher:", error);
+        setVoucherError("Lỗi khi kiểm tra mã giảm giá.");
+      }
+    };
+  };
+
+  // Calculate the total price after applying the discount
+  const totalPriceAfterDiscount =
+    totalPrice - totalPrice * (voucherDiscount / 100);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -407,50 +566,122 @@ const Checkout = () => {
                 Tóm Tắt Đơn Hàng
               </h2>
               <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <img
-                      src="/lovable-uploads/cdecdfaa-caed-4077-a683-52201482dab8.png"
-                      alt="Green Capsicum"
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                    <span>Ớt Xanh x5</span>
+                {/* Loop through cart items dynamically */}
+                {items.map((item) => (
+                  <div
+                    key={item.cartDetailId}
+                    className="flex justify-between items-center"
+                  >
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={item.image || "/default-image.jpg"} // Fallback image
+                        alt={item.name}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                      <span>{`${item.name} x${item.quantity}`}</span>
+                    </div>
+                    <span className="font-medium">
+                      {formatPrice(item.price * item.quantity)}
+                    </span>
                   </div>
-                  <span className="font-medium">70.000₫</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <img
-                      src="/lovable-uploads/301b9576-bb0c-4289-b17d-1bc81bbfad35.png"
-                      alt="Red Capsicum"
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                    <span>Ớt Đỏ x1</span>
-                  </div>
-                  <span className="font-medium">14.000₫</span>
-                </div>
+                ))}
+
                 <div className="border-t pt-4 flex flex-col gap-4">
+                  {/* Tạm Tính */}
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">Tạm Tính:</span>
-                    <span className="font-medium">84.000₫</span>
+                    <span className="font-medium">
+                      {formatPrice(totalPrice)}
+                    </span>
                   </div>
+
+                  {/* Shipping fee */}
                   <div className="flex justify-between items-center mt-2">
                     <span className="text-muted-foreground">
                       Phí Vận Chuyển:
                     </span>
                     <span className="text-green-600">Miễn Phí</span>
                   </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-muted-foreground">Mã giảm giá:</span>
-                    <span className="font-light">SUMMERTIME2024</span>
+
+                  {/* Discount code */}
+                  <div className="voucher-section">
+                    <div className="flex justify-between items-center mt-2">
+                      <span className="text-muted-foreground">
+                        Mã giảm giá:
+                      </span>
+
+                      {voucherDiscount > 0 ? (
+                        // Show the applied voucher code if a valid discount exists
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-600 font-medium">
+                            {voucherCode} (−{voucherDiscount}%)
+                          </span>
+                          <button
+                            onClick={() => {
+                              setVoucherCode(""); // Reset voucher code
+                              setVoucherDiscount(0); // Reset discount
+                              setIsVoucherInputVisible(false); // Show "Áp dụng mã giảm giá"
+                            }}
+                            className="px-4 py-2 bg-red-500 text-white rounded"
+                          >
+                            Hủy
+                          </button>
+                        </div>
+                      ) : isVoucherInputVisible ? (
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            placeholder="Nhập mã giảm giá"
+                            value={voucherCode}
+                            onChange={(e) => setVoucherCode(e.target.value)}
+                            className="w-32 p-2 border rounded"
+                          />
+                          <button
+                            onClick={handleVoucherSubmit}
+                            className="px-4 py-2 bg-blue-500 text-white rounded"
+                          >
+                            Áp Dụng
+                          </button>
+                        </div>
+                      ) : (
+                        <span
+                          className="font-light text-red-500 cursor-pointer"
+                          onClick={() => setIsVoucherInputVisible(true)}
+                        >
+                          Áp dụng mã giảm giá
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Show error message if voucher is invalid */}
+                    {voucherError && (
+                      <div className="text-red-500 text-sm mt-2">
+                        {voucherError}
+                      </div>
+                    )}
+
+                    {/* Show applied discount if valid */}
+                    {voucherDiscount > 0 && (
+                      <div className="flex justify-between items-center mt-2">
+                        <span className="text-muted-foreground">Giảm:</span>
+                        <span className="font-medium">
+                          {formatPrice((totalPrice * voucherDiscount) / 100)}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Show the total price after discount */}
+                    <div className="flex justify-between items-center mt-4 text-lg font-semibold">
+                      <span>Tổng Cộng:</span>
+                      <span>{formatPrice(totalPriceAfterDiscount)}</span>{" "}
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-muted-foreground">Giảm:</span>
-                    <span className="font-medium">-24.000đ</span>
-                  </div>
+
+                  {/* Total */}
                   <div className="flex justify-between items-center mt-4 text-lg font-semibold">
                     <span>Tổng Cộng:</span>
-                    <span>84.000₫</span>
+                    <span>{formatPrice(totalPriceAfterDiscount)}</span>{" "}
+                    {/* Apply the discount */}
                   </div>
                 </div>
               </div>
