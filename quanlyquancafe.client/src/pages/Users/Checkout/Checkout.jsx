@@ -217,7 +217,6 @@ const Checkout = () => {
   }, [cities, isDataLoaded, formData.ward]);
 
   const [items, setItems] = useState([]);
-  const cart = useSelector((state) => state.cart);
 
   // Improved fetchCart function
   const fetchCart = () => {
@@ -741,13 +740,6 @@ const Checkout = () => {
                       <span>Tổng Cộng:</span>
                       <span>{formatPrice(totalPriceAfterDiscount)}</span>{" "}
                     </div>
-                  </div>
-
-                  {/* Total */}
-                  <div className="flex justify-between items-center mt-4 text-lg font-semibold">
-                    <span>Tổng Cộng:</span>
-                    <span>{formatPrice(totalPriceAfterDiscount)}</span>{" "}
-                    {/* Apply the discount */}
                   </div>
                 </div>
               </div>
