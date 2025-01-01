@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Input, Button, Select, DatePicker, Form, Row, Col, Typography, message } from "antd";
+import instance from "../../features/AxiosInstance/AxiosInstance";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import moment from "moment";
@@ -33,7 +34,7 @@ export const AddMaterials = () => {
     };
 
     try {
-      const response = await axios.post("https://localhost:7087/api/import-record", newMaterial);
+      const response = await instance.post(`/api/import-record`, newMaterial);
 
       if (response.status === 201) {
         message.success("Nhập nguyên liệu thành công!");

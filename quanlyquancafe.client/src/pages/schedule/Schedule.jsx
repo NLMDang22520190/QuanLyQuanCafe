@@ -254,9 +254,6 @@ const Schedule = () => {
     
     
     
-    
-    
-    
     const handleCreateShift = async () => {
         try {
             const values = await formCreateShift.validateFields();
@@ -291,30 +288,35 @@ const Schedule = () => {
     console.log("Shift ID:", shift.Id);
     console.log("Report Date:", shift.StartTime);
 
-    setSelectedShift(shift); // Lưu thông tin ca làm được chọn
-    setOpenReport(true); // Hiển thị modal báo cáo
+    setSelectedShift(shift); 
+    setOpenReport(true); 
 
     try {
-        const formattedDate = `year,${shift.StartTime.getFullYear()},month,${shift.StartTime.getMonth() + 1},day,${shift.StartTime.getDate()},dayOfWeek,${shift.StartTime.getDay()}`;
+        
+        // const dateOnly = new Date(shift.StartTime.getFullYear(), shift.StartTime.getMonth(), shift.StartTime.getDate());
+        // console.log("dateonly:", dateOnly);
+        // const formattedDate = dateOnly.toISOString().split('T')[0];
+        const formattedDate = moment(shift.StartTime).format("YYYY-MM-DD");
         const response = await instance.get(
             `/api/attendances/shift/${shift.Id}/date/${formattedDate}?pageIndex=1&pageSize=10`
         );
 
         console.log("Attendance Data:", response.data);
 
-        // Lấy dữ liệu nhân viên và thông tin điểm danh
         const attendanceData = response.data.data.map((record) => ({
             key: record.staffId,
             name: record.staffName,
-            checkIn: record.checkIn ? moment(record.checkIn).format("HH:mm:ss") : "N/A",
-            checkOut: record.checkOut ? moment(record.checkOut).format("HH:mm:ss") : "N/A",
+            checkIn: record.checkIn ? moment(record.checkIn).format("HH:mm:ss") : "Not checkin",
+            checkOut: record.checkOut ? moment(record.checkOut).format("HH:mm:ss") : "Not checkout",
         }));
 
         setStaffAttendance(attendanceData); // Lưu dữ liệu vào state
+        console.log(attendanceData)
     } catch (error) {
         console.error("Failed to fetch attendance report:", error);
         message.error("Failed to fetch attendance report. Please try again.");
     }
+
 };
 
     
@@ -322,14 +324,15 @@ const Schedule = () => {
     const handleCloseReport = () => {
         setOpenReport(false);
         setSelectedShift(null);
-        setStaffList([]);
+        // setStaffList([]);
+        setStaffAttendance([]);
     };
 
     const handleModalOpen = () => {  
         setOpenModal(!openModal);
         setSelectedShift(null);
         setSelectedEmployees([]);
-        setStaffAssignedToShift([]); // Reset staff assigned
+        setStaffAssignedToShift([]); 
     };
 
 

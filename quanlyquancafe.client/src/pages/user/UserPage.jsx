@@ -1,7 +1,7 @@
 import { useState,useEffect  } from "react";
 import { Table, Select, message, Button, ConfigProvider, theme, Modal, Input ,InputNumber,Popconfirm } from "antd";
 import "./user.css";
-import axios from "axios"; 
+import instance from "../../features/AxiosInstance/AxiosInstance"; 
 import StaffDetail from "./StaffDetail";
 import OrderHistory from "./OrderHistory";
 import AddNewUser from "./AddNewUser";
@@ -41,7 +41,7 @@ const UserPage = () => {
   }, [pageIndexStaff])
   const fetchFStaffData = async () => {
     try {
-      const response = await axios.get(`https://localhost:7087/api/staff/former-staffs?pageIndex=${pageIndexFStaff}&pageSize=${10}`);
+      const response = await instance.get(`/api/staff/former-staffs?pageIndex=${pageIndexFStaff}&pageSize=${10}`);
 
 
       console.log(response.data)
@@ -53,7 +53,7 @@ const UserPage = () => {
   };
   const fetchStaffData = async () => {
     try {
-      const response = await axios.get(`https://localhost:7087/api/staff/current-staffs?pageIndex=${pageIndexStaff}&pageSize=${10}`);
+      const response = await instance.get(`/api/staff/current-staffs?pageIndex=${pageIndexStaff}&pageSize=${10}`);
 
       console.log(response.data.data)
       setTotalStaff(response.data.totalPages)
@@ -64,7 +64,7 @@ const UserPage = () => {
   };
   const fetchUsersData = async () => {
     try {
-      const response = await axios.get(`https://localhost:7087/api/account/users?pageIndex=${pageIndexUser}&pageSize=${10}`);
+      const response = await instance.get(`/api/account/users?pageIndex=${pageIndexUser}&pageSize=${10}`);
 
       console.log(response.data)
       setTotalUser(response.data.totalPages)
@@ -152,7 +152,7 @@ const UserPage = () => {
           <Button
             type="primary"
             ghost
-            onClick={() => handleViewDetail(record.id)}
+            onClick={() => handleViewDetail(record.staffId)}
           >
             View Detail
           </Button>
@@ -210,7 +210,7 @@ const UserPage = () => {
           <Button
             type="primary"
             ghost
-            onClick={() => handleViewDetail1(record.id)}
+            onClick={() => handleViewDetail1(record.staffId)}
           >
             View Detail
           </Button>
@@ -233,7 +233,7 @@ const UserPage = () => {
     } else {
 
       try {
-        await axios.put(`https://localhost:7087/api/account/role`, {
+        await instance.put(`/api/account/role`, {
           userId: id,
           role: "Customer",
         });
@@ -250,10 +250,10 @@ const UserPage = () => {
   const handleStatusChange = async (isActive, id) => {
     try {
       if (isActive) {
-        await axios.patch(`https://localhost:7087/api/account/active/${id}`);
+        await instance.patch(`/api/account/active/${id}`);
         message.success("User activated successfully!");
       } else {
-        await axios.patch(`https://localhost:7087/api/account/disable/${id}`);
+        await instance.patch(`/api/account/disable/${id}`);
         message.success("User disable successfully!");
       }
   
@@ -270,23 +270,23 @@ const UserPage = () => {
   const [isOrderModalVisible, setIsOrderModalVisible] = useState(false);
 
   const handleViewOrderList = (id) => {
-    setSelectedUserId(id); // Lưu lại ID của user
-    setIsOrderModalVisible(true); // Hiển thị modal
+    setSelectedUserId(id); 
+    setIsOrderModalVisible(true); 
   };
   const handleCloseOrderModal = () => {
-    setIsOrderModalVisible(false); // Ẩn modal
-    setSelectedUserId(null); // Reset user ID
+    setIsOrderModalVisible(false); 
+    setSelectedUserId(null); 
   };
 
   const handleViewDetail = (id) => {
-    const staff = staffData.find((staff) => staff.id === id);
+    const staff = staffData.find((staff) => staff.staffId === id);
     setSelectedStaff(staff);
     setIsFormer(false);
     setIsDetailModalVisible(true);
   };
 
-  const handleViewDetail1 = (id) => {
-    const staff = staffData.find((staff) => staff.id === id);
+  const handleViewDetail1 = (staffId) => {
+    const staff = formerStaff.find((staff) => staff.staffId === staffId);
     setSelectedStaff(staff);
     setIsFormer(true);
     setIsDetailModalVisible(true);
@@ -298,7 +298,7 @@ const UserPage = () => {
 
   const handleDisableStaff = async (userId) => {
     try {
-      const response = await axios.post(`https://localhost:7087/api/staff/disable?userId=${userId}`);
+      const response = await instance.post(`/api/staff/disable?userId=${userId}`);
   
       if (response.status !== 200) {
         throw new Error("Failed to disable staff");
@@ -331,8 +331,8 @@ const UserPage = () => {
       console.log("selectedUserId:", selectedUserId);
       console.log("hourWage:", newSalary);
   
-      const response = await axios.post(
-        `https://localhost:7087/api/staff/create?userId=${selectedUserId}&hourWage=${newSalary}`
+      const response = await instance.post(
+        `/api/staff/create?userId=${selectedUserId}&hourWage=${newSalary}`
       );
   
       console.log("API Response:", response.data);
