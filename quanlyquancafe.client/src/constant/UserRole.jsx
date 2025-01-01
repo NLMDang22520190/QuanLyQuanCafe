@@ -1,7 +1,7 @@
 const UserRole = Object.freeze({
-    ADMIN: 'ADMIN',
-    STAFF: 'STAFF',
-    CUSTOMER: 'CUSTOMER'
+    ADMIN: 'Admin',
+    STAFF: 'Staff',
+    CUSTOMER: 'Customer'
 });
 
 export default UserRole;

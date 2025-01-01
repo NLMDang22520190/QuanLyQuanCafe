@@ -5,7 +5,10 @@ import instance from "../../features/AxiosInstance/AxiosInstance";
 import StaffDetail from "./StaffDetail";
 import OrderHistory from "./OrderHistory";
 import AddNewUser from "./AddNewUser";
+import { useSelector } from "react-redux";
+
 const UserPage = () => {
+  const userRole = useSelector((state) => state.auth.user.role);
   const [currentTab, setCurrentTab] = useState(0);
   const [usersData, setUsersData] = useState([]);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
@@ -22,11 +25,21 @@ const UserPage = () => {
   const [newSalary, setNewSalary] = useState("");
   const [previousRole, setPreviousRole] = useState(""); 
 
-  const categories = [
-    { name: "Users" },
-    { name: "Staff" },
-    { name: "Add New User" }
-  ];
+  var categories;
+
+  if (userRole === "Admin") {
+    categories = [
+      { name: "Users" },
+      { name: "Staff" },
+      { name: "Add New User" },
+    ];
+  } else {
+    categories = [
+      { name: "Staff" },
+      { name: "Add New User" },
+    ];
+  }
+
   const [pageIndexUser,setPageIndexUser]=useState(1);
   const [pageIndexStaff,setPageIndexStaff]=useState(1);
   const [pageIndexFStaff,setPageIndexFStaff]=useState(1);
@@ -409,9 +422,9 @@ const UserPage = () => {
               {categories.map((tab, index) => (
                 <li key={tab.name} role="presentation">
                   <button
-                    onClick={() => handleTabChange(index)}
+                    onClick={() => handleTabChange(index + (userRole === "Admin" ? 0 : 1))}
                     className={`inline-block p-4 border-b-2 rounded-t-lg ${
-                      currentTab === index ? "border-amber-500 text-amber-500" : ""
+                      currentTab === index + (userRole === "Admin" ? 0 : 1) ? "border-amber-500 text-amber-500" : ""
                     }`}
                   >
                     {tab.name}

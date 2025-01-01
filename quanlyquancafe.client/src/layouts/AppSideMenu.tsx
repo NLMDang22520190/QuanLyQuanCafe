@@ -4,7 +4,9 @@ import { Layout, theme, Menu, Button } from 'antd';
 import UserRole from '../constant/UserRole';
 import { logout } from "../features/Auth/Auth";
 import { clearCart } from "../features/Cart/Cart";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+
+
 
 
 const {Sider } = Layout;
@@ -59,16 +61,17 @@ const PromotionIcon = () => (
 
 const items = [
     { label: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', roles: [UserRole.ADMIN] },
-    { label: 'User', icon: <UserIcon />, path: '/user', roles: [UserRole.ADMIN] },
+    { label: 'User', icon: <UserIcon />, path: '/user', roles: [UserRole.ADMIN, UserRole.STAFF] },
     { label: 'Order & Billing', icon: <OrderAndBillingIcon />, path: '/orderAndBilling', roles: [UserRole.ADMIN, UserRole.STAFF] },
-    { label: 'Menu', icon: <MenuIcon />, path: '/menu', roles: [UserRole.ADMIN, UserRole.STAFF] },
-    { label: 'Inventory', icon: <InventoryIcon />, path: '/inventory', roles: [UserRole.ADMIN, UserRole.STAFF] },
-    { label: 'Promotion', icon: <PromotionIcon />, path: '/promotions', roles: [UserRole.ADMIN, UserRole.STAFF] },
-    { label: 'Schedule', icon: <ScheduleIcon />, path: '/schedule', roles: [UserRole.ADMIN, UserRole.STAFF] },
+    { label: 'Menu', icon: <MenuIcon />, path: '/menu', roles: [UserRole.ADMIN] },
+    { label: 'Inventory', icon: <InventoryIcon />, path: '/inventory', roles: [UserRole.ADMIN] },
+    { label: 'Promotion', icon: <PromotionIcon />, path: '/promotions', roles: [UserRole.ADMIN] },
+    { label: 'Schedule', icon: <ScheduleIcon />, path: '/schedule', roles: [UserRole.ADMIN] },
 ];
 
 
 export const AppSideMenu = () => {
+   
     const [activeIndex, setActiveIndex] = useState<number>(() => {
         const path = window.location.pathname.split('/')[1];
         const index = items.findIndex(item => item.path.split('/')[1] === path);
@@ -83,7 +86,7 @@ export const AppSideMenu = () => {
         dispatch(clearCart());
     };
 
-    const userRole = UserRole.ADMIN; 
+    const userRole = useSelector((state: any) => state.auth.userRole);
 
     const filteredItems = items.filter(item => item.roles.includes(userRole));
 
