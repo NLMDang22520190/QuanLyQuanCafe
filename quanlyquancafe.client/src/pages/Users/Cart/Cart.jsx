@@ -52,6 +52,7 @@ const Cart = () => {
   };
 
   const removeItem = (id) => {
+    console.log(id);
     setItems(items.filter((item) => item.id !== id));
   };
 
