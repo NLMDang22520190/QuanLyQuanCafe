@@ -168,5 +168,33 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             }
             return Task.FromResult(true);
         }
+
+        public async Task<MenuItem> UpdateMenuItemAsync(MenuItem menuItem)
+        {
+            var existingMenuItem = await _dbContext.MenuItems
+                .Include(mi => mi.ItemRecipes)
+                .FirstOrDefaultAsync(mi => mi.ItemId == menuItem.ItemId);
+
+            if (existingMenuItem != null)
+            {
+                // Remove old item recipes
+                _dbContext.ItemRecipes.RemoveRange(existingMenuItem.ItemRecipes);
+
+                // Update menu item properties
+                existingMenuItem.ItemName = menuItem.ItemName;
+                existingMenuItem.Price = menuItem.Price;
+                existingMenuItem.Picture = menuItem.Picture;
+                existingMenuItem.TypeOfFoodId = menuItem.TypeOfFoodId;
+                existingMenuItem.TypeOfFood = menuItem.TypeOfFood;
+
+                // Add new item recipes
+                existingMenuItem.ItemRecipes = menuItem.ItemRecipes;
+
+                // Save changes
+                await _dbContext.SaveChangesAsync();
+            }
+
+            return existingMenuItem;
+        }
     }
 }

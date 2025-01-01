@@ -191,28 +191,7 @@ namespace QuanLyQuanCafe.Server.Controllers
             {
                 var menuItemDomain = _mapper.Map<MenuItem>(requestDto);
 
-                var existingRecipe = await _itemRecipeRepository.GetByIdAsync(f => f.ItemId == requestDto.ItemId);
-                if (existingRecipe != null)
-                {
-                    await _itemRecipeRepository.DeleteAsync(f => f.ItemId == requestDto.ItemId);
-                }
-
-                foreach (var newRecipe in requestDto.ItemRecipes)
-                {
-                    var itemRecipe = _mapper.Map<ItemRecipe>(newRecipe);
-                    itemRecipe.ItemId = requestDto.ItemId;
-                    await _itemRecipeRepository.CreateAsync(itemRecipe);
-                }
-
-                menuItemDomain = await _menuItemRepository.UpdateAsync(f => f.ItemId == requestDto.ItemId, m =>
-                {
-                    m.ItemName = requestDto.ItemName;
-                    m.Description = requestDto.Description;
-                    m.Price = requestDto.Price;
-                    m.Picture = requestDto.Picture;
-                    m.TypeOfFoodId = requestDto.TypeOfFoodId;
-                    m.ItemRecipes = _mapper.Map<ICollection<ItemRecipe>>(requestDto.ItemRecipes);
-                });
+                menuItemDomain = await _menuItemRepository.UpdateMenuItemAsync(menuItemDomain);
 
                 if (menuItemDomain == null)
                 {

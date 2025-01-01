@@ -30,7 +30,7 @@ export const CreateOrder = () => {
 
     const createOrder = async (values) => {
 
-        const response = await api.post('api/orders', values).then((response)=> {
+        const response = await api.post('api/Order', values).then((response)=> {
             message.success('Order created successfully');
             navigate('/orderAndBilling');
         }).catch((error) => {
@@ -86,6 +86,7 @@ export const CreateOrder = () => {
             const response = await api.get('api/food-types');
             const data = await response.data;
             setTypeOfFoods(data);
+            setCurrentTypeOfFoodId(data[0].typeOfFoodId);
         } catch (error) {
             message.error('Failed to fetch type of foods');
         }
@@ -122,7 +123,6 @@ export const CreateOrder = () => {
     useEffect(() => {
         if (menuItems.length > 0) {
             setCurrentMenuItems(menuItems.filter(item => item.typeOfFoodId === currentTypeOfFoodId));
-            console.log(currentMenuItems);
         }
     }, [currentTypeOfFoodId, menuItems]);
 

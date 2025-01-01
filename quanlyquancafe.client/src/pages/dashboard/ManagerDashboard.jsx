@@ -25,26 +25,68 @@ export const ManagerDashboard = () => {
     const [menuItemTab, setMenuItemTab] = useState(0);
 
     const stockCol = [
-        { title: "Ingredient", dataIndex: "ingredientName", key: "ingredientName" },
+        {
+            title: "Ingredient",
+            dataIndex: "ingredientName",
+            key: "ingredientName"
+        },
         { title: "Quantity in stock", dataIndex: "quantityInStock", key: "quantityInStock" },
         { title: "Unit", dataIndex: "unit", key: "unit" },
     ]
 
     const menuItemCol = [
-        { header: "ID", key: "itemId", type: TableDetailType.Info },
-        { header: "Name", key: "itemName", type: TableDetailType.Info },
+        {
+            header: "ID",
+            key: "itemId",
+            type: TableDetailType.Info
+        },
+        {
+            header: "Name",
+            key: "itemName",
+            type: TableDetailType.Info
+        },
     ]
 
     const staffCol = [
-        { title: "ID", dataIndex: "staffId", key: "staffId" },
-        { title: "Name", dataIndex: "name", key: "name" },
-        { title: "Start Working", dataIndex: "dateStartedWorking", key: "dateStartedWorking" },
+        {
+            title: "ID",
+            dataIndex: "staffId",
+            key: "staffId"
+        },
+        {
+            title: "Name",
+            dataIndex: "name",
+            key: "name"
+        },
+        {
+            title: "Start Working",
+            dataIndex: "dateStartedWorking",
+            key: "dateStartedWorking",
+            render: (time) => {
+                return new Date(time).toLocaleString();
+            }
+        },
     ]
 
     const orderCol = [
-        { title: "ID", dataIndex: "orderId", key: "orderId" },
-        { title: "Time", dataIndex: "orderTime", key: "orderTime" },
-        { title: "Payment", dataIndex: "paymentMethod", key: "paymentMethod" },
+        {
+            title: "ID",
+            dataIndex: "orderId",
+            key: "orderId"
+        },
+        {
+            title: "Time",
+            dataIndex: "orderTime",
+            key: "orderTime" ,
+            render: (time) => {
+                return new Date(time).toLocaleString();
+            }
+        },
+        {
+            title: "Payment",
+            dataIndex: "paymentMethod",
+            key: "paymentMethod"
+        },
     ]
 
     const fetchSaleStatistic = async () => {
@@ -54,7 +96,7 @@ export const ManagerDashboard = () => {
             const data = await response.json();
             setSaleStatistic(data);
         } catch (error) {
-            message.error("Failed to fetch sale statistic");    
+            message.error("Failed to fetch sale statistic");
         } finally {
             setLoading(false);
         }
@@ -79,7 +121,7 @@ export const ManagerDashboard = () => {
             const response = await fetch("https://localhost:7087/api/shifts/statistics");
             const data = await response.json();
             setShiftStatistic(data);
-            
+
         } catch (error) {
             message.error("Failed to fetch shift statistic");
         } finally {
@@ -97,13 +139,13 @@ export const ManagerDashboard = () => {
             const sortedIngredients = data.sort((a, b) => b.quantityInStock - a.quantityInStock);
             setIngredients(sortedIngredients.slice(0, 5));
         } catch (error) {
-           message.error("Failed to fetch ingredients stock");
+            message.error("Failed to fetch ingredients stock");
         } finally {
             setLoading(false);
         }
     }
 
-    const fetchMenuItemStatistic = async () => {    
+    const fetchMenuItemStatistic = async () => {
         setLoading(true);
         try {
             const response = await fetch("https://localhost:7087/api/menu-items/statistics");
@@ -141,16 +183,16 @@ export const ManagerDashboard = () => {
             const data = await response.json();
             setNewestStaffs(data);
         } catch (error) {
-            message.error("Failed to fetch newest staffs"); 
+            message.error("Failed to fetch newest staffs");
         } finally {
             setLoading(false);
         }
     }
 
-    const fetchPendingOrders = async () => {    
+    const fetchPendingOrders = async () => {
         setLoading(true);
         try {
-            const response = await fetch("https://localhost:7087/api/orders/pending");
+            const response = await fetch("https://localhost:7087/api/Order/pending");
             const data = await response.json();
             setPendingOrders(data);
         } catch (error) {
@@ -177,7 +219,7 @@ export const ManagerDashboard = () => {
     if (loading || !lineData) {
         return (
             <div className="flex justify-center items-center h-full">
-               <p>Loading</p>
+                <p>Loading</p>
             </div>
         )
     }
@@ -191,19 +233,19 @@ export const ManagerDashboard = () => {
             <div className="flex gap-y-4 max-h-[calc(100vh-180px)]  min-h-[calc(100vh-180px)] w-full gap-x-4">
                 <div className="flex h-full flex-col gap-y-4 w-2/3">
                     <div className="flex gap-x-4 px-8 ">
-                        <MetricCard 
-                        percentage= { saleStatisticByMonths ? ( saleStatisticByMonths[1] && saleStatisticByMonths[1].totalNetProfit !== 0 ? Math.floor( (saleStatisticByMonths[0].totalNetProfit - saleStatisticByMonths[1].totalNetProfit ) * 100 / saleStatisticByMonths[1].totalNetProfit ) : saleStatisticByMonths[0].totalNetProfit ) : 0} 
-                        title="Total Net Profit" 
-                        value={saleStatisticByMonths ? saleStatisticByMonths[0].totalNetProfit : 0} />
-                        
                         <MetricCard
-                        percentage= { saleStatisticByMonths ? ( saleStatisticByMonths[1] && saleStatisticByMonths[1].totalIncome !== 0 ? Math.floor( (saleStatisticByMonths[0].totalIncome - saleStatisticByMonths[1].totalIncome ) * 100 / saleStatisticByMonths[1].totalIncome ) : saleStatisticByMonths[0].totalIncome ) : 0} 
-                         title="Total Incomes" 
-                         value={saleStatisticByMonths ? saleStatisticByMonths[0].totalIncome : 0} />
-                        <MetricCard 
-                        percentage= { saleStatisticByMonths ? ( saleStatisticByMonths[1] && saleStatisticByMonths[1].totalExpense !== 0 ? Math.floor( (saleStatisticByMonths[0].totalExpense - saleStatisticByMonths[1].totalExpense ) * 100 / saleStatisticByMonths[1].totalExpense ) : saleStatisticByMonths[0].totalExpense ) : 0} 
-                        title="Total Expenses" 
-                        value={saleStatisticByMonths ? saleStatisticByMonths[0].totalExpense : 0} />
+                            percentage={saleStatisticByMonths ? (saleStatisticByMonths[1] && saleStatisticByMonths[1].totalNetProfit !== 0 ? Math.floor((saleStatisticByMonths[0].totalNetProfit - saleStatisticByMonths[1].totalNetProfit) * 100 / saleStatisticByMonths[1].totalNetProfit) : saleStatisticByMonths[0].totalNetProfit) : 0}
+                            title="Total Net Profit"
+                            value={saleStatisticByMonths ? saleStatisticByMonths[0].totalNetProfit : 0} />
+
+                        <MetricCard
+                            percentage={saleStatisticByMonths ? (saleStatisticByMonths[1] && saleStatisticByMonths[1].totalIncome !== 0 ? Math.floor((saleStatisticByMonths[0].totalIncome - saleStatisticByMonths[1].totalIncome) * 100 / saleStatisticByMonths[1].totalIncome) : saleStatisticByMonths[0].totalIncome) : 0}
+                            title="Total Incomes"
+                            value={saleStatisticByMonths ? saleStatisticByMonths[0].totalIncome : 0} />
+                        <MetricCard
+                            percentage={saleStatisticByMonths ? (saleStatisticByMonths[1] && saleStatisticByMonths[1].totalExpense !== 0 ? Math.floor((saleStatisticByMonths[0].totalExpense - saleStatisticByMonths[1].totalExpense) * 100 / saleStatisticByMonths[1].totalExpense) : saleStatisticByMonths[0].totalExpense) : 0}
+                            title="Total Expenses"
+                            value={saleStatisticByMonths ? saleStatisticByMonths[0].totalExpense : 0} />
                     </div>
 
                     <div className="flex gap-x-4 h-4/5">
@@ -220,7 +262,7 @@ export const ManagerDashboard = () => {
                         <div className="flex flex-col w-1/2 h-full bg-gray-500/30 rounded-[20px] p-4 pb-8 shadow-lg">
                             <p className="font-semibold text-xl">New Staff</p>
 
-                            <Table columns={staffCol} dataSource={newestStaffs} pagination={{pageSize: 3}} />
+                            <Table columns={staffCol} dataSource={newestStaffs} pagination={{ pageSize: 3 }} />
 
                         </div>
                     </div>
@@ -237,7 +279,7 @@ export const ManagerDashboard = () => {
                             </div>
                         </div>
                         {
-                             <LineChart data={lineData ? lineData : []} />
+                            <LineChart data={lineData ? lineData : []} />
                         }
                     </div>
 
@@ -248,10 +290,10 @@ export const ManagerDashboard = () => {
                     <div className="flex flex-col gap-y-2 bg-gray-500/30 rounded-[20px] p-6 shadow-lg">
                         <p className="font-semibold text-xl">Popularity</p>
 
-                        <OverviewTableLayoutWithTab 
-                        tabs={[{ name: "Most sold" }, { name: "Least sold" }]} 
-                        onTabChange={(index)=>setMenuItemTab(index)} 
-                        columns={menuItemCol} data={menuItemTab == 0 ? (menuItemStatistic?.mostSoldMenuItems ?? []) : (menuItemStatistic?.leastSoldMenuItems ?? [])} />
+                        <OverviewTableLayoutWithTab
+                            tabs={[{ name: "Most sold" }, { name: "Least sold" }]}
+                            onTabChange={(index) => setMenuItemTab(index)}
+                            columns={menuItemCol} data={menuItemTab == 0 ? (menuItemStatistic?.mostSoldMenuItems ?? []) : (menuItemStatistic?.leastSoldMenuItems ?? [])} />
                     </div>
                     <div className="flex flex-col gap-y-2 bg-gray-500/30 rounded-[20px] p-6 shadow-lg">
                         <p className="font-semibold text-xl">On Pending Orders</p>

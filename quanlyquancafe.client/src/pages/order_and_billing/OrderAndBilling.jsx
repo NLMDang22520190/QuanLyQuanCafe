@@ -3,7 +3,7 @@ import { RoundedButton } from "../../components/buttons/RoundedButton"
 import { TableLayout } from "../../components/tables/TableLayout"
 import { RoundedTextField } from "../../components/textfields/RoundedTextField"
 import { TableDetailType } from "../../constant/TableDetailType";
-import { Table, Tag, Button, Input, Modal, Select, Pagination } from 'antd';
+import { Table, Tag, Button, Input, Modal, Select, Pagination, message } from 'antd';
 import api from "../../features/AxiosInstance/AxiosInstance"
 import { useEffect, useState } from "react";
 
@@ -13,7 +13,7 @@ export const OrderAndBilling = () => {
     const [selectedOrder, setSelectedOrder] = useState(null);
 
     const fetchOrder = async () => {
-        const response = await api.get("api/orders")
+        const response = await api.get("api/Order")
         .then((response) => {
             setOrders(response.data)
         }).catch((error) => {
@@ -24,11 +24,12 @@ export const OrderAndBilling = () => {
     const updateOrderStatus = async (status) => {
         const orderId = selectedOrder.orderId;
         const state = status.state;
-        console.log(orderId)    
-        const response = await api.put(`api/orders/${orderId}/state`, state).then((response) => {
+        const response = await api.put(`api/Order/update-order-state/${orderId}`, state).then((response) => {
             fetchOrder();
-            console.log(response)
-          }).catch((error) => { console.log(error) })
+            message.success("Order status updated successfully")
+          }).catch((error) => { 
+            message.error("Failed to update order status")
+           })
     }
 
     useEffect(() => {
@@ -45,6 +46,9 @@ export const OrderAndBilling = () => {
             title: 'Date & Time',
             dataIndex: 'orderTime',
             key: 'orderTime',
+            render: orderTime => (
+                <p>{new Date(orderTime).toLocaleString()}</p>
+            )   
         },
         {
             title: 'Order Detail',  
@@ -53,8 +57,9 @@ export const OrderAndBilling = () => {
             render: orderDetails => (
                 <ul>
                     {orderDetails?.map(detail => (
-                        <li key={detail.itemId}>
-                            {detail.itemName} x {detail.quantity}
+                        console.log(detail),
+                        <li key={detail.item.itemId}>
+                            {detail.item.itemName} x {detail.quantity}
                         </li>
                     ))}
                 </ul>
@@ -99,8 +104,11 @@ export const OrderAndBilling = () => {
     const orderDetailsColumns = [
         {
             title: 'Item Name',
-            dataIndex: 'itemName',
-            key: 'itemName',
+            dataIndex: 'item',
+            key: 'item',
+            render: item => {
+                return <p>{item.itemName}</p>
+            }
         },
         {
             title: 'Quantity',
@@ -112,10 +120,10 @@ export const OrderAndBilling = () => {
         },
         {
             title: 'Price',
-            dataIndex: 'itemPrice',
-            key: 'itemPrice', 
-            render: price => {
-                return <p>${price}</p>
+            dataIndex: 'item',
+            key: 'item', 
+            render: item => {
+                return <p>${item.price}</p>
             }  
         }
     ]
@@ -177,7 +185,7 @@ export const OrderAndBilling = () => {
                     {
                         selectedOrder.voucherApplied ? selectedOrder.voucherApplied.voucherCode : "No voucher applied"
                     } </p>
-                    <p><strong>Total Amount:</strong> {selectedOrder.totalPrice}</p>
+                    <p><strong>Total Amount:</strong> ${selectedOrder.totalPrice}</p>
                 </div>
             )}
         </Modal>
