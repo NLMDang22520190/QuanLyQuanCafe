@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import api from "../../../features/AxiosInstance/AxiosInstance";
 import { addItemToCart } from "../../../features/Cart/Cart";
+import { message } from "antd";
 
 const Menu = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -27,7 +28,7 @@ const Menu = () => {
         const mappedData = response.data.map((item) => ({
           id: item.typeOfFoodId, // Giả sử API trả về thuộc tính 'id'
           name: item.typeOfFoodName, // Giả sử API trả về thuộc tính 'name'
-          image: "https://placehold.co/100x100", // Giả sử API trả về thuộc tính 'image'
+          image: item.picture || "https://placehold.co/100x100", // Giả sử API trả về thuộc tính 'image'
         }));
         setCategories(mappedData);
       } catch (error) {
@@ -75,9 +76,9 @@ const Menu = () => {
   const onAddToCart = async (item) => {
     dispatch(addItemToCart(item)); // Thêm sản phẩm vào giỏ hàng
     if (cart.status === "succeeded") {
-      alert("Sản phẩm đã được thêm vào giỏ hàng!");
+      message.success("Sản phẩm đã được thêm vào giỏ hàng!");
     } else if (cart.status === "failed") {
-      alert("Đã xảy ra lỗi khi thêm sản phẩm vào giỏ hàng!");
+      message.error("Đã xảy ra lỗi khi thêm sản phẩm vào giỏ hàng!");
     }
   };
 

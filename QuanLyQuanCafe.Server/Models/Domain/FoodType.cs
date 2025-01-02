@@ -9,5 +9,7 @@ public partial class FoodType
 
     public string TypeOfFoodName { get; set; } = null!;
 
+    public string? Picture { get; set; }
+
     public virtual ICollection<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
 }

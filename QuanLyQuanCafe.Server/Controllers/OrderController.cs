@@ -181,7 +181,19 @@ namespace QuanLyQuanCafe.Server.Controllers
             {
                 return NotFound($"No orders found for UserId {userId}");
             }
-            return Ok(_mapper.Map<List<OrderWithOrderDetailDTO>>(order));
+			var result = _mapper.Map<List<OrderWithOrderDetailDTO>>(order);
+
+            foreach (var orderDetail in result)
+            {
+                if (orderDetail.VoucherApplied.HasValue)
+                    orderDetail.VoucherCode =
+                        await _voucherDetailRepository.GetVoucherCodeByVoucherDetailId(orderDetail.VoucherApplied
+                            .Value);
+                else
+                    orderDetail.VoucherCode = null;
+            }
+
+            return Ok(result);
         }
 
 

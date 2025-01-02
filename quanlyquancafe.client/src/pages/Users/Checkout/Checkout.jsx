@@ -437,7 +437,7 @@ const Checkout = () => {
         message.success("Đặt hàng thành công!");
         dispatch(fetchCartDetailsByCustomerId(userId)); // Cập nhật giỏ hàng
         if (cart.status === "succeeded") {
-          navigate("/Cart"); // Chuyển hướng người dùng đến trang thành công
+          navigate("/"); // Chuyển hướng người dùng đến trang thành công
         }
       } else {
         throw new Error("Đặt hàng thất bại. Vui lòng thử lại.");

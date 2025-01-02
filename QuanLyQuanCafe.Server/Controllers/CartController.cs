@@ -62,13 +62,34 @@ namespace QuanLyQuanCafe.Server.Controllers
                 // Gọi phương thức AddCartDetailAsync để thêm sản phẩm vào giỏ
                 var cartDetailDomain = _mapper.Map<CartDetail>(requestDto);
 
-                var cartAfterUpdate = await _cartDetailRepository.CreateAsync(cartDetailDomain);
+                var cartDetailByUserDomain = await _cartDetailRepository.GetCartDetailByCartId(requestDto.CartId);
 
-                var cartDetailsDomain = await _cartDetailRepository.GetCartDetailByCartId(cartAfterUpdate.CartId);
+                // Kiểm tra xem sản phẩm đã tồn tại trong giỏ chưa
+                var existingCartDetail = cartDetailByUserDomain.FirstOrDefault(cd => cd.ItemId == requestDto.ItemId);
 
-                var cartDomain = cartDetailsDomain.FirstOrDefault(x => x.CartDetailId == cartAfterUpdate.CartDetailId);
+                if (existingCartDetail != null)
+                {
 
-                return Ok(_mapper.Map<CartItemDetailDTO>(cartDomain));
+                    var updatedCartDetail = await _cartDetailRepository.UpdateAsync(
+                        cd => cd.CartDetailId == existingCartDetail.CartDetailId, // filter
+                        existingRecord =>
+                        {
+                            existingRecord.Quantity += requestDto.Quantity;
+                        }
+                    );
+                }
+                else
+                {
+                   await _cartDetailRepository.CreateAsync(cartDetailDomain);
+                }
+
+                //var cartAfterUpdate = await _cartDetailRepository.CreateAsync(cartDetailDomain);
+
+                //var cartDetailsDomain = await _cartDetailRepository.GetCartDetailByCartId(cartAfterUpdate.CartId);
+
+                //var cartDomain = cartDetailsDomain.FirstOrDefault(x => x.CartDetailId == cartAfterUpdate.CartDetailId);
+
+                return Ok("Success");
             }
             catch (Exception ex)
             {
