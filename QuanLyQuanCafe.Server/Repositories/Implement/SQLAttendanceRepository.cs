@@ -55,8 +55,19 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             {
                 throw new Exception("Schedule not found for the given staffId, shiftId, and date.");
             }
-
             var scheduleId = schedule.ScheduleId;
+
+            var shift = await dbContext.Shifts.FirstOrDefaultAsync(s => s.ShiftId == shiftId);
+            if (shift == null)
+            {
+                throw new Exception("Shift not found for the given shiftId.");
+            }
+
+            if (TimeOnly.FromDateTime(checkinTime) < shift.StartTime ||
+                TimeOnly.FromDateTime(checkinTime) > shift.EndTime)
+            {
+                throw new Exception("Check-in time must be within the shift's start and end times.");
+            }
 
             var attendanceDate = DateOnly.FromDateTime(checkinTime);
             var attendance = await _dbSet.FirstOrDefaultAsync(a =>
@@ -104,6 +115,18 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 throw new Exception("Schedule not found for the given staffId, shiftId, and date.");
             }
             var scheduleId = schedule.ScheduleId;
+
+            var shift = await dbContext.Shifts.FirstOrDefaultAsync(s => s.ShiftId == shiftId);
+            if (shift == null)
+            {
+                throw new Exception("Shift not found for the given shiftId.");
+            }
+
+            if (TimeOnly.FromDateTime(checkoutTime) < shift.StartTime ||
+                TimeOnly.FromDateTime(checkoutTime) > shift.EndTime)
+            {
+                throw new Exception("Check-out time must be within the shift's start and end times.");
+            }
 
             var attendance = await _dbSet.FirstOrDefaultAsync(a => a.ScheduleId == scheduleId 
                 && a.Date == DateOnly.FromDateTime(checkoutTime)
@@ -231,8 +254,8 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 AttendanceId = attendance.AttendanceId,
                 ScheduleId = attendance.ScheduleId,
                 Date = attendance.Date,
-                Checkin = attendance.Checkin,
-                Checkout = attendance.Checkout
+                Checkin = attendance.Checkin == default(DateTime) ? null : attendance.Checkin,
+                Checkout = attendance.Checkout == default(DateTime) ? null : attendance.Checkout
             };
         }
         public async Task<PagedResult<AttendanceShiftDto>> GetAttendancesByUserIdAndMonthAsync(string userId, int month, int year, int pageIndex = 1, int pageSize = 10)

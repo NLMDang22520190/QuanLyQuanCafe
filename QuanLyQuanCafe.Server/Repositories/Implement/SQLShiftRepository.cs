@@ -48,7 +48,37 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 Data = shiftDtos
             };
         }
+        public async Task<List<ShiftScheduleDto>> GetShiftsByStaffId (int staffId)
+        {
+            try
+            {
+                var shifts = await _dbContext.Schedules
+                    .Where(s => s.StaffId == staffId && !s.Shift.IsDeleted)
+                    .Select(s => new ShiftScheduleDto
+                    {
+                        ShiftId = s.Shift.ShiftId,
+                        ShiftName = s.Shift.ShiftName,
+                        StartTime = s.Shift.StartTime,
+                        EndTime = s.Shift.EndTime,
+                        StartDate = s.StartDate,  
+                        EndDate = s.EndDate,
+                        StaffId = staffId
+                    })
+                    .ToListAsync();
 
+                if (shifts == null || !shifts.Any())
+                {
+                    throw new KeyNotFoundException($"No shifts found for staff with ID {staffId}.");
+                }
+
+                return shifts;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw new Exception("An error occurred while fetching shifts for the staff.");
+            }
+        }
         public IQueryable<ShiftTimeDistribution> GetShiftDistribution()
         {
             var morningStart = new TimeOnly(6, 0);
