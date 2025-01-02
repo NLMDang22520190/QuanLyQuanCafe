@@ -98,9 +98,9 @@ namespace QuanLyQuanCafe.Server.Controllers
         }
 
         [HttpGet("staffs")]
-        public async Task<IActionResult> getAllEmployees()
+        public async Task<IActionResult> getNewestStaffs()
         {
-            var staffs = await _staffRepository.GetAllAsync();
+            var staffs = await _staffRepository.GetNewestStaffAsync(5);
             if (staffs == null || !staffs.Any())
             {
                 return NotFound("No employees found.");

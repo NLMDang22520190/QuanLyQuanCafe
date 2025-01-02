@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Modal, Input, Button, Card, Form } from 'antd';
+import { Modal, Input, Button, Card, Form, message } from 'antd';
 import axios from 'axios';
+import api from '../../features/AxiosInstance/AxiosInstance';
 
 const { TextArea } = Input;
 
@@ -9,16 +10,16 @@ const CreateCategory = ({ onSubmit, onClose}) => {
     const handleFinish = (values) => {
         createCategory(values);
         onSubmit();
-        message.success("Category created successfully!");
     }
 
     const createCategory = async (foodType) => {
-      axios.post("https://localhost:7087/api/food-types", foodType)
+      await api.post('api/food-types', foodType)
   .then(response => {
-      console.log(response);
+      message.success(response.data);
   })
   .catch(error => {
-      console.error('There was an error!', error);
+    console.log(error);
+        message.error(`Error: ${error.response.data}`);
   });
   }
 

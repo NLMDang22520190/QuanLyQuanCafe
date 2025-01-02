@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { RoundedButton } from "../../components/buttons/RoundedButton";
 import { Modal, Table, Input, Select, Switch, Button, Checkbox, Pagination } from 'antd';
 import { RoundedTextField } from "../../components/textfields/RoundedTextField";
+import instance from "../../features/AxiosInstance/AxiosInstance";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { StatusBadge } from "../../components/badges/StatusBadge";
@@ -46,15 +47,6 @@ export const InventoryControlPage = () => {
             key: "status",
             render: (text) => <StatusBadge status={text} label={text} />,
         },
-        {
-            title: '',
-            dataIndex: 'action',
-            key: 'action',
-            render: (text, record) => <Button onClick={() => setIsProductDetailModalVisible(true)} type="text"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>
-            </Button>
-        }
     ];
 
    
@@ -89,7 +81,7 @@ export const InventoryControlPage = () => {
    
     const fetchRowMaterials = async () => {
         try {
-            const response = await axios.get("https://localhost:7087/api/ingredient");
+            const response = await instance.get(`/api/ingredient`);
 
             const items = response.data || [];
             const ingredients = items.map((item) => ({
@@ -113,14 +105,14 @@ export const InventoryControlPage = () => {
     
     const fetchImportRecords = async (page = 1, size = 5) => {
         try {
-            const ingredientsResponse = await axios.get("https://localhost:7087/api/ingredient");
+            const ingredientsResponse = await instance.get(`/api/ingredient`);
             const ingredientMapping = ingredientsResponse.data.reduce((map, item) => {
                 map[item.ingredientId] = item.ingredientName;
                 return map;
             }, {});
     
           
-            const importRecordsResponse = await axios.get("https://localhost:7087/api/import-record", {
+            const importRecordsResponse = await instance.get(`/api/import-record`, {
                 params: {page, pageSize: size},
             });
             const { items, total } = importRecordsResponse.data;
@@ -183,7 +175,7 @@ export const InventoryControlPage = () => {
                                     className={`inline-block p-4 border-b-2 rounded-t-lg ${
                                         currentTab === index ? "border-amber-500 text-amber-500" : ""
                                     }`}
-                                >``
+                                >
                                     {tab.name}
                                 </button>
                             </li>

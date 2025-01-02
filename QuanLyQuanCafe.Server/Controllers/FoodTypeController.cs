@@ -90,7 +90,7 @@ namespace QuanLyQuanCafe.Server.Controllers
                 }
 
                 await _foodTypeRepo.CreateAsync(foodType);
-                return Ok(foodType);
+                return Ok("Food type created successfully.");
             }
             catch (Exception ex)
             {

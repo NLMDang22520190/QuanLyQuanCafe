@@ -4,7 +4,7 @@ import {CircleButton}  from "../buttons/CircleButton"
 export const OrderProductCard = ({ key="", imageUrl, name, price, inStock = 0, onClickAdd, }) => {
 
     return (
-        <div key={`${key}-product-card`} className="flex gap-x-4 h-min-32 bg-gray-800 rounded-lg p-2">
+        <div key={`${key}-product-card`} className="flex gap-x-4 h-min-32 bg-amber-500/10 rounded-lg p-2">
             {imageUrl && <img className="w-20 h-20 rounded-lg" src={imageUrl} alt="Description of image" />}
             <div className="flex flex-col justify-between grow">
                 <p className="font-semibold">{name}</p>

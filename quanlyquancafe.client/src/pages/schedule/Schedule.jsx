@@ -185,7 +185,7 @@ const Schedule = () => {
     }
     useEffect(() => {
         fetchSchedule(); 
-    }, [shiftData]);
+    }, [shiftData,week]);
 
 
     const handleEditShift = async () => {
@@ -254,9 +254,6 @@ const Schedule = () => {
     
     
     
-    
-    
-    
     const handleCreateShift = async () => {
         try {
             const values = await formCreateShift.validateFields();
@@ -291,8 +288,8 @@ const Schedule = () => {
     console.log("Shift ID:", shift.Id);
     console.log("Report Date:", shift.StartTime);
 
-    setSelectedShift(shift); // Lưu thông tin ca làm được chọn
-    setOpenReport(true); // Hiển thị modal báo cáo
+    setSelectedShift(shift); 
+    setOpenReport(true); 
 
     try {
         
@@ -313,11 +310,11 @@ const Schedule = () => {
             checkOut: record.checkOut ? moment(record.checkOut).format("HH:mm:ss") : "Not checkout",
         }));
 
-        setStaffAttendance(attendanceData); // Lưu dữ liệu vào state
+        setStaffAttendance(attendanceData); 
         console.log(attendanceData)
     } catch (error) {
         console.error("Failed to fetch attendance report:", error);
-        message.error("Failed to fetch attendance report. Please try again.");
+        message.error(error.response?.data?.message);
     }
 
 };
@@ -327,6 +324,7 @@ const Schedule = () => {
     const handleCloseReport = () => {
         setOpenReport(false);
         setSelectedShift(null);
+        // setStaffList([]);
         setStaffAttendance([]);
     };
 
@@ -334,7 +332,7 @@ const Schedule = () => {
         setOpenModal(!openModal);
         setSelectedShift(null);
         setSelectedEmployees([]);
-        setStaffAssignedToShift([]); // Reset staff assigned
+        setStaffAssignedToShift([]); 
     };
 
 
@@ -653,9 +651,14 @@ const Schedule = () => {
                     showTimeIndicator={true}
                     readonly={true} 
                     navigating={(args) => {
-                        const selectedWeekStart = args.currentDate; 
+                        const currentDate = args.currentDate; 
+                        const dayOfWeek = currentDate.getDay(); 
+                        
+                        const selectedWeekStart = new Date(currentDate);
+                        selectedWeekStart.setDate(currentDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+                    
                         const selectedWeekEnd = new Date(selectedWeekStart);
-                        selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6); 
+                        selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6);
                         setWeek([selectedWeekStart, selectedWeekEnd]);
                         fetchSchedule();
                     }}

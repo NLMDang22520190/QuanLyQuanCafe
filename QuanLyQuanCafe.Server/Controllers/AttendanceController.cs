@@ -98,15 +98,28 @@ namespace QuanLyQuanCafe.Server.Controllers
             [FromQuery] int pageIndex = 1,
             [FromQuery] int pageSize = 10)
         {
-            var pagedResult = await _attendanceRepos.GetStaffAttendanceForShiftOnDateAsync(
-                shiftId, date, pageIndex, pageSize);
-
-            if (pagedResult.Data == null || !pagedResult.Data.Any())
+            try
             {
-                return NotFound(new { message = "No attendances found for the specified shift and date." });
-            }
+                // Log các tham số đầu vào
+                Console.WriteLine($"ShiftId: {shiftId}, Date: {date}, PageIndex: {pageIndex}, PageSize: {pageSize}");
 
-            return Ok(pagedResult);
+                var pagedResult = await _attendanceRepos.GetStaffAttendanceForShiftOnDateAsync(
+                    shiftId, date, pageIndex, pageSize);
+
+                if (pagedResult.Data == null || !pagedResult.Data.Any())
+                {
+                    return NotFound(new { message = "No attendances found for the specified shift and date." });
+                }
+
+                return Ok(pagedResult);
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi chi tiết
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
+            }
         }
 
 

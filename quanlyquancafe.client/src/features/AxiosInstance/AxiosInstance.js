@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getAuthCookies, clearAuthCookies } from "../Cookies/CookiesHelper";
+import { message } from "antd";
 
 // Tạo instance của Axios
 const instance = axios.create({
@@ -32,6 +33,7 @@ instance.interceptors.response.use(
     return response;
   },
   (error) => {
+    console.error("Response error:", error);
     // Xử lý lỗi cho các mã trạng thái không thuộc 2xx
     if (error.response) {
       const { status } = error.response;

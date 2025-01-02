@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Modal, Button, ConfigProvider, theme } from "antd";
+import { Modal, Button, ConfigProvider, theme, message } from "antd";
+import { useSelector } from "react-redux";
 import instance from "../../features/AxiosInstance/AxiosInstance";
 import { Day, WorkWeek, Week, ScheduleComponent, Inject } from "@syncfusion/ej2-react-schedule";
 import axios from "axios";
@@ -10,13 +11,14 @@ const StaffSchedule = () => {
     const scheduleRef = useRef(null);
     const [openRollCall, setOpenRollCall] = useState(false); 
     const [selectedShift, setSelectedShift] = useState(null);
-    const [checkInTime, setCheckInTime] = useState(null);
+    const [checkin, setCheckInTime] = useState(null);
     const [checkOutTime, setCheckOutTime] = useState(null);
     const [schedule, setSchedule] = useState([]); 
     const [week,setWeek]=useState([]);
     const [shiftData, setShiftData] = useState([]);
     const [totalMShift, setTotalMShift]=useState(1);
     const [pageIndexMShift,setPageIndexMShift]=useState(1);
+    const userId = useSelector((state) => state.auth.user);
 
     const fetchShifts = async (pageIndexMShift, pageSize) => {
         try {
@@ -85,7 +87,7 @@ const StaffSchedule = () => {
     }
     useEffect(() => {
         fetchSchedule(); 
-    }, [shiftData]);
+    }, [shiftData,week]);
 
     useEffect(()=>{
         fetchShifts(pageIndexMShift,5);
@@ -104,13 +106,14 @@ const StaffSchedule = () => {
     };
 
     const handleCheckIn = async () => {
-        if (!checkInTime) {
+        if (!checkin) {
             try {
                 const payload = {
+                    userId,
                     shiftId: selectedShift.Id, 
-                    checkInTime: new Date().toISOString(), 
+                    checkin: new Date().toISOString(), 
                 };
-                const response = await axios.post("https://localhost:7087/api/attendances/checkin", payload);
+                const response = await instance.post(`/api/attendances/checkin`, payload);
                 console.log("Check-In Successful:", response.data);
                 setCheckInTime(new Date());
                 message.success("Checked in successfully!");
@@ -123,18 +126,17 @@ const StaffSchedule = () => {
     
 
     const handleCheckOut = async () => {
-        if (checkInTime && !checkOutTime) {
+        if (checkin && !checkOutTime) {
             try {
-                const userId = localStorage.getItem("userId");
                 const payload = {
                     UserId: userId, 
                     ShiftId: selectedShift.Id, 
-                    Checkin: checkInTime.toISOString().split("T")[0], 
+                    Checkin: checkin.toISOString().split("T")[0], 
                     Checkout: new Date().toISOString().split("T")[0], 
                 };
     
                 const queryString = new URLSearchParams(payload).toString();
-                const response = await axios.post(`https://localhost:7087/api/attendances/checkout?${queryString}`);
+                const response = await instance.put(`/api/attendances/checkout?${queryString}`);
     
                 console.log("Check-Out Successful:", response.data);
                 setCheckOutTime(new Date());
@@ -147,21 +149,32 @@ const StaffSchedule = () => {
     };
     
 
-    const quickInfoEventTemplate = (props) => (
-        <div className="custom-quick-info">
-            {!props.Subject && <h1 className="text-2xl text-black-80">No schedule available</h1>}
-            {props.Subject && (
-                <div className="mt-4 flex flex-col items-start">
-                    <button
-                        className="px-4 py-2 text-sm bg-[#ffc107] text-black rounded hover:bg-[#ffb300]"
-                        onClick={() => handleOpenRollCall(props)}
-                    >
-                        Roll Call
-                    </button>
-                </div>
-            )}
-        </div>
-    );
+    const quickInfoEventTemplate = (props) => {
+        const today = new Date(); 
+        const isToday = props.StartTime?.toDateString() === today.toDateString();
+    
+        return (
+            <div className="custom-quick-info">
+                {!props.Subject && (
+                    <h1 className="text-2xl text-black-80">No schedule available</h1>
+                )}
+                {props.Subject && (
+                    <div className="mt-4 flex flex-col items-start">
+                        <button
+                            className={`px-4 py-2 text-sm rounded ${
+                                isToday ? "bg-[#ffc107] text-black hover:bg-[#ffb300]" : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                            }`}
+                            onClick={() => isToday && handleOpenRollCall(props)}
+                            disabled={!isToday} 
+                        >
+                            Roll Call
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
+    };
+    
 
     const eventSettings = {
         dataSource: schedule, 
@@ -195,11 +208,16 @@ const StaffSchedule = () => {
                         showTimeIndicator={true}
                         readonly={true} 
                         navigating={(args) => {
-                            const selectedWeekStart = args.currentDate; 
+                            const currentDate = args.currentDate; 
+                            const dayOfWeek = currentDate.getDay(); 
+                            
+                            const selectedWeekStart = new Date(currentDate);
+                            selectedWeekStart.setDate(currentDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+                        
                             const selectedWeekEnd = new Date(selectedWeekStart);
-                            selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6); 
+                            selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6);
                             setWeek([selectedWeekStart, selectedWeekEnd]);
-                            fetchShifts();
+                            fetchSchedule();
                         }}
                     >
                         <Inject services={[Day, Week, WorkWeek]} />
@@ -231,15 +249,15 @@ const StaffSchedule = () => {
                                 <Button
                                     type="primary"
                                     onClick={handleCheckIn}
-                                    disabled={!!checkInTime}
+                                    disabled={!!checkin}
                                     className="mr-2"
                                 >
-                                    {checkInTime ? `Checked In: ${checkInTime.toLocaleTimeString()}` : "Check In"}
+                                    {checkin ? `Checked In: ${checkin.toLocaleTimeString()}` : "Check In"}
                                 </Button>
                                 <Button
                                     type="primary"
                                     onClick={handleCheckOut}
-                                    disabled={!checkInTime || !!checkOutTime}
+                                    disabled={!checkin || !!checkOutTime}
                                 >
                                     {checkOutTime
                                         ? `Checked Out: ${checkOutTime.toLocaleTimeString()}`

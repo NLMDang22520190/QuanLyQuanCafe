@@ -126,44 +126,33 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
 
         public async Task<PagedResult<StaffAttendanceDto>> GetStaffAttendanceForShiftOnDateAsync(
-            int shiftId, DateOnly date, int pageIndex, int pageSize)
+    int shiftId, DateOnly date, int pageIndex, int pageSize)
         {
-            //var query = dbContext.Attendances
-            //    .Include(a => a.Schedule)
-            //    .ThenInclude(s => s.Staff)
-            //    .ThenInclude(staff => staff.User)
-            //    .Where(a => a.Schedule.ShiftId == shiftId && a.Date == date)
-            //    .Select(a => new
-            //    {
-            //        a.Checkin,
-            //        a.Checkout,
-            //        StaffName = a.Schedule.Staff.User.UserName
-            //    })
-            //    .Distinct();
             var query = dbContext.Attendances
-           .Include(a => a.Schedule)
-           .ThenInclude(s => s.Staff)
-           .ThenInclude(staff => staff.User)
-           .Where(a => a.Schedule.ShiftId == shiftId && a.Date == date)
-           .GroupBy(a => a.Schedule.StaffId)
-           .Select(g => new
-           {
-               StaffName = g.First().Schedule.Staff.User.UserName,
-               Checkin = g.First().Checkin,
-               Checkout = g.First().Checkout
-           });
+                .Include(a => a.Schedule)
+                .ThenInclude(s => s.Staff)
+                .ThenInclude(staff => staff.User)
+                .Where(a => a.Schedule.ShiftId == shiftId && a.Date == date)
+                .GroupBy(a => a.Schedule.StaffId)
+                .Select(g => new
+                {
+                    StaffName = g.First().Schedule.Staff.User.UserName,
+                    Checkin = g.First().Checkin,
+                    Checkout = g.First().Checkout
+                });
+
             var totalRecords = await query.CountAsync();
 
-            var results = await query
+            var attendances = await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            var staffAttendanceDtos = results.Select(r => new StaffAttendanceDto
+            var staffAttendanceDtos = attendances.Select(a => new StaffAttendanceDto
             {
-                StaffName = r.StaffName ?? "Unknown",
-                Checkin = r.Checkin != default ? r.Checkin : (DateTime?)null,
-                Checkout = r.Checkout != default ? r.Checkout : (DateTime?)null
+                StaffName = a.StaffName,
+                Checkin = a.Checkin != default ? a.Checkin : (DateTime?)null,
+                Checkout = a.Checkout != default ? a.Checkout : (DateTime?)null
             }).ToList();
 
             return new PagedResult<StaffAttendanceDto>
@@ -175,6 +164,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 Data = staffAttendanceDtos
             };
         }
+
 
 
 

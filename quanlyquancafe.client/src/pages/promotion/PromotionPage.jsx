@@ -6,7 +6,7 @@ import { RoundedTextField } from "../../components/textfields/RoundedTextField";
 import { TableDetailType } from "../../constant/TableDetailType";
 import { useState, useEffect } from "react";
 import { filterData } from "../../utils/FilterUtil";
-import { Modal, Button, Table, Checkbox, Input } from 'antd'
+import { Modal, Button, Table, Checkbox, Input, message } from 'antd'
 import { AddPromotion } from './AddPromotion';
 import { PromotionDetail } from "./PromotionDetail";
 import api from "../../features/AxiosInstance/AxiosInstance";
@@ -57,14 +57,6 @@ export const PromotionPage = () => {
                 return <span>{text}%</span>
             }
         },
-        // {
-        //     title: 'Status',
-        //     dataIndex: 'status',
-        //     key: 'status',
-        //     render: (text, record) => {
-        //         return <StatusBadge  status={text} label={text} />
-        //     }
-        // },
         {
             title: 'Action',
             key: 'action',
@@ -81,6 +73,7 @@ export const PromotionPage = () => {
                 setVouchers(response.data);
             })
             .catch(error => {
+                message.error("Failed to fetch vouchers")
                 console.error('There was an error!', error);
             });
     }
@@ -130,7 +123,7 @@ export const PromotionPage = () => {
                     </div>
                 </div>
                 <div className="max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)]">
-                    <Table columns={columns} dataSource={vouchers} />
+                    <Table columns={columns} dataSource={vouchers} pagination={{pageSize: 8}} />
                 </div>
             </div>
             <Modal title="Add New Promotion" open={isModalAddVisible} onCancel={() => setIsModalAddVisible(false)} footer={null}>

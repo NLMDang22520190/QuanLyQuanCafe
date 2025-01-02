@@ -11,6 +11,7 @@ import {
 } from "flowbite-react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { message } from "antd";
 
 import api from "../../../features/AxiosInstance/AxiosInstance";
 import { fetchCartDetailsByCustomerId } from "../../../features/Cart/Cart";
@@ -217,7 +218,6 @@ const Checkout = () => {
   }, [cities, isDataLoaded, formData.ward]);
 
   const [items, setItems] = useState([]);
-  //const cart = useSelector((state) => state.cart);
 
   // Improved fetchCart function
   const fetchCart = () => {
@@ -253,6 +253,7 @@ const Checkout = () => {
   const [voucherCode, setVoucherCode] = useState("");
   const [voucherError, setVoucherError] = useState(""); // To store voucher validation error
   const [voucherDiscount, setVoucherDiscount] = useState(0); // Discount from valid voucher
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
 
   const handleVoucherClick = () => {
     setIsVoucherInputVisible(true); // Show the input box for voucher code
@@ -297,19 +298,23 @@ const Checkout = () => {
             // Apply the discount and clear any previous errors
             setVoucherDiscount(voucher.percentDiscount);
             setVoucherError("");
+            setSelectedVoucher(voucher);
           } else {
             setVoucherError("Mã giảm giá đã hết hạn.");
             setVoucherDiscount(0);
+            setSelectedVoucher(null);
           }
         } else {
           // If no matching voucher was found
           setVoucherError("Mã giảm giá không hợp lệ.");
           setVoucherDiscount(0);
+          setSelectedVoucher(null);
         }
       } else {
         // If the response data is not in the expected format
         setVoucherError("Dữ liệu phản hồi không hợp lệ.");
         setVoucherDiscount(0);
+        setSelectedVoucher(null);
       }
     } catch (error) {
       console.error("Error fetching voucher:", error);
@@ -317,6 +322,7 @@ const Checkout = () => {
       // Handle any errors during the API call
       setVoucherError("Lỗi khi kiểm tra mã giảm giá. Vui lòng thử lại.");
       setVoucherDiscount(0);
+      setSelectedVoucher(null);
     }
   };
 
@@ -385,12 +391,12 @@ const Checkout = () => {
 
     // Kiểm tra các giá trị bắt buộc
     if (!selectedCity || !selectedDistrict || !selectedWard) {
-      alert("Vui lòng chọn đầy đủ Thành phố, Quận và Phường.");
+      message.warning("Vui lòng chọn đầy đủ Thành phố, Quận và Phường.");
       return;
     }
 
     if (!formData.phoneNumber.match(/^(\+84|0)[1-9][0-9]{8}$/)) {
-      alert("Số điện thoại không hợp lệ. Vui lòng kiểm tra lại.");
+      message.warning("Số điện thoại không hợp lệ. Vui lòng kiểm tra lại.");
       return;
     }
 
@@ -408,7 +414,8 @@ const Checkout = () => {
     // Chuẩn bị dữ liệu cho API
     const orderData = {
       userId: userId,
-      voucherApplied: 0, // Hiện tại để trống
+      voucherApplied:
+        selectedVoucher != null ? selectedVoucher.voucherId : null,
       paymentMethod: formData.paymentMethod,
       fullName: formData.name,
       phoneNumber: formData.phoneNumber,
@@ -427,7 +434,7 @@ const Checkout = () => {
       );
 
       if (response.status === 200 || response.status === 201) {
-        alert("Đặt hàng thành công!");
+        message.success("Đặt hàng thành công!");
         dispatch(fetchCartDetailsByCustomerId(userId)); // Cập nhật giỏ hàng
         if (cart.status === "succeeded") {
           navigate("/Cart"); // Chuyển hướng người dùng đến trang thành công
@@ -437,7 +444,7 @@ const Checkout = () => {
       }
     } catch (error) {
       console.error("Error creating order:", error);
-      alert("Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại.");
+      message.error("Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);
     }
@@ -741,13 +748,6 @@ const Checkout = () => {
                       <span>Tổng Cộng:</span>
                       <span>{formatPrice(totalPriceAfterDiscount)}</span>{" "}
                     </div>
-                  </div>
-
-                  {/* Total */}
-                  <div className="flex justify-between items-center mt-4 text-lg font-semibold">
-                    <span>Tổng Cộng:</span>
-                    <span>{formatPrice(totalPriceAfterDiscount)}</span>{" "}
-                    {/* Apply the discount */}
                   </div>
                 </div>
               </div>

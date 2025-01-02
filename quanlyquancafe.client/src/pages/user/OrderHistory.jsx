@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Collapse, Table, Spin, message } from "antd";
+import instance from "../../features/AxiosInstance/AxiosInstance"; 
 import axios from "axios";
 
 const { Panel } = Collapse;
@@ -10,13 +11,13 @@ const OrderHistory = ({ visible, onCancel, userId }) => {
 
   const fetchOrderDetails = async (orderId) => {
     try {
-      const response = await axios.get(`https://localhost:7087/api/order-details/order/${orderId}`);
+      const response = await instance.get(`/api/order-details/order/${orderId}`);
       console.log(`Order Details for ${orderId}:`, response.data);
   
       const detailsWithItemNames = await Promise.all(
         response.data.map(async (detail) => {
           try {
-            const itemResponse = await axios.get(`https://localhost:7087/api/menu-items/${detail.itemId}`);
+            const itemResponse = await instance.get(`/api/menu-items/${detail.itemId}`);
             const itemData = itemResponse.data;
 
             const totalPrice = itemData.price * detail.quantity;
@@ -51,7 +52,7 @@ const OrderHistory = ({ visible, onCancel, userId }) => {
     if (!userId) return;
     setLoading(true);
     try {
-      const response = await axios.get(`https://localhost:7087/api/orders/user/${userId}`);
+      const response = await instance.get(`/api/orders/user/${userId}`);
       console.log("Orders Data:", response.data);
       const orders = await Promise.all(
         Array.isArray(response.data)
@@ -78,7 +79,7 @@ const OrderHistory = ({ visible, onCancel, userId }) => {
       setOrderHistory(orders);
     } catch (error) {
       console.error("Error fetching orders:", error);
-      message.error("Failed to load order history.");
+      // message.error("Failed to load order history.");
     } finally {
       setLoading(false);
     }
@@ -90,6 +91,10 @@ const OrderHistory = ({ visible, onCancel, userId }) => {
       fetchOrders();
     }
   }, [visible, userId]);
+
+  if (!visible) {
+    return null; 
+  }
 
   return (
     <Modal
