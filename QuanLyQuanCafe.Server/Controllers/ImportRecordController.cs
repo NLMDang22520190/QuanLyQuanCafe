@@ -23,7 +23,7 @@ namespace QuanLyQuanCafe.Server.Controllers
             var records = await _importRecordRepo.GetAllAsync();
             return Ok(records);
         }
-
+    
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ImportMaterialDto importMaterialDto)
         {
@@ -35,8 +35,6 @@ namespace QuanLyQuanCafe.Server.Controllers
             try
             {
                 var newRecord = importMaterialDto.NewRecord;
-
-              
                 var ingredient = await _ingredientRepo.GetByIdAsync(
                     x => x.IngredientName == importMaterialDto.IngredientName
                 );
@@ -79,9 +77,8 @@ namespace QuanLyQuanCafe.Server.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { error = ex.InnerException?.Message ?? ex.Message });
             }
         }
-
-
     }
+
 
     public class ImportMaterialDto
     {

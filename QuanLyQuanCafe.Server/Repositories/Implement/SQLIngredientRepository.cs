@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QuanLyQuanCafe.Server.Models;
 using QuanLyQuanCafe.Server.Repositories;
+using System.Linq.Expressions;
 
 namespace QuanLyQuanCafe.Server.Repositories.Implement
 {
@@ -10,6 +11,12 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         public SQLIngredientRepository(CoffeeManagementContext dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
+        }
+
+
+        public async Task<bool> ExistsAsync(Expression<Func<Ingredient, bool>> predicate)
+        {
+            return await _dbContext.Ingredients.AnyAsync(predicate);
         }
 
         public async Task<List<Ingredient>> DecreaseQuantityAsync(int menuItemId)
@@ -83,6 +90,10 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             return ingredient;
         }
 
+         public async Task<Ingredient?> GetIngredientByIdAsync(int ingredientId)
+        {
+            return await _dbContext.Ingredients.FirstOrDefaultAsync(x => x.IngredientId == ingredientId);
+        }
        
     }
 }
