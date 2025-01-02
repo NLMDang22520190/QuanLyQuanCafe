@@ -11,7 +11,7 @@ const OrderHistory = ({ visible, onCancel, userId }) => {
 
   const fetchOrderDetails = async (orderId) => {
     try {
-      const response = await instance.get(`/api/order-details/order/${orderId}`);
+      const response = await instance.get(`/api/OrderDetail/order/${orderId}`);
       console.log(`Order Details for ${orderId}:`, response.data);
   
       const detailsWithItemNames = await Promise.all(
