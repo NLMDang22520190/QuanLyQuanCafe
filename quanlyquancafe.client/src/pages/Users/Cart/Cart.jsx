@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Minus, Plus, X } from "lucide-react";
 import { Button, Card, Pagination, Dropdown } from "flowbite-react";
 import { useSelector, useDispatch } from "react-redux";
+import debounce from "lodash/debounce";
 
 import {
   fetchCartDetailsByCustomerId,
@@ -39,17 +40,34 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    fetchCart();
-  }, [cart.items, items.length]);
+    if (userId) fetchCart();
+    //fetchCart();
+  }, []);
 
   const formatPrice = (price) => {
     return price.toLocaleString("vi-VN") + "đ";
   };
 
+  const debouncedUpdate = debounce(async (item, quantity, dispatch) => {
+    try {
+      await dispatch(
+        updateItemInCart({
+          cartDetailId: item.cartDetailId,
+          quantity,
+          notes: "",
+          adjustments: "",
+        })
+      ).unwrap();
+      console.log(`Updated quantity for item ${item.cartDetailId}`);
+    } catch (error) {
+      console.error(`Failed to update quantity`, error);
+    }
+  }, 300);
+
   const updateQuantity = (item, change) => {
     const newQuantity = Math.max(1, item.quantity + change);
 
-    // Cập nhật giao diện ngay lập tức
+    // Cập nhật UI ngay lập tức
     setItems((prevItems) =>
       prevItems.map((currentItem) =>
         currentItem.cartDetailId === item.cartDetailId
@@ -58,31 +76,8 @@ const Cart = () => {
       )
     );
 
-    // Xóa timer cũ nếu có
-    if (debounceRef.current[item.cartDetailId]) {
-      clearTimeout(debounceRef.current[item.cartDetailId]);
-    }
-
-    // Tạo timer mới để gửi API sau 300ms
-    debounceRef.current[item.cartDetailId] = setTimeout(async () => {
-      try {
-        await dispatch(
-          updateItemInCart({
-            cartDetailId: item.cartDetailId,
-            quantity: newQuantity,
-            notes: item.notes || "",
-            adjustments: item.adjustments || "",
-          })
-        ).unwrap();
-        console.log(`Updated quantity for item ${item.cartDetailId}`);
-      } catch (error) {
-        console.error(
-          `Failed to update quantity for item ${item.cartDetailId}`,
-          error
-        );
-        // Rollback UI nếu cần thiết
-      }
-    }, 300); // Đợi 300ms trước khi gửi API
+    // Debounce API call
+    debouncedUpdate(item, newQuantity, dispatch);
   };
 
   const removeItem = (id) => {

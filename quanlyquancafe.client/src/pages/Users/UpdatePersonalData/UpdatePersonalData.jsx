@@ -7,7 +7,7 @@ import {
   Datepicker,
   Dropdown,
 } from "flowbite-react";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { message } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import api from "../../../features/AxiosInstance/AxiosInstance";
@@ -220,13 +220,15 @@ const UpdatePersonalData = () => {
     e.preventDefault();
 
     if (!selectedCity || !selectedDistrict || !selectedWard) {
-      alert("Vui lòng chọn đầy đủ thông tin về Thành Phố, Quận và Phường");
+      message.error(
+        "Vui lòng chọn đầy đủ thông tin về Thành Phố, Quận và Phường"
+      );
       return;
     }
 
     const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})\b/;
     if (!phoneRegex.test(formData.phoneNumber)) {
-      alert("Số điện thoại không hợp lệ. Vui lòng nhập lại.");
+      message.error("Số điện thoại không hợp lệ. Vui lòng nhập lại.");
       return;
     }
 
@@ -246,17 +248,19 @@ const UpdatePersonalData = () => {
         payload
       );
       if (response.status === 200) {
-        alert("Thông tin cá nhân đã được cập nhật thành công");
+        message.success("Thông tin cá nhân đã được cập nhật thành công");
       } else {
-        alert("Cập nhật thông tin không thành công, vui lòng thử lại.");
+        message.error("Cập nhật thông tin không thành công, vui lòng thử lại.");
       }
     } catch (error) {
       if (error.response) {
         console.error("Response error:", error.response.data);
-        alert(`Error: ${error.response.data.message || "Có lỗi xảy ra."}`);
+        message.error(
+          `Error: ${error.response.data.message || "Có lỗi xảy ra."}`
+        );
       } else {
         console.error("Error:", error);
-        alert("Đã có lỗi xảy ra. Vui lòng thử lại.");
+        message.error("Đã có lỗi xảy ra. Vui lòng thử lại.");
       }
     } finally {
       setIsLoading(false);

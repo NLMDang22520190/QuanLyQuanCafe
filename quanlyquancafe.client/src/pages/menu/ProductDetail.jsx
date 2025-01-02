@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, InputNumber, Button, Upload, Select, Space } from 'antd';
+import { Form, Input, InputNumber, Button, Upload, Select, Space, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import api from '../../features/AxiosInstance/AxiosInstance';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
@@ -80,7 +80,7 @@ const CreateProduct = ({id, onSubmit }) => {
     }
 
     const fetchMenuItemById = async (id) => {
-        await api.get(`api/menu-items/${id}`).then(async (response) => {
+        await api.get(`api/menu-items/with-recipies/${id}`).then(async (response) => {
             const data = response.data;
             setMenuItem(data);
             
@@ -120,10 +120,10 @@ const CreateProduct = ({id, onSubmit }) => {
         try {
             menuItem.itemId = id;
             const response = await api.put(`api/menu-items/UpdateProduct`, menuItem);
-            console.log(response);
+            message.success(response.data);
 
         } catch (error) {
-            console.log(error.message);
+            message.error('Failed to update product');
         }
     }
 

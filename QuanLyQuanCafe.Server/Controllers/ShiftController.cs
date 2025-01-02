@@ -11,10 +11,12 @@ namespace QuanLyQuanCafe.Server.Controllers
     public class ShiftController : ControllerBase
     {
         private readonly IShiftRepository _shiftRepo;
+        private readonly IStaffRepository _staffRepo;
 
-        public ShiftController(IShiftRepository shiftRepo)
+        public ShiftController(IShiftRepository shiftRepo, IStaffRepository staffRepo)
         {
             _shiftRepo = shiftRepo;
+            _staffRepo = staffRepo;
         }
         /// <summary>
         /// Get all shifts
@@ -38,6 +40,43 @@ namespace QuanLyQuanCafe.Server.Controllers
                 currentPage = pagedResult.CurrentPage,
                 pageSize = pagedResult.PageSize
             });
+        }
+        /// <summary>
+        /// Get shifts by staff ID
+        /// </summary>
+        [HttpGet("staff/{userId}")]
+        public async Task<IActionResult> GetShiftsByStaffId(string userId)
+        {
+            try
+            {
+                var staff = await _staffRepo.GetStaffByUserid(userId);
+                if (staff == null)
+                {
+                    return NotFound(new { error = "Staff not found." });
+                }
+
+                var staffId = staff.StaffId;
+                var shifts = await _shiftRepo.GetShiftsByStaffId(staffId);
+
+                if (shifts == null || shifts.Count == 0)
+                {
+                    return NotFound(new { message = $"No shifts found for staff with ID {staffId}." });
+                }
+
+                return Ok(new
+                {
+                    message = "Shifts fetched successfully.",
+                    data = shifts
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = $"An error occurred while fetching shifts: {ex.Message}" });
+            }
         }
         /// <summary>
         /// Get a shift by ID

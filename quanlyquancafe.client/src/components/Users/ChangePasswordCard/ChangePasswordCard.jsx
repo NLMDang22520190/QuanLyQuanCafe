@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, TextInput as Input, Label } from "flowbite-react";
 import { useNavigate } from "react-router-dom"; // Để điều hướng trang
 import api from "../../../features/AxiosInstance/AxiosInstance";
-import Password from "antd/es/input/Password";
+import { message } from "antd";
 
 const ChangePasswordCard = ({ email }) => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -73,7 +73,7 @@ const ChangePasswordCard = ({ email }) => {
       console.log(response.data);
 
       if (response.status === 200) {
-        alert("Đổi mật khẩu thành công!");
+        message.success("Đổi mật khẩu thành công!");
         // Điều hướng tới trang khác nếu cần
       } else {
         setError(

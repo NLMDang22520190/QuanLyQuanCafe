@@ -1,8 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../AxiosInstance/AxiosInstance";
+import { useSelector } from "react-redux";
 
 // URL API base
 const apiBaseUrl = "/api/Cart";
+//const userId = useSelector((state) => state.auth.user);
 
 export const fetchCartIdByCustomerId = createAsyncThunk(
   "cart/fetchCartIdByCustomerId",
@@ -43,16 +45,18 @@ export const fetchCartDetailsByCustomerId = createAsyncThunk(
 // Async actions (API calls)
 export const addItemToCart = createAsyncThunk(
   "cart/addItemToCart",
-  async (itemData, { rejectWithValue }) => {
+  async (itemData, { dispatch, getState, rejectWithValue }) => {
     try {
       const response = await api.post(`${apiBaseUrl}/AddItemToCart`, itemData);
+      const userId = getState().auth.user; // Lấy userId từ state Redux
+      // Gọi lại fetchCartDetailsByCustomerId để cập nhật giỏ hàng
+      await dispatch(fetchCartDetailsByCustomerId(userId));
       return response.data; // API trả về item vừa thêm
     } catch (error) {
       return rejectWithValue(error.response?.data || "Something went wrong");
     }
   }
 );
-
 export const updateItemInCart = createAsyncThunk(
   "cart/updateItemInCart",
   async (updateData, { rejectWithValue }) => {
@@ -136,7 +140,7 @@ const cartSlice = createSlice({
       })
       .addCase(addItemToCart.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.items.push(action.payload); // Thêm item vào state
+        //state.items.push(action.payload); // Thêm item vào state
       })
       .addCase(addItemToCart.rejected, (state, action) => {
         state.status = "failed";

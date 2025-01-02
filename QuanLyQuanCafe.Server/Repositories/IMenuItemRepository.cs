@@ -7,10 +7,12 @@ namespace QuanLyQuanCafe.Server.Repositories
     {
         IQueryable<MenuItem> GetMostSoldMenuItems();
         IQueryable<MenuItem> GetLeastSoldMenuItems();
+        Task<bool> CheckStockOfItemIngredientAsync(int itemId);
         Task<List<MenuItem>> GetAllWithRecipesAsync();
         Task<MenuItem?> GetMenuItemWithRecipesByIdAsync(int itemId);
         Task<List<MenuItem>> GetMenuItemsByCategoryIdAsync(int categoryId);
         Task<List<MenuItem>> GetFeatureMenuItemAsync();
+        Task<MenuItem> UpdateMenuItemAsync(MenuItem menuItem);
 
     }
 }

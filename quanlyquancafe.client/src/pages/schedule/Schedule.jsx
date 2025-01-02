@@ -185,7 +185,7 @@ const Schedule = () => {
     }
     useEffect(() => {
         fetchSchedule(); 
-    }, [shiftData]);
+    }, [shiftData,week]);
 
 
     const handleEditShift = async () => {
@@ -310,11 +310,11 @@ const Schedule = () => {
             checkOut: record.checkOut ? moment(record.checkOut).format("HH:mm:ss") : "Not checkout",
         }));
 
-        setStaffAttendance(attendanceData); // Lưu dữ liệu vào state
+        setStaffAttendance(attendanceData); 
         console.log(attendanceData)
     } catch (error) {
         console.error("Failed to fetch attendance report:", error);
-        message.error("Failed to fetch attendance report. Please try again.");
+        message.error(error.response?.data?.message);
     }
 
 };
@@ -651,9 +651,14 @@ const Schedule = () => {
                     showTimeIndicator={true}
                     readonly={true} 
                     navigating={(args) => {
-                        const selectedWeekStart = args.currentDate; 
+                        const currentDate = args.currentDate; 
+                        const dayOfWeek = currentDate.getDay(); 
+                        
+                        const selectedWeekStart = new Date(currentDate);
+                        selectedWeekStart.setDate(currentDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+                    
                         const selectedWeekEnd = new Date(selectedWeekStart);
-                        selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6); 
+                        selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6);
                         setWeek([selectedWeekStart, selectedWeekEnd]);
                         fetchSchedule();
                     }}
