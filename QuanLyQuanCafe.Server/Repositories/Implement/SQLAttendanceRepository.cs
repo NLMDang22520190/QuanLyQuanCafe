@@ -128,25 +128,30 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         public async Task<PagedResult<StaffAttendanceDto>> GetStaffAttendanceForShiftOnDateAsync(
             int shiftId, DateOnly date, int pageIndex, int pageSize)
         {
-            var schedules = dbContext.Schedules
-                .Include(s => s.Staff)
-                .Where(s => s.ShiftId == shiftId);
-
+            //var query = dbContext.Attendances
+            //    .Include(a => a.Schedule)
+            //    .ThenInclude(s => s.Staff)
+            //    .ThenInclude(staff => staff.User)
+            //    .Where(a => a.Schedule.ShiftId == shiftId && a.Date == date)
+            //    .Select(a => new
+            //    {
+            //        a.Checkin,
+            //        a.Checkout,
+            //        StaffName = a.Schedule.Staff.User.UserName
+            //    })
+            //    .Distinct();
             var query = dbContext.Attendances
-                .Join(
-                    schedules,
-                    attendance => attendance.ScheduleId,
-                    schedule => schedule.ScheduleId,
-                    (attendance, schedule) => new { attendance, schedule }
-                )
-                .Where(x => x.attendance.Date == date)
-                .Select(x => new
-                {
-                    x.attendance.Checkin,
-                    x.attendance.Checkout,
-                    StaffName = x.schedule.Staff.User.UserName
-                });
-
+           .Include(a => a.Schedule)
+           .ThenInclude(s => s.Staff)
+           .ThenInclude(staff => staff.User)
+           .Where(a => a.Schedule.ShiftId == shiftId && a.Date == date)
+           .GroupBy(a => a.Schedule.StaffId)
+           .Select(g => new
+           {
+               StaffName = g.First().Schedule.Staff.User.UserName,
+               Checkin = g.First().Checkin,
+               Checkout = g.First().Checkout
+           });
             var totalRecords = await query.CountAsync();
 
             var results = await query

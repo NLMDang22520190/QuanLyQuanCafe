@@ -48,6 +48,7 @@ namespace QuanLyQuanCafe.Server.Controllers
                 {
                     return BadRequest(new { message = "Failed to create schedule." });
                 }
+                await _attendanceRepos.CreateAttendancesForRangeAsync(newScheduleDto.ScheduleId, scheduleDto.StartDate, scheduleDto.EndDate);
 
                 return Ok(newScheduleDto);
             }
