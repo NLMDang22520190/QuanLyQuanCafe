@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const HeroHeaderSection = () => {
   return (
@@ -20,12 +21,13 @@ const HeroHeaderSection = () => {
           Đánh Thức Các Giác Quan Với Mỗi Ngụm Và Trải Nghiệm Cà Phê Như Chưa
           Từng Có.
         </p>
-        <button
+        <Link
+          to="/MenuAll"
           // onClick={handleShopClick}
           className="transition-all duration-300 ease-out hover:bg-primary-600 hover:shadow-lg hover:-translate-y-0.5 bg-primary-500 text-white px-8 py-3 rounded-lg font-medium"
         >
           Đặt hàng
-        </button>
+        </Link>
       </motion.div>
 
       <motion.div

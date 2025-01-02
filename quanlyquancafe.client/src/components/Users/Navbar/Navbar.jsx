@@ -43,23 +43,12 @@ const Navbar = () => {
             >
               Menu
             </Link>
-            <Link
-              to="/OrderTracking"
-              className="text-lg font-medium  text-primary-400 hover:underline hover:underline-offset-8"
-            >
-              Theo dõi đơn hàng
-            </Link>
+
             <Link
               to={auth.isAuthenticated ? `/OrderHistory` : `/auth/login`}
               className="text-lg font-medium  text-primary-400 hover:underline hover:underline-offset-8"
             >
               Lịch sử đơn hàng
-            </Link>
-            <Link
-              to={auth.isAuthenticated ? `/Cart` : `/auth/login`}
-              className="text-lg font-medium  text-primary-400 hover:underline hover:underline-offset-8"
-            >
-              Giỏ hàng
             </Link>
           </div>
         </div>
@@ -83,7 +72,7 @@ const Navbar = () => {
             </svg>
           </Link>
           <Link
-            to={auth.isAuthenticated ? `/order-confirmation` : `/auth/login`}
+            to={auth.isAuthenticated ? `/Cart` : `/auth/login`}
             class="flex group items-center justify-center p-2 bg-white transition-colors  hover:bg-primary-500 rounded-full"
           >
             <div class="relative scale-75">
