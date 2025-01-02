@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Space, QRCode, Input, Select, Card, InputNumber } from "antd";
+import { Button, Space, QRCode, Input, Select, Card, InputNumber, Modal } from "antd";
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { PaymentMethod } from "../../constant/PaymentMethod";
 import { Currency } from '../../constant/Currency';
@@ -16,6 +16,7 @@ export const OrderPayment = ({ onBack, totalAmount, discountAmount, finalAmount 
     const [paymentMethod, setPaymentMethod] = useState(PaymentMethod.Cash);
     const [currency, setCurrency] = useState(Currency.VND);
     const [givenMoney, setGivenMoney] = useState(0);
+    const [modalReceiptVisible, setModalReceiptVisible] = useState(false);
 
     const increase = () => {
         setSize((prevSize) => {
@@ -49,6 +50,8 @@ export const OrderPayment = ({ onBack, totalAmount, discountAmount, finalAmount 
 `.replace(/\s+/g, '');
 
     return (
+        <>
+       
         <div className="flex flex-col gap-y-4 overflow-hidden h-full">
             <div className="flex max-h-[calc(100vh-180px)] min-h-[calc(100vh-180px)] w-full gap-x-4">
                 <Card className="w-2/3 rounded-lg flex flex-col gap-x-8 p-4 justify-between">
@@ -148,5 +151,7 @@ export const OrderPayment = ({ onBack, totalAmount, discountAmount, finalAmount 
                 </Card>
             </div>
         </div>
+       
+        </>
     );
 };

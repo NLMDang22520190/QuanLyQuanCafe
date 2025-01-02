@@ -10,6 +10,7 @@ import { Modal, Button, Table, Checkbox, Input, message } from 'antd'
 import { AddPromotion } from './AddPromotion';
 import { PromotionDetail } from "./PromotionDetail";
 import api from "../../features/AxiosInstance/AxiosInstance";
+import PromotionExport from "./PromotionExport";
 
 export const PromotionPage = () => {
     const navigate = useNavigate();
@@ -19,6 +20,7 @@ export const PromotionPage = () => {
     const [isPromotionDetailModalVisible, setIsPromotionDetailModalVisible] = useState(false);
     const [vouchers, setVouchers] = useState([]);
     const [selectedVouherId, setSelectedVoucherId] = useState(null);
+    const [PromotionExportVisible, setPromotionExportVisible] = useState(false);    
 
     const columns = [
         {
@@ -104,11 +106,12 @@ export const PromotionPage = () => {
                         <Button
                             size="large"
                             type="primary"
+                            onClick={() => setPromotionExportVisible(true)}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
                             </svg>
-                            Export Promotion Report
+                            Export Promotion CSV
                         </Button>
                         <Button
                             onClick={() => setIsModalAddVisible(true)}
@@ -131,6 +134,9 @@ export const PromotionPage = () => {
             </Modal>
             <Modal title="Promotion detail" open={isPromotionDetailModalVisible} onCancel={() => setIsPromotionDetailModalVisible(false)} footer={null}>
                 <PromotionDetail onSubmit={()=>{}} voucherId={selectedVouherId} />
+            </Modal>
+            <Modal title="Export Promotion" open={PromotionExportVisible} onCancel={() => setPromotionExportVisible(false)} footer={null}>
+                <PromotionExport promotions={vouchers} />
             </Modal>
         </>
     );

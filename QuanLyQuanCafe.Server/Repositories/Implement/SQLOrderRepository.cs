@@ -191,7 +191,6 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 			// Add the OrderDetail to the OrderDetails DbSet
 			dbContext.OrderDetails.Add(orderDetail);
 
-
 			// Save changes asynchronously
 			await dbContext.SaveChangesAsync();
 		}

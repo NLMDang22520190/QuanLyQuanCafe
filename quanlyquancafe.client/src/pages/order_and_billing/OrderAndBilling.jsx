@@ -6,11 +6,13 @@ import { TableDetailType } from "../../constant/TableDetailType";
 import { Table, Tag, Button, Input, Modal, Select, Pagination, message } from 'antd';
 import api from "../../features/AxiosInstance/AxiosInstance"
 import { useEffect, useState } from "react";
+import OrderExport from "./OrderExport";
 
 export const OrderAndBilling = () => {
     const navigate = useNavigate();
     const [orders, setOrders] = useState()
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [orderExportVisible, setOrderExportVisible] = useState(false);
 
     const fetchOrder = async () => {
         const response = await api.get("api/Order")
@@ -141,7 +143,7 @@ export const OrderAndBilling = () => {
                         </svg>}
                     />
 
-                    <Button type="primary" className="flex items-center gap-x-2" size="large">
+                    <Button onClick={()=>setOrderExportVisible(true)} type="primary" className="flex items-center gap-x-2" size="large">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
                         </svg>
@@ -188,6 +190,9 @@ export const OrderAndBilling = () => {
                     <p><strong>Total Amount:</strong> ${selectedOrder.totalPrice}</p>
                 </div>
             )}
+        </Modal>
+        <Modal title="Export Orders" footer={null} open={orderExportVisible} onOk={() => setOrderExportVisible(false)} onCancel={() => setOrderExportVisible(false)}  >
+            <OrderExport orders={orders} />
         </Modal>
         </>
     )
