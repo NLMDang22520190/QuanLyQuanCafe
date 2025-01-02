@@ -23,7 +23,6 @@ import { Profile } from "../pages/personalization/profile";
 import { InventoryControlPage } from "../pages/Inventory/InventoryControlPage";
 
 import TableManagementPage from "../pages/table_management/TableManagementPage";
-import { AddMaterials } from "../pages/Inventory/AddMaterials";
 import { PromotionPage } from "../pages/promotion/PromotionPage";
 import UserRole from "../constant/UserRole";
 
@@ -63,7 +62,6 @@ const AllRoutes = () => {
           </Route>
           <Route path="/inventory">
             <Route path="" element={<InventoryControlPage />} />
-            <Route path="add" element={<AddMaterials />} />
           </Route>
           <Route path="/table-management" element={<TableManagementPage />} />
         </>

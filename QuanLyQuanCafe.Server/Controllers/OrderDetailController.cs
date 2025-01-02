@@ -59,6 +59,19 @@ namespace QuanLyQuanCafe.Server.Controllers
 			return Ok(orderDetail);
 		}
 
+		//Lấy OrderDetail theo OrderId
+		[HttpGet("order/{orderId}")]
+		public async Task<IActionResult> GetOrderDetailsByOrderId(int orderId)
+		{
+			var orderDetails = await _orderDetailRepository.GetOrderDetailsByOrderIdAsync(orderId);
+			if (orderDetails == null || !orderDetails.Any())
+			{
+				return NotFound($"No order details found for OrderId {orderId}");
+			}
+			return Ok(orderDetails);
+		}
+
+
 		// Thêm chi tiết đơn hàng từ giỏ hàng (Cart to OrderDetail conversion)
 		[HttpPost("convert-cart-to-order")]
 		public async Task<IActionResult> ConvertCartToOrderDetails([FromBody] CartToOrderRequest request)
