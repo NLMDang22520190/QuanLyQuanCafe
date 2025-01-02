@@ -13,7 +13,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         public SQLVoucherDetailRepository(CoffeeManagementContext dbContext, UserManager<ApplicationUser> userManager) : base(dbContext)
         {
             this.dbContext = dbContext;
-            this.userManager= userManager;
+            this.userManager = userManager;
         }
 
         public async Task<VoucherDetail> GetVoucherDetailByVoucherCode(string voucherCode)
@@ -39,6 +39,17 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 .ToListAsync();
 
             return voucherDetails;
+        }
+
+        public async Task<string> GetVoucherCodeByVoucherDetailId(int voucherDetailId)
+        {
+            var voucher = await dbContext.VoucherDetails.FirstOrDefaultAsync(x => x.VoucherId == voucherDetailId);
+            if (voucher == null)
+                return null;
+
+            var voucherCode = voucher.VoucherCode;
+
+            return voucherCode;
         }
     }
 }
