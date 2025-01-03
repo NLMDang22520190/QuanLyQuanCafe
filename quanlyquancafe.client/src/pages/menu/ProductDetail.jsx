@@ -84,6 +84,7 @@ const CreateProduct = ({id, onSubmit }) => {
         await api.get(`api/menu-items/with-recipies/${id}`).then(async (response) => {
             const data = response.data;
             setMenuItem(data);
+            console.log(data)
             
             if (data.picture){
                 fetchImageById(data.picture);
