@@ -71,7 +71,7 @@ const IngredientDetail = ({ visible, onClose, ingredientId }) => {
       const response = await instance.post(`/api/import-record`, updatedIngredient);
   
       if (response.status === 200 || response.status === 201) {
-        message.success("Nhập nguyên liệu thành công!");
+        message.success("Successfull Import Ingredient!");
         onClose(); 
       } else {
         throw new Error("Phản hồi không hợp lệ từ API");
@@ -91,7 +91,7 @@ const IngredientDetail = ({ visible, onClose, ingredientId }) => {
   if (!ingredient) {
     return (
       <Modal
-        title="Chi tiết nguyên liệu"
+        title="Ingredient Detail"
         visible={visible}
         onCancel={onClose}
         footer={null}
@@ -104,7 +104,7 @@ const IngredientDetail = ({ visible, onClose, ingredientId }) => {
 
   return (
     <Modal
-      title="Chi tiết nguyên liệu"
+      title="Ingredient Detail"
       visible={visible}
       onCancel={onClose}
       footer={null}
@@ -118,7 +118,7 @@ const IngredientDetail = ({ visible, onClose, ingredientId }) => {
       >
         <Row gutter={[16, 16]}>
           <Col xs={24} md={12}>
-            <Form.Item label="Tên nguyên liệu">
+            <Form.Item label="Ingredient Name">
               <Input value={ingredient.ingredientName || "Không xác định"} readOnly 
               prefix={
                 <svg
@@ -145,7 +145,7 @@ const IngredientDetail = ({ visible, onClose, ingredientId }) => {
           </Col>
 
           <Col xs={24} md={12}>
-            <Form.Item label="Ngày nhập" name="dateImport">
+            <Form.Item label="Date Import" name="dateImport">
               <DatePicker
                 style={{ width: "100%" }}
                 format="YYYY-MM-DD"
@@ -156,7 +156,7 @@ const IngredientDetail = ({ visible, onClose, ingredientId }) => {
           </Col>
 
           <Col xs={24} md={12}>
-            <Form.Item label="Đơn vị tính">
+            <Form.Item label="Unit">
               <Select value={ingredient.unit || "Không xác định"} disabled>
                 <Select.Option value="kg">Kilogram</Select.Option>
                 <Select.Option value="pcs">Piece</Select.Option>
@@ -166,7 +166,7 @@ const IngredientDetail = ({ visible, onClose, ingredientId }) => {
           </Col>
 
           <Col xs={24} md={12}>
-            <Form.Item label="Giá nhập">
+            <Form.Item label="Price Import">
               <Input
                 value={(ingredient.importPrice || 0).toLocaleString("vi-VN", {
                   style: "currency",
@@ -195,19 +195,19 @@ const IngredientDetail = ({ visible, onClose, ingredientId }) => {
 
           <Col xs={24} md={12}>
             <Form.Item
-              label="Số lượng"
+              label="Quantity"
               name="quantity"
               rules={[
-                { required: true, message: "Vui lòng nhập số lượng." },
+                { required: true, message: "Please input quantity!" },
                 { type: "number", min: 1, message: "Số lượng phải lớn hơn 0." },
               ]}
             >
-              <InputNumber min={1} placeholder="Nhập số lượng" style={{ width: "100%" }} />
+              <InputNumber min={1} placeholder="0" style={{ width: "100%" }} />
             </Form.Item>
           </Col>
 
           <Col xs={24} md={12}>
-            <Form.Item label="Thành tiền">
+            <Form.Item label="Total Price">
               <Input
                 value={totalPrice.toLocaleString("vi-VN", {
                   style: "currency",

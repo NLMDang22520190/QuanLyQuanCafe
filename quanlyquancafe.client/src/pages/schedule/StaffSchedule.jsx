@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import instance from "../../features/AxiosInstance/AxiosInstance";
 import { Day, WorkWeek, Week, ScheduleComponent, Inject } from "@syncfusion/ej2-react-schedule";
 import axios from "axios";
-import moment from 'moment';
+import moment from 'moment-timezone';
 import "./schedule.css";
 
 const StaffSchedule = () => {
@@ -150,14 +150,25 @@ const StaffSchedule = () => {
 
     const handleCheckIn = async () => {
         if (!checkin) {
-            try {
+            try {          
+                const checkInTimeLocal = new Date();
+                const checkInTime = moment(checkInTimeLocal)
+                    .utcOffset("+07:00", true) 
+                    .format("YYYY-MM-DDTHH:mm:ss"); 
+        
                 const payload = {
                     userId,
-                    shiftId: selectedShift.Id, 
-                    checkin: new Date().toISOString(), 
+                    shiftId: selectedShift.Id,
+                    checkin: checkInTime,
                 };
+    
+                console.log("Check-In Payload:", payload);
+                console.log("Shift Start Time:", selectedShift.StartTime);
+                console.log("Shift End Time:", selectedShift.EndTime);
+    
                 const response = await instance.post(`/api/attendances/checkin`, payload);
-                if(response.status===200||response.status===201){
+    
+                if (response.status === 200 || response.status === 201) {
                     console.log("Check-In Successful:", response.data);
                     setCheckInTime(new Date());
                     message.success("Checked in successfully!");
@@ -169,30 +180,51 @@ const StaffSchedule = () => {
         }
     };
     
+    
 
     const handleCheckOut = async () => {
         if (checkin && !checkOutTime) {
             try {
-                const payload = {
+                const checkInTime = moment(checkin)
+                    .utcOffset("+07:00", true)
+                    .format("YYYY-MM-DDTHH:mm:ss");
+    
+         
+                const checkOutTimeLocal = new Date();
+                const checkOutTime = moment(checkOutTimeLocal)
+                    .utcOffset("+07:00", true)
+                    .format("YYYY-MM-DDTHH:mm:ss");
+    
+              
+                const queryString = new URLSearchParams({
                     UserId: userId, 
                     ShiftId: selectedShift.Id, 
-                    Checkin: checkin.toISOString().split("T")[0], 
-                    Checkout: new Date().toISOString().split("T")[0], 
-                };
+                    Checkin: checkInTime,
+                    Checkout: checkOutTime, 
+                }).toString();
     
-                const queryString = new URLSearchParams(payload).toString();
+                console.log("Check-Out Query String:", queryString);
+                console.log("Shift Start Time:", selectedShift?.StartTime);
+                console.log("Shift End Time:", selectedShift?.EndTime);
+    
+          
                 const response = await instance.put(`/api/attendances/checkout?${queryString}`);
-                if(response.status===200||response.status===201){
+    
+                if (response.status === 200 || response.status === 201) {
                     console.log("Check-Out Successful:", response.data);
-                    setCheckOutTime(new Date());
+                    setCheckOutTime(new Date()); // Cập nhật thời gian Check-Out vào state
                     message.success("Checked out successfully!");
                 }
             } catch (error) {
                 console.error("Error during Check-Out:", error.response?.data || error.message);
                 message.error(error.response?.data?.message || "Failed to check out. Please try again.");
             }
+        } else {
+            message.warning("You need to check in first before checking out!");
         }
     };
+    
+    
     
 
     const quickInfoEventTemplate = (props) => {
