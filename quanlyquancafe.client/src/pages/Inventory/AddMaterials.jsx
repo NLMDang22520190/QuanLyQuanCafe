@@ -14,7 +14,7 @@ const AddMaterials = ({ visible, onClose }) => {
     const { materialName, unit, quantity, price } = values;
   
     if (!materialName || !unit || quantity <= 0 || price <= 0) {
-      message.error("Vui lòng nhập đầy đủ thông tin bắt buộc.");
+      message.error("Please enter complete information.");
       return;
     }
   
@@ -24,7 +24,7 @@ const AddMaterials = ({ visible, onClose }) => {
   
       if (checkResponse.data.exists) {
       
-        message.error("Nguyên liệu đã tồn tại");
+        message.error("Ingredient has existed");
         return;
       }
   
@@ -43,7 +43,7 @@ const AddMaterials = ({ visible, onClose }) => {
       const response = await instance.post(`/api/import-record`, newMaterial);
   
       if (response.status === 201) {
-        message.success("Nhập nguyên liệu thành công!");
+        message.success("Successfull Import New Ingredient!");
         onClose(); 
       }
     } catch (error) {
@@ -61,7 +61,7 @@ const AddMaterials = ({ visible, onClose }) => {
 
   return (
     <Modal
-      title="Nhập nguyên liệu"
+      title="Import Ingredient"
       visible={visible}
       onCancel={onClose}
       footer={null}
@@ -83,11 +83,11 @@ const AddMaterials = ({ visible, onClose }) => {
         <Row gutter={[16, 16]}>
           <Col xs={24} md={12}>
             <Form.Item
-              label="Tên mặt hàng (*)"
+              label="Ingredient Name (*)"
               name="materialName"
               rules={[{ required: true, message: "Vui lòng nhập tên mặt hàng." }]}
             >
-              <Input placeholder="Tên mặt hàng" 
+              <Input placeholder="Ingredient Name" 
                     prefix={
                       <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -113,7 +113,7 @@ const AddMaterials = ({ visible, onClose }) => {
           </Col>
 
           <Col xs={24} md={12}>
-            <Form.Item label="Ngày nhập" name="dateImport">
+            <Form.Item label="Date Import" name="dateImport">
               <DatePicker
                 style={{ width: "100%" }}
                 format="YYYY-MM-DD"
@@ -125,12 +125,12 @@ const AddMaterials = ({ visible, onClose }) => {
 
           <Col xs={24} md={12}>
             <Form.Item
-              label="Đơn vị tính (*)"
+              label="Unit (*)"
               name="unit"
               rules={[{ required: true, message: "Vui lòng chọn đơn vị tính." }]}
             >
               <Select 
-              placeholder="--Chọn đơn vị--"
+              placeholder="--Select Unit--"
               prefix={
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -156,13 +156,13 @@ const AddMaterials = ({ visible, onClose }) => {
 
           <Col xs={24} md={12}>
             <Form.Item
-              label="Giá (*)"
+              label="Price (*)"
               name="price"
               rules={[{ required: true, message: "Vui lòng nhập giá." }]}
             >
               <Input
                 type="number"
-                placeholder="Nhập giá"
+                placeholder="Input Price"
                 min={0}
                 prefix={
                   <svg
@@ -186,7 +186,7 @@ const AddMaterials = ({ visible, onClose }) => {
 
           <Col xs={24} md={12}>
             <Form.Item
-              label="Số lượng (*)"
+              label="Quantity (*)"
               name="quantity"
               rules={[{ required: true, message: "Vui lòng nhập số lượng." }]}
             >
@@ -220,7 +220,7 @@ const AddMaterials = ({ visible, onClose }) => {
           </Col>
 
           <Col xs={24} md={12}>
-            <Form.Item label="Thành tiền">
+            <Form.Item label="Total Price">
               <Input
                 value={totalPrice.toLocaleString("vi-VN", {
                   style: "currency",
