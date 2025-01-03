@@ -42,7 +42,7 @@ const Cart = () => {
   useEffect(() => {
     if (userId) fetchCart();
     //fetchCart();
-  }, []);
+  }, [cart.items.length]);
 
   const formatPrice = (price) => {
     return price.toLocaleString("vi-VN") + "đ";
@@ -83,6 +83,9 @@ const Cart = () => {
   const removeItem = (id) => {
     console.log("Removing item with ID:", id);
     dispatch(deleteItemFromCart(id));
+    // setItems((prevItems) =>
+    //   prevItems.filter((item) => item.cartDetailId !== id)
+    // );
     fetchCart();
   };
 
