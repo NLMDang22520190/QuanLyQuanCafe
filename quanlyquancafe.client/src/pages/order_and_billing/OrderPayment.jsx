@@ -11,12 +11,11 @@ const { Option } = Select;
 const MIN_SIZE = 48;
 const MAX_SIZE = 300;
 
-export const OrderPayment = ({ onBack, totalAmount, discountAmount, finalAmount }) => {
+export const OrderPayment = ({ onBack, totalAmount, discountAmount, finalAmount, isCreatingOrder }) => {
     const [size, setSize] = useState(160);
     const [paymentMethod, setPaymentMethod] = useState(PaymentMethod.Cash);
     const [currency, setCurrency] = useState(Currency.VND);
     const [givenMoney, setGivenMoney] = useState(0);
-    const [modalReceiptVisible, setModalReceiptVisible] = useState(false);
 
     const increase = () => {
         setSize((prevSize) => {
@@ -78,7 +77,7 @@ export const OrderPayment = ({ onBack, totalAmount, discountAmount, finalAmount 
                             />
                             <p>Scan this code to initiate payment.</p>
                         </div>
-                        <div className="flex gap-x-8 w-full">
+                        <div className="flex gap-x-8 w-full justify-center">
                             <div className="flex flex-col w-1/2 gap-y-4">
                                 <p className="text-xl">Choose Payment method:</p>
                                 <Form.Item
@@ -97,22 +96,7 @@ export const OrderPayment = ({ onBack, totalAmount, discountAmount, finalAmount 
                                     </Select>
                                 </Form.Item>
                             </div>
-                            <div className="flex flex-col w-1/2 gap-y-4">
-                                <p className="text-xl">Choose Currency:</p>
-                                <Form.Item
-                                    name={"currency"}
-                                >
-                                    <Select
-                                        value={currency}
-                                        onChange={setCurrency}
-                                        style={{ width: '100%' }}
-                                        rules={[{ required: true, message: 'Please select currency!' }]}
-                                    >
-                                        <Option value={Currency.VND}>{Currency.VND}</Option>
-                                        <Option value={Currency.USD}>{Currency.USD}</Option>
-                                    </Select>
-                                </Form.Item>
-                            </div>
+                            
                         </div>
                     </div>
                 </Card>
@@ -120,15 +104,15 @@ export const OrderPayment = ({ onBack, totalAmount, discountAmount, finalAmount 
                     <div className="flex flex-col gap-y-2">
                         <div className="flex justify-between gap-y-2">
                             <p>Total Amount:</p>
-                            <p>${totalAmount.toFixed(2)}</p>
+                            <p>{totalAmount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                         </div>
                         <div className="flex justify-between">
                             <p>Discount:</p>
-                            <p>${discountAmount.toFixed(2)}</p>
+                            <p>{discountAmount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                         </div>
                         <div className="flex justify-between">
                             <p>Final Amount:</p>
-                            <p>${finalAmount.toFixed(2)}</p>
+                            <p>{finalAmount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                         </div>
                         <div className="flex justify-between">
                             <p>Payment Method:</p>
@@ -142,10 +126,10 @@ export const OrderPayment = ({ onBack, totalAmount, discountAmount, finalAmount 
                         </div>
                         <div className="flex justify-between">
                             <p>Change:</p>
-                            <p>${ givenMoney - finalAmount }</p>
+                            <p>{(givenMoney - finalAmount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                         </div>
                         <div className="flex justify-center">
-                            <Button htmlType="submit" type="primary">Submit payment</Button>
+                            <Button loading={isCreatingOrder} htmlType="submit" type="primary">Submit payment</Button>
                         </div>
                     </div>
                 </Card>

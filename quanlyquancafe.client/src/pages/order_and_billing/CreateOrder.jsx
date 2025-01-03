@@ -22,6 +22,7 @@ export const CreateOrder = () => {
     const [appliedVoucherId, setAppliedVoucherId] = useState(null);
     const [selectedMenuItems, setSelectedMenuItems] = useState([]);
     const contentRef = useRef(null);
+    const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
     const receiptPrintCol = [
         {
@@ -83,13 +84,16 @@ export const CreateOrder = () => {
     };
 
     const handlePlaceOrder = (values) => {
+        setIsCreatingOrder(true);
         values.voucherApplied = appliedVoucherId;
         values.orderDetails = selectedMenuItems.map(item => {
             return { itemId: item.itemId, quantity: item.quantity }
         });
     createOrder(values).then(() => {
         setModalPrintVisible(true);
-    }).catch((error) => {});
+    }).catch((error) => {}).finally(() => {
+        setIsCreatingOrder(false);
+    });
     }
 
     const fetchMenuItems = async () => {
@@ -228,10 +232,8 @@ export const CreateOrder = () => {
                             </Card>
                             <Card className="flex w-1/3 rounded-lg justify-center" >
                                 <div className="flex flex-col h-full gap-y-4">
-                                    <h2 className="text-amber-500 font-medium text-3xl">Order Summary</h2>
-                                    <Form.Item
-
-                                        className="flex flex-col overflow-y-auto gap-2 grow divide-y divide-amber-500" >
+                                    <h2 className="text-amber-500 font-medium text-2xl">Order Summary</h2>
+                                    <Form.Item className="flex flex-col overflow-y-auto gap-2 grow divide-y divide-amber-500" >
 
                                         {selectedMenuItems.map((product) => (
                                             <SelectedOrderProductCard
@@ -244,7 +246,6 @@ export const CreateOrder = () => {
                                                 onRemove={() => handleRemoveItem(product.itemId)}
                                             />
                                         ))}
-
                                     </Form.Item>
                                     <div className="flex flex-col gap-y-2">
                                         <div className="flex justify-center w-full gap-x-2">
@@ -257,7 +258,6 @@ export const CreateOrder = () => {
                                                     placeholder="Enter promotion code..."
                                                     onPressEnter={(e) => handleApplyVoucher(e.target.value)}
                                                 />
-
                                             </Form.Item>
                                             <Button type="primary" onClick={() => handleApplyVoucher(
                                                 document.querySelector('input[name="voucherCode"]').value
@@ -287,7 +287,7 @@ export const CreateOrder = () => {
                         </div>
 
                         <div style={{ display: step == 2 ? '' : 'none' }}>
-                            <OrderPayment totalAmount={totalAmount} discountAmount={discount} finalAmount={totalAmount - discount} onBack={() => setStep(1)} />
+                            <OrderPayment isCreatingOrder={isCreatingOrder} totalAmount={totalAmount} discountAmount={discount} finalAmount={totalAmount - discount} onBack={() => setStep(1)} />
                         </div>
                     </>
                 }

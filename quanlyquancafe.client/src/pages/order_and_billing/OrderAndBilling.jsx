@@ -43,11 +43,13 @@ export const OrderAndBilling = () => {
             title: 'Order ID',
             dataIndex: 'orderId',
             key: 'orderId', 
+            sorter: (a, b) => a.orderId - b.orderId,
         },
         {
             title: 'Date & Time',
             dataIndex: 'orderTime',
             key: 'orderTime',
+            sorter: (a, b) => new Date(a.orderTime) - new Date(b.orderTime),
             render: orderTime => (
                 <p>{new Date(orderTime).toLocaleString()}</p>
             )   
@@ -56,6 +58,7 @@ export const OrderAndBilling = () => {
             title: 'Order Detail',  
             dataIndex: 'orderDetails',
             key: 'orderDetails',
+            sorter: (a, b) => a.orderDetails.length - b.orderDetails.length,
             render: orderDetails => (
                 <ul>
                     {orderDetails?.map(detail => (
@@ -68,24 +71,47 @@ export const OrderAndBilling = () => {
             ),
         },
         {
-            title: 'Total Amount',
+            title: 'Tổng số tiền',
             dataIndex: 'totalPrice',
             key: 'totalPrice',
+            sorter: (a, b) => a.totalPrice - b.totalPrice,
+            render: totalPrice => (
+                <p>{(totalPrice).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+            )
         },
         {
             title: 'Order Status',
             dataIndex: 'orderState',
             key: 'orderState',
+            filters: [
+                {
+                    text: 'Chờ xác nhận',
+                    value: 'Chờ xác nhận',
+                },
+                {
+                    text: 'Đang xử lý',
+                    value: 'Chò xử lý',
+                },
+                {
+                    text: 'Hoàn tất',
+                    value: 'Hoàn tất',
+                },
+                {
+                    text: 'Đã hủy',
+                    value: 'Đã huỷ',
+                },
+            ],
+            onFilter: (value, record) => record.orderState.includes(value),
             render: status => {
                 let color = 'geekblue';
-                if (status === 'Completed') {
+                if (status === 'Chờ xác nhận') {
+                    color = 'yellow';
+                } else if (status === 'Đang xử lý') {
                     color = 'green';
-                } else if (status === 'Pending') {
-                    color = 'volcano';
-                } else if (status === 'Cancelled') {
-                    color = 'red';
-                } else if (status === 'In Progress') {
+                } else if (status === 'Hoàn tất') {
                     color = 'blue';
+                } else if (status === 'Đã hủy') {
+                    color = 'red';
                 }
                 return <Tag color={color}>{status}</Tag>;
             },
@@ -125,10 +151,22 @@ export const OrderAndBilling = () => {
             dataIndex: 'item',
             key: 'item', 
             render: item => {
-                return <p>${item.price}</p>
+                return <p>{(item.price).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
             }  
         }
     ]
+
+    const onSearch = (value, _e, info) => {
+        if (value === "") {
+            fetchOrder();
+            return;
+        }
+        const filteredOrders = orders.filter(order => 
+            order.orderId.toString().includes(value) ||
+            order.orderDetails.some(detail => detail.item.itemName.toLowerCase().includes(value.toLowerCase()))
+        );
+        setOrders(filteredOrders);
+    }
 
     return (
         <>
@@ -136,11 +174,11 @@ export const OrderAndBilling = () => {
             <div className="flex justify-between items-center">
                 <h2 className="text-amber-500 font-medium text-3xl">Order & Billing</h2>
                 <div className="flex gap-x-2">
-                    <Input
+                    <Input.Search
                         placeholder="Search Order"
-                        prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>}
+                        onSearch={onSearch}
+                        prefix={""}
+                        allowClear
                     />
 
                     <Button onClick={()=>setOrderExportVisible(true)} type="primary" className="flex items-center gap-x-2" size="large">
@@ -175,10 +213,10 @@ export const OrderAndBilling = () => {
                             style={{ width: 120 }} 
                             onChange={(value) => updateOrderStatus({ state: value })}
                         >
-                            <Select.Option value="Pending">Pending</Select.Option>
-                            <Select.Option value="In Progress">In Progress</Select.Option>
-                            <Select.Option value="Completed">Completed</Select.Option>
-                            <Select.Option value="Cancelled">Cancelled</Select.Option>
+                            <Select.Option value="Chờ xác nhận">Chờ xác nhận</Select.Option>
+                            <Select.Option value="Đang xử lý">Đang xử lý</Select.Option>
+                            <Select.Option value="Hoàn tất">Hoàn tất</Select.Option>
+                            <Select.Option value="Đã Huỷ">Đã Huỷ</Select.Option>
                         </Select>
                     </p>
                     <p><strong>Order Items:</strong></p>
@@ -187,7 +225,7 @@ export const OrderAndBilling = () => {
                     {
                         selectedOrder.voucherApplied ? selectedOrder.voucherApplied.voucherCode : "No voucher applied"
                     } </p>
-                    <p><strong>Total Amount:</strong> ${selectedOrder.totalPrice}</p>
+                    <p><strong>Total Amount:</strong> {(selectedOrder.totalPrice).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                 </div>
             )}
         </Modal>

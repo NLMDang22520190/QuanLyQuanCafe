@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Users/Home/Home";
 import Menu from "./pages/Users/Menu/Menu";
+import "./AllRoutes.css";
 
 // import { Home } from "./pages/Home";
 import { OrderAndBilling } from "./pages/order_and_billing/OrderAndBilling";
