@@ -137,6 +137,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 Picture = menuItem.Picture,
                 TypeOfFoodId = menuItem.TypeOfFoodId,
                 TypeOfFood = menuItem.TypeOfFood,
+                Description = menuItem.Description,
                 OrderDetails = menuItem.OrderDetails,
                 ItemRecipes = menuItem.ItemRecipes.Select(r => new ItemRecipe
                 {
@@ -186,6 +187,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 existingMenuItem.Picture = menuItem.Picture;
                 existingMenuItem.TypeOfFoodId = menuItem.TypeOfFoodId;
                 existingMenuItem.TypeOfFood = menuItem.TypeOfFood;
+                existingMenuItem.Description = menuItem.Description;
 
                 // Add new item recipes
                 existingMenuItem.ItemRecipes = menuItem.ItemRecipes;
