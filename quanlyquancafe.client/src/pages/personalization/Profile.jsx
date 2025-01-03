@@ -4,12 +4,28 @@ import {   theme,ConfigProvider } from 'antd';
 import ChangePassword from "./ChangePassword";
 import Employee from "./Employee";
 import Personal from "./Personal";
+import { useSelector } from "react-redux";
+import UserRole from "../../constant/UserRole";
+
 export const Profile = () => {
+  const auth = useSelector((state) => state.auth);
     const [currentTab, setCurrentTab] = useState(0);
-    const categories = [
+    const userRole = auth.userRole;
+    let categories = [];
+
+    console.log(userRole);
+
+    if (userRole === UserRole.ADMIN) {
+      categories = [
         { name: "Personal Infomration" },
         { name: "Employee Information" }
       ];
+    } else {
+      categories = [
+        { name: "Personal Infomration" },
+      ];
+    }
+    
       const handleTabChange = (index) => {
         setCurrentTab(index);
       };

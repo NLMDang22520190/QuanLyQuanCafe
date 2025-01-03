@@ -2,9 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import CreateCategory from "./CreateCategory";
 import CreateProduct from "./CreateProduct";
-import { Modal, Table, Input, Select, Switch, Button, Checkbox, Pagination } from 'antd';
+import { Modal, Table, Input, Select, Switch, Button, Checkbox, Pagination, message } from 'antd';
 import ProductDetail from "./ProductDetail";
 import axios from "axios";
+import api from "../../features/AxiosInstance/AxiosInstance";
 
 export const MenuPage = () => {
     const navigate = useNavigate();
@@ -19,6 +20,8 @@ export const MenuPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
+    const [availabilityLoading, setAvailabilityLoading] = useState(null);
+
     const fetchMenuItems = async () => {
         setLoading(true);
         axios.get('https://localhost:7087/api/menu-items').then(response => {
@@ -36,6 +39,20 @@ export const MenuPage = () => {
         } catch (error) {
             console.log(error.message);
         }
+    }
+
+    const changeProductState = async (id) => {
+        setAvailabilityLoading(id);
+        try {
+            const response = await api.put(`api/menu-items/${id}/change-availability`);
+            const data = response.data;
+            message.success(data);
+        } catch (error) {
+            message.error('Failed to change product status');
+        } finally {
+            setAvailabilityLoading(null);
+         }
+
     }
 
     const columnData = [
@@ -68,7 +85,7 @@ export const MenuPage = () => {
             dataIndex: 'state',
             key: 'state',
             sorter: (a, b) => a.state - b.state,
-            render: (text, record) => <Switch defaultChecked={text === "Available"} />
+            render: (text, record) => <Switch loading={availabilityLoading == record.itemId} defaultChecked={text === "Available"} onChange={()=>changeProductState(record.itemId)} />
         },
         {
             title: '',
@@ -97,6 +114,16 @@ export const MenuPage = () => {
         }   
     }, [currentTypeOfFoodId, menuItems]);   
 
+    const onSearchMenuItem = (value) => {
+        const filteredMenuItems = menuItems.filter(item => item.itemName.toLowerCase().includes(value.toLowerCase()));
+        setCurrentMenuItems(filteredMenuItems);
+    }
+
+    const onSearchCategories = (value) => {
+        const filteredTypeOfFoods = typeOfFoods.filter(type => type.typeOfFoodName.toLowerCase().includes(value.toLowerCase()));
+        setTypeOfFoods(filteredTypeOfFoods);
+    }
+
     return (
         <>
             <div className="flex flex-col gap-y-4 overflow-hidden h-full">
@@ -113,11 +140,7 @@ export const MenuPage = () => {
                 <div className="flex justify-between">
                     <p className="text-2xl items-center">Categories</p>
                     <div className="flex gap-x-4">
-                        <Input placeholder="Seach category" prefix={
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                            </svg>
-                        } />
+                        <Input.Search onSearch={onSearchCategories} placeholder="Seach category" prefix={" "} />
                         <Button className="text-black" onClick={setIsAddCategoryModalVisible} icon={
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -143,11 +166,7 @@ export const MenuPage = () => {
                     </div>
                     <div className="flex py-2 justify-end gap-x-4 px-4">
                         <div className="w-1/4">
-                            <Input placeholder="Seach menu items" prefix={
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                                </svg>
-                            } />
+                            <Input.Search placeholder="Seach menu items" onSearch={onSearchMenuItem} prefix={" "} />
                         </div>
                         <Button className="text-black" onClick={setIsAddProductModalVisible} type="primary" icon={
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
