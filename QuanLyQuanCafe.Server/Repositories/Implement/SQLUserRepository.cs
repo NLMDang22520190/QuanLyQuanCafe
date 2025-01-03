@@ -32,14 +32,17 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             {
                 return string.Empty;
             }
-
             var passwordValid = await userManager.CheckPasswordAsync(user, model.Password);
             if (!passwordValid)
             {
                 return string.Empty;
             }
+            if (!user.isActive)
+            {
+                return "Disable";
+            }
 
-            var authClaims = new List<Claim>
+                var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, model.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),

@@ -147,7 +147,11 @@ const UserPage = () => {
     {
       title: "",
       key: "action",
-      render: (_, record) => (
+      render: (_, record) => {
+        if(record.role === "Admin"){
+          return;
+        }
+        return (
         <Button
           type="primary"
           ghost
@@ -155,7 +159,7 @@ const UserPage = () => {
         >
           View Orders
         </Button>
-      ),
+      )},
     },
   ];
 

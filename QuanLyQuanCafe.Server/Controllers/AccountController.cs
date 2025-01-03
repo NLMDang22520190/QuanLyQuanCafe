@@ -83,6 +83,14 @@ namespace QuanLyQuanCafe.Server.Controllers
         public async Task<IActionResult> SignIn(SignInModel signInModel)
         {
             var result = await userRepository.SignInAsync(signInModel);
+            if (result == "Disable")
+            {
+                return Unauthorized(new ApiResponse<string>
+                {
+                    StatusCode = StatusCodes.Status403Forbidden,
+                    Message = "Your account has been disabled."
+                });
+            }
 
             if (string.IsNullOrEmpty(result))
             {
