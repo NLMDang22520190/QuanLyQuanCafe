@@ -1,16 +1,15 @@
-import { useState, useEffect } from "react";
-import { RoundedButton } from "../../components/buttons/RoundedButton"
+import { useState, useEffect, useRef } from "react";
 import { OrderProductCard } from "../../components/card/OrderProductCard";
-import { RoundedTextField } from "../../components/textfields/RoundedTextField"
-import { DiningOption } from '../../constant/DiningOption'
 import { SelectedOrderProductCard } from '../../components/card/SelectedOrderProductCard'
-import { RoundedComboBox } from "../../components/combobox/RoundedComboBox";
 import { useNavigate } from "react-router-dom";
 import api from "../../features/AxiosInstance/AxiosInstance";
-import { Input, Form, Radio, Button, Card, message } from "antd";
+import { Input, Form, Radio, Button, Card, message, Modal, Table } from "antd";
 import { OrderPayment } from "./OrderPayment";
+import { useReactToPrint } from 'react-to-print';   
+
 
 export const CreateOrder = () => {
+    const [modalPrintVisible, setModalPrintVisible] = useState(false);
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(true);
     const [currentTypeOfFoodId, setCurrentTypeOfFoodId] = useState(0);
@@ -22,20 +21,55 @@ export const CreateOrder = () => {
     const [typeOfFoods, setTypeOfFoods] = useState([]);
     const [appliedVoucherId, setAppliedVoucherId] = useState(null);
     const [selectedMenuItems, setSelectedMenuItems] = useState([]);
-    const diningOptions = [
-        { label: 'In Store', value: 'In Store' },
-        { label: 'Give away', value: 'Give-away' },
-        { label: 'Delivery', value: 'Delivery' },
+    const contentRef = useRef(null);
+    const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+
+    const receiptPrintCol = [
+        {
+            title: 'Name',
+            dataIndex: 'itemName',
+            key: 'itemName',
+        },
+        {
+            title: 'Quantity',
+            dataIndex: 'quantity',
+            key: 'quantity',
+            render: (text, record) => (
+                <p>x{text}</p>
+            )
+        },
+
+        {
+            title: 'Price',
+            dataIndex: 'price',
+            key: 'price',
+            render: (text, record) => (
+                <p>{text.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+            ),
+        },
+        {
+            title: 'Total',
+            dataIndex: 'total',
+            key: 'total',
+            render: (text, record) => (
+                <p>{(record.price * record.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+            )
+        },
     ]
+
+    const handlePrintReceipt = () => {
+        window.print(contentRef.current);
+    }
+
 
     const createOrder = async (values) => {
 
         const response = await api.post('api/Order', values).then((response)=> {
             message.success('Order created successfully');
-            navigate('/orderAndBilling');
         }).catch((error) => {
             message.error(`Error: ${error.response.data}`);
         });
+        
     }
 
     const handleAddProduct = (product) => {
@@ -50,11 +84,16 @@ export const CreateOrder = () => {
     };
 
     const handlePlaceOrder = (values) => {
-    values.voucherApplied = appliedVoucherId;
-    values.orderDetails = selectedMenuItems.map(item => {  
-        return { itemId: item.itemId, quantity: item.quantity}
-     });
-       createOrder(values);
+        setIsCreatingOrder(true);
+        values.voucherApplied = appliedVoucherId;
+        values.orderDetails = selectedMenuItems.map(item => {
+            return { itemId: item.itemId, quantity: item.quantity }
+        });
+    createOrder(values).then(() => {
+        setModalPrintVisible(true);
+    }).catch((error) => {}).finally(() => {
+        setIsCreatingOrder(false);
+    });
     }
 
     const fetchMenuItems = async () => {
@@ -131,15 +170,15 @@ export const CreateOrder = () => {
     }
 
     const handleApplyVoucher = (voucherCode) => {
-    getVoucherByCode(voucherCode).then((voucher) => {
-        if (!voucher) {
-            message.error('Invalid voucher code');
-            return;
-        }
-        setAppliedVoucherId(voucher.voucherId);
-        message.success('Voucher applied successfully');
-        setDiscount( totalAmount * (voucher.percentDiscount / 100));
-    });
+        getVoucherByCode(voucherCode).then((voucher) => {
+            if (!voucher) {
+                message.error('Invalid voucher code');
+                return;
+            }
+            setAppliedVoucherId(voucher.voucherId);
+            message.success('Voucher applied successfully');
+            setDiscount(totalAmount * (voucher.percentDiscount / 100));
+        });
     };
 
     const getVoucherByCode = async (voucherCode) => {
@@ -150,9 +189,11 @@ export const CreateOrder = () => {
         } catch (error) {
             message.error(error.data);
         }
-    }
+    };
 
-    return (
+    
+    return (<>
+
         <div className="flex flex-col gap-y-4 overflow-hidden h-full">
             <div className="flex justify-between items-center">
                 <h2 className="text-amber-500 font-medium text-3xl">Create New Order</h2>
@@ -191,18 +232,8 @@ export const CreateOrder = () => {
                             </Card>
                             <Card className="flex w-1/3 rounded-lg justify-center" >
                                 <div className="flex flex-col h-full gap-y-4">
-                                    <Form.Item
-                                        layout="vertical"
-                                        className="flex justify-center"
-                                        label="Dining Option"
-                                        name="diningOption"
-                                        rules={[{ required: true, message: 'Please select a dining option' }]}  
-                                    >
-                                        <Radio.Group name="diningOption" options={diningOptions} optionType="button" />
-                                    </Form.Item>
-                                    <Form.Item
-                               
-                                    className="flex flex-col overflow-y-auto gap-2 grow divide-y divide-amber-500" >
+                                    <h2 className="text-amber-500 font-medium text-2xl">Order Summary</h2>
+                                    <Form.Item className="flex flex-col overflow-y-auto gap-2 grow divide-y divide-amber-500" >
 
                                         {selectedMenuItems.map((product) => (
                                             <SelectedOrderProductCard
@@ -215,54 +246,100 @@ export const CreateOrder = () => {
                                                 onRemove={() => handleRemoveItem(product.itemId)}
                                             />
                                         ))}
-
                                     </Form.Item>
                                     <div className="flex flex-col gap-y-2">
                                         <div className="flex justify-center w-full gap-x-2">
                                             <Form.Item>
-                                                <Input 
+                                                <Input
                                                     name="voucherCode"
                                                     prefix={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="m9 14.25 6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0c1.1.128 1.907 1.077 1.907 2.185ZM9.75 9h.008v.008H9.75V9Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm4.125 4.5h.008v.008h-.008V13.5Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                                                    </svg>} 
-                                                    placeholder="Enter promotion code..." 
+                                                    </svg>}
+                                                    placeholder="Enter promotion code..."
                                                     onPressEnter={(e) => handleApplyVoucher(e.target.value)}
                                                 />
-                                                
                                             </Form.Item>
-                                            <Button type="primary" onClick={() => handleApplyVoucher( 
+                                            <Button type="primary" onClick={() => handleApplyVoucher(
                                                 document.querySelector('input[name="voucherCode"]').value
-                                             )}>Apply</Button>
+                                            )}>Apply</Button>
                                         </div>
                                         <div className="flex justify-between">
                                             <p>Total Amount:</p>
-                                            <p>${totalAmount.toFixed(2)}</p>
+                                            <p>{totalAmount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                                         </div>
 
                                         <div className="flex justify-between">
                                             <p>Discount:</p>
-                                            <p>${discount.toFixed(2)}</p>
+                                            <p>{discount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                                         </div>
 
                                         <div className="flex justify-between">
                                             <p>Final Amount:</p>
-                                            <p>${totalAmount - discount}</p>
+                                            <p>{(totalAmount - discount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                                         </div>
 
                                         <div className="flex gap-4 justify-center w-full">
-                                            <Button type="primary" onClick={()=>setStep(2)} >Place Order</Button>
+                                            <Button type="primary" onClick={() => setStep(2)} >Place Order</Button>
                                         </div>
                                     </div>
                                 </div>
                             </Card>
                         </div>
-              
+
                         <div style={{ display: step == 2 ? '' : 'none' }}>
-                        <OrderPayment totalAmount={totalAmount} discountAmount={discount} finalAmount={totalAmount-discount} onBack={() => setStep(1)} />
-                      </div>
-                </>
+                            <OrderPayment isCreatingOrder={isCreatingOrder} totalAmount={totalAmount} discountAmount={discount} finalAmount={totalAmount - discount} onBack={() => setStep(1)} />
+                        </div>
+                    </>
                 }
             </Form>
         </div>
+        {
+            modalPrintVisible && <Modal title="Receipt" open={modalPrintVisible} footer={
+                <div className="flex flex-col justify-between gap-y-2 col-span-2">
+                    <Button type="dashed" onClick={()=>handlePrintReceipt()}>Print</Button>
+                    <Button type="primary" onClick={() => navigate('/orderAndBilling')}>Ok</Button>
+                </div>
+            } onCancel={() => setModalPrintVisible(false)}>
+                <div ref={contentRef}  className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col justify-start gap-y-2">
+                        <p className="text-xl">FROM</p>
+                        <p>Rise and Drink</p>
+                        <p>University of Information Technology, Thu Duc, HCM City</p>
+                    </div>
+                    <div className="flex flex-col justify-start gap-y-2">
+                        <p className="flex justify-between">Receipt: <span>#{Math.floor(Math.random() * 1000000)}</span></p>
+                        <p className="flex justify-between">Date: <span>{new Date().toLocaleDateString()}</span></p>
+                    </div>
+                    <div className="flex flex-col justify-start gap-y-2 col-span-2">
+                        <p className="text-xl">TO</p>
+                        <p className="flex justify-between">Customer: <span>Default Customer</span></p>
+                        <p className="flex justify-between">Address<span>In store</span></p>
+                    </div>
+                    <div className="flex flex-col justify-start gap-y-2 col-span-2">
+                        <p className="text-xl">ORDER SUMMARY</p>
+                        <div className="flex flex-col gap-y-2">
+                            <Table dataSource={selectedMenuItems} columns={receiptPrintCol} pagination={false} />
+                        </div>
+                    </div>
+                    <div className="flex flex-col justify-end gap-y-2 col-span-2">
+                        <div className="flex justify-end gap-12">
+                            <p>Total Amount:</p>
+                            <p>{totalAmount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                        </div>
+                        <div className="flex justify-end gap-12">
+                            <p>Discount:</p>
+                            <p>{discount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                        </div>
+                    </div>
+                    <div className="flex flex-col justify-end gap-y-2 col-span-2">
+                        <div className="flex justify-end gap-12">
+                            <p className="text-xl font-medium">Final Amount:</p>
+                            <p>{(totalAmount - discount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                        </div>
+                    </div>
+                </div>    
+            </Modal>
+        }
+    </>
     )
 }

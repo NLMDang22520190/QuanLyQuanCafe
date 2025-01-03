@@ -23,6 +23,27 @@ namespace QuanLyQuanCafe.Server.Controllers
             return Ok(ingredients);
         }
 
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetIngredientById(int id)
+        {
+            try
+            {
+                var ingredient = await _ingrerepo.GetByIdAsync(f => f.IngredientId == id);
+                if (ingredient == null)
+                {
+                    return NotFound($"Ingredient with ID {id} not found.");
+                }
+
+                return Ok(ingredient);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An error occurred while fetching the ingredient." });
+            }
+        }
+
        
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Ingredient newIngredient)
@@ -56,6 +77,20 @@ namespace QuanLyQuanCafe.Server.Controllers
             }
 
             return Ok(updatedIngredient);
+        }
+
+
+        [HttpGet("check-exists")]
+        public async Task<IActionResult> CheckExists(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return BadRequest(new { error = "Tên nguyên liệu không được để trống." });
+            }
+
+            var exists = await _ingrerepo.ExistsAsync(x => x.IngredientName == name);
+
+            return Ok(new { exists });
         }
 
         

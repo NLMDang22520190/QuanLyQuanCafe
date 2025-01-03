@@ -79,6 +79,9 @@ export const deleteItemFromCart = createAsyncThunk(
       const response = await api.delete(
         `${apiBaseUrl}/DeleteItemFromCart/${cartDetailId}`
       );
+      const userId = getState().auth.user; // Lấy userId từ state Redux
+      // Gọi lại fetchCartDetailsByCustomerId để cập nhật giỏ hàng
+      await dispatch(fetchCartDetailsByCustomerId(userId));
       return cartDetailId; // Trả về ID của item vừa bị xóa
     } catch (error) {
       return rejectWithValue(error.response?.data || "Something went wrong");

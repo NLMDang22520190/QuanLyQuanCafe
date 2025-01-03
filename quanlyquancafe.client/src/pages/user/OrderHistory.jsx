@@ -11,7 +11,7 @@ const OrderHistory = ({ visible, onCancel, userId }) => {
 
   const fetchOrderDetails = async (orderId) => {
     try {
-      const response = await instance.get(`/api/order-details/order/${orderId}`);
+      const response = await instance.get(`/api/OrderDetail/order/${orderId}`);
       console.log(`Order Details for ${orderId}:`, response.data);
   
       const detailsWithItemNames = await Promise.all(
@@ -52,7 +52,7 @@ const OrderHistory = ({ visible, onCancel, userId }) => {
     if (!userId) return;
     setLoading(true);
     try {
-      const response = await instance.get(`/api/orders/user/${userId}`);
+      const response = await instance.get(`/api/Order/user/${userId}`);
       console.log("Orders Data:", response.data);
       const orders = await Promise.all(
         Array.isArray(response.data)
@@ -68,7 +68,7 @@ const OrderHistory = ({ visible, onCancel, userId }) => {
                 orderId: order.orderId || "Unknown Order",
                 date: formattedDate,
                 total: order.totalPrice !== undefined ? `$${order.totalPrice.toFixed(2)}` : "N/A",
-                address: order.deliveryAddress || "Unknown Address",
+                address: order.address || "Unknown Address",
                 phone: order.phoneNumber || "Unknown Phone",
                 status: order.orderState || "Unknown Status",
                 details,
