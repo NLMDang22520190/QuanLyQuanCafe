@@ -50,7 +50,7 @@ const Menu = () => {
         name: item.itemName,
         description: item.description,
         price: item.price,
-        picture: "https://placehold.co/600x400", // Thay thế null bằng hình mặc định nếu cần
+        picture: item.picture || "https://placehold.co/600x400", // Thay thế null bằng hình mặc định nếu cần
       }));
       setCategoryProducts(mappedData); // Cập nhật danh sách sản phẩm
     } catch (error) {

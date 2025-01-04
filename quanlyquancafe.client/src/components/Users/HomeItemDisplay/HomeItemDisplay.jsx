@@ -1,16 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 const HomeItemDisplay = ({ product }) => {
   const formatPrice = (price) => {
     return price.toLocaleString("vi-VN") + "đ";
   };
 
+  const [image, setImage] = useState("https://placehold.co/600x400");
+
+  useEffect(() => {
+    console.log(product.picture);
+    const fetchImage = async () => {
+      try {
+        if (product.picture === "https://placehold.co/600x400") {
+          return;
+        }
+        const imageResponse = await api.get(`api/Image/${product.picture}`, {
+          responseType: "blob",
+        });
+        if (imageResponse.data) {
+          const imageUrl = URL.createObjectURL(imageResponse.data);
+          setImage(imageUrl);
+        } else {
+          setImage("https://placehold.co/600x400");
+        }
+      } catch (error) {
+        console.log(error);
+        setImage("https://placehold.co/600x400");
+      }
+    };
+
+    fetchImage();
+  }, []);
+
   return (
     <Link to="/MenuAll" className="">
       <div className="bg-white w-full rounded-lg shadow-2xl p-4">
         <img
-          src={product.picture}
+          src={image}
           alt="Strawberry drink with cheese"
           className="w-full rounded-lg"
         />

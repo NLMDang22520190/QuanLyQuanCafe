@@ -4,6 +4,7 @@ import { Minus, Plus, X } from "lucide-react";
 import { Button, Card, Pagination, Dropdown } from "flowbite-react";
 import { useSelector, useDispatch } from "react-redux";
 import debounce from "lodash/debounce";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 import {
   fetchCartDetailsByCustomerId,
@@ -23,20 +24,47 @@ const Cart = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
-  const fetchCart = () => {
+  const fetchCart = async () => {
     dispatch(fetchCartDetailsByCustomerId(userId));
-    const mappedItems = cart.items.map((item) => ({
-      cartDetailId: item.cartDetailId,
-      itemId: item.itemId,
-      name: item.item.itemName,
-      price: item.item.price,
-      quantity: item.quantity,
-      image: item.item.picture,
-    }));
 
-    //if (JSON.stringify(mappedItems) !== JSON.stringify(items)) {
-    setItems(mappedItems); // Cập nhật items chỉ khi có sự khác biệt
-    //}
+    try {
+      const mappedItems = await Promise.all(
+        cart.items.map(async (item) => {
+          let imageUrl = "https://placehold.co/600x400"; // Default image
+          if (item.item.picture && item.item.picture !== null) {
+            try {
+              const imageResponse = await api.get(
+                `api/Image/${item.item.picture}`,
+                {
+                  responseType: "blob",
+                }
+              );
+              if (imageResponse.data) {
+                imageUrl = URL.createObjectURL(imageResponse.data);
+              }
+            } catch (error) {
+              console.log(
+                `Error fetching image for itemId ${item.itemId}:`,
+                error
+              );
+            }
+          }
+
+          return {
+            cartDetailId: item.cartDetailId,
+            itemId: item.itemId,
+            name: item.item.itemName,
+            price: item.item.price,
+            quantity: item.quantity,
+            image: imageUrl,
+          };
+        })
+      );
+
+      setItems(mappedItems); // Cập nhật items sau khi có đủ dữ liệu
+    } catch (error) {
+      console.log("Error fetching cart details:", error);
+    }
   };
 
   useEffect(() => {

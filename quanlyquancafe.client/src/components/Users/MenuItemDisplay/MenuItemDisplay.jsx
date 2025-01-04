@@ -1,10 +1,39 @@
 import React from "react";
+import { useState, useEffect } from "react";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 const MenuItemDisplay = ({ product, onClick }) => {
   // Format giá tiền thành dạng VND
   const formatPrice = (price) => {
     return price.toLocaleString("vi-VN") + "đ";
   };
+
+  const [image, setImage] = useState("https://placehold.co/600x400");
+
+  useEffect(() => {
+    console.log(product.picture);
+    const fetchImage = async () => {
+      try {
+        if (product.picture === "https://placehold.co/600x400") {
+          return;
+        }
+        const imageResponse = await api.get(`api/Image/${product.picture}`, {
+          responseType: "blob",
+        });
+        if (imageResponse.data) {
+          const imageUrl = URL.createObjectURL(imageResponse.data);
+          setImage(imageUrl);
+        } else {
+          setImage("https://placehold.co/600x400");
+        }
+      } catch (error) {
+        console.log(error);
+        setImage("https://placehold.co/600x400");
+      }
+    };
+
+    fetchImage();
+  }, []);
 
   return (
     <button
@@ -17,7 +46,7 @@ const MenuItemDisplay = ({ product, onClick }) => {
         </div>
       )}
       <img
-        src={product.picture}
+        src={image}
         alt={product.alt}
         className="md:w-full w-40 h-40 object-cover mb-4 rounded-2xl"
       />

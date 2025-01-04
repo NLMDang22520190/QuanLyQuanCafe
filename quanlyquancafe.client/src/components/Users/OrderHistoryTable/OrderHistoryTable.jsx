@@ -76,11 +76,17 @@ const OrderHistoryTable = () => {
     switch (status) {
       case "completed":
         return <CheckCircle2 className="w-5 h-5 text-green-500" />;
+      case "hoàn tất":
+        return <CheckCircle2 className="w-5 h-5 text-green-500" />;
       case "cancelled":
+        return <XCircle className="w-5 h-5 text-red-500" />;
+      case "đã huỷ":
         return <XCircle className="w-5 h-5 text-red-500" />;
       case "pending":
         return <AlertCircle className="w-5 h-5 text-yellow-500" />;
       case "chờ xác nhận":
+        return <AlertCircle className="w-5 h-5 text-yellow-500" />;
+      case "đang xử lý":
         return <AlertCircle className="w-5 h-5 text-yellow-500" />;
       default:
         return null;
@@ -90,6 +96,12 @@ const OrderHistoryTable = () => {
   const getPaymentIcon = (method) => {
     switch (method) {
       case "credit_card":
+        return <CreditCard className="w-5 h-5 text-gray-500" />;
+      case "cash":
+        return <Wallet className="w-5 h-5 text-gray-500" />;
+      case "momo":
+        return <CreditCard className="w-5 h-5 text-gray-500" />;
+      case "banking":
         return <CreditCard className="w-5 h-5 text-gray-500" />;
       case "wallet":
         return <Wallet className="w-5 h-5 text-gray-500" />;

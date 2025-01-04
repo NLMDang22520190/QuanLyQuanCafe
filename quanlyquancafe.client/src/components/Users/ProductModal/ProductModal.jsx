@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Radio, Button, Checkbox } from "flowbite-react";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 const ProductModal = ({ product, open, onClose, onAddToCart, cartID }) => {
   const [modalSize, setModalSize] = useState("sm");
   const [quantity, setQuantity] = useState(1);
   const [selectedToppings, setSelectedToppings] = useState([]);
   const [note, setNote] = useState("");
+  const [image, setImage] = useState("https://placehold.co/600x400");
 
   useEffect(() => {
     if (open) {
@@ -14,27 +16,6 @@ const ProductModal = ({ product, open, onClose, onAddToCart, cartID }) => {
       setNote(""); // Reset ghi chú khi modal mở
     }
   }, [open]);
-
-  const sizeOptions = [
-    { id: "size-small", label: "Nhỏ", price: "+ 0đ" },
-    { id: "size-medium", label: "Vừa", price: "+ 4.000đ" },
-    { id: "size-large", label: "Lớn", price: "+ 10.000đ" },
-  ];
-
-  const toppingOptions = [
-    { id: "topping-cream", label: "Thêm kem", price: "+ 5.000đ" },
-    { id: "topping-boba", label: "Trân châu", price: "+ 10.000đ" },
-    { id: "topping-almond", label: "Hạnh nhân", price: "+ 7.000đ" },
-  ];
-
-  const handleToppingChange = (e) => {
-    const { id, checked } = e.target;
-    if (checked) {
-      setSelectedToppings((prev) => [...prev, id]);
-    } else {
-      setSelectedToppings((prev) => prev.filter((topping) => topping !== id));
-    }
-  };
 
   const formatPrice = (price) => {
     return price.toLocaleString("vi-VN") + "đ";
@@ -82,6 +63,31 @@ const ProductModal = ({ product, open, onClose, onAddToCart, cartID }) => {
     onClose();
   };
 
+  // useEffect(() => {
+  //   console.log(product.picture);
+  //   const fetchImage = async () => {
+  //     try {
+  //       if (product.picture === "https://placehold.co/600x400") {
+  //         return;
+  //       }
+  //       const imageResponse = await api.get(`api/Image/${product.picture}`, {
+  //         responseType: "blob",
+  //       });
+  //       if (imageResponse.data) {
+  //         const imageUrl = URL.createObjectURL(imageResponse.data);
+  //         setImage(imageUrl);
+  //       } else {
+  //         setImage("https://placehold.co/600x400");
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //       setImage("https://placehold.co/600x400");
+  //     }
+  //   };
+
+  //   fetchImage();
+  // }, [product]);
+
   return (
     <Modal
       size={modalSize}
@@ -96,7 +102,7 @@ const ProductModal = ({ product, open, onClose, onAddToCart, cartID }) => {
       <Modal.Body className="p-0 mb-8">
         <div className="flex flex-col">
           <img
-            src={product.picture}
+            src={image}
             alt={product.alt}
             className="w-full object-cover rounded-3xl p-4"
           />
