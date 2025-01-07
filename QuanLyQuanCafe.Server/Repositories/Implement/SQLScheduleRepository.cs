@@ -62,7 +62,8 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
         {
             var conflictingSchedules = await _dbSet
                 .Where(s => s.StaffId == scheduleDto.StaffId &&
-                            (s.StartDate <= scheduleDto.EndDate && s.EndDate >= scheduleDto.StartDate))
+                s.ShiftId == scheduleDto.ShiftId &&
+                (s.StartDate <= scheduleDto.EndDate && s.EndDate >= scheduleDto.StartDate))
                 .ToListAsync();
 
             if (conflictingSchedules.Any())

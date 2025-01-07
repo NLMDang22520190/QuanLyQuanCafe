@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Minus, Plus, X } from "lucide-react";
 import { Button, Card, Pagination, Dropdown } from "flowbite-react";
 import { useSelector, useDispatch } from "react-redux";
+import debounce from "lodash/debounce";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 import {
   fetchCartDetailsByCustomerId,
@@ -22,34 +24,78 @@ const Cart = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
-  const fetchCart = () => {
+  const fetchCart = async () => {
     dispatch(fetchCartDetailsByCustomerId(userId));
-    const mappedItems = cart.items.map((item) => ({
-      cartDetailId: item.cartDetailId,
-      itemId: item.itemId,
-      name: item.item.itemName,
-      price: item.item.price,
-      quantity: item.quantity,
-      image: item.item.picture,
-    }));
 
-    //if (JSON.stringify(mappedItems) !== JSON.stringify(items)) {
-    setItems(mappedItems); // Cập nhật items chỉ khi có sự khác biệt
-    //}
+    try {
+      const mappedItems = await Promise.all(
+        cart.items.map(async (item) => {
+          let imageUrl = "https://placehold.co/600x400"; // Default image
+          if (item.item.picture && item.item.picture !== null) {
+            try {
+              const imageResponse = await api.get(
+                `api/Image/${item.item.picture}`,
+                {
+                  responseType: "blob",
+                }
+              );
+              if (imageResponse.data) {
+                imageUrl = URL.createObjectURL(imageResponse.data);
+              }
+            } catch (error) {
+              console.log(
+                `Error fetching image for itemId ${item.itemId}:`,
+                error
+              );
+            }
+          }
+
+          return {
+            cartDetailId: item.cartDetailId,
+            itemId: item.itemId,
+            name: item.item.itemName,
+            price: item.item.price,
+            quantity: item.quantity,
+            image: imageUrl,
+          };
+        })
+      );
+
+      setItems(mappedItems); // Cập nhật items sau khi có đủ dữ liệu
+    } catch (error) {
+      console.log("Error fetching cart details:", error);
+    }
   };
 
   useEffect(() => {
-    fetchCart();
-  }, [cart.items, items.length]);
+    if (userId) fetchCart();
+    //fetchCart();
+  }, [cart.items.length]);
 
   const formatPrice = (price) => {
     return price.toLocaleString("vi-VN") + "đ";
   };
 
+  const debouncedUpdate = debounce(async (item, quantity, dispatch) => {
+    try {
+      await dispatch(
+        updateItemInCart({
+          cartDetailId: item.cartDetailId,
+          quantity,
+          notes: "",
+          adjustments: "",
+        })
+      ).unwrap();
+      console.log(`Updated quantity for item ${item.cartDetailId}`);
+    } catch (error) {
+      console.error(`Failed to update quantity`, error);
+    }
+  }, 300);
+
   const updateQuantity = (item, change) => {
     const newQuantity = Math.max(1, item.quantity + change);
 
-    // Cập nhật giao diện ngay lập tức
+    // Cập nhật UI ngay lập tức
     setItems((prevItems) =>
       prevItems.map((currentItem) =>
         currentItem.cartDetailId === item.cartDetailId
@@ -58,36 +104,16 @@ const Cart = () => {
       )
     );
 
-    // Xóa timer cũ nếu có
-    if (debounceRef.current[item.cartDetailId]) {
-      clearTimeout(debounceRef.current[item.cartDetailId]);
-    }
-
-    // Tạo timer mới để gửi API sau 300ms
-    debounceRef.current[item.cartDetailId] = setTimeout(async () => {
-      try {
-        await dispatch(
-          updateItemInCart({
-            cartDetailId: item.cartDetailId,
-            quantity: newQuantity,
-            notes: item.notes || "",
-            adjustments: item.adjustments || "",
-          })
-        ).unwrap();
-        console.log(`Updated quantity for item ${item.cartDetailId}`);
-      } catch (error) {
-        console.error(
-          `Failed to update quantity for item ${item.cartDetailId}`,
-          error
-        );
-        // Rollback UI nếu cần thiết
-      }
-    }, 300); // Đợi 300ms trước khi gửi API
+    // Debounce API call
+    debouncedUpdate(item, newQuantity, dispatch);
   };
 
   const removeItem = (id) => {
     console.log("Removing item with ID:", id);
     dispatch(deleteItemFromCart(id));
+    // setItems((prevItems) =>
+    //   prevItems.filter((item) => item.cartDetailId !== id)
+    // );
     fetchCart();
   };
 

@@ -12,6 +12,8 @@
 
         public int? VoucherApplied { get; set; }
 
+        public string VoucherCode { get; set; }
+
         public string PaymentMethod { get; set; } = null!;
 
         public virtual ICollection<OrderDetailDTO> OrderDetails { get; set; } = new List<OrderDetailDTO>();

@@ -10,7 +10,18 @@ import axios from "axios";
 import moment from 'moment';
 
 import "./schedule.css";
+const getCurrentWeek = () => {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); 
+    
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
 
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+
+    return [weekStart, weekEnd];
+};
 const Schedule = () => {
     dayjs.extend(isSameOrBefore);
 
@@ -24,8 +35,9 @@ const Schedule = () => {
     const [schedule1, setSchedule] = useState([]);
     const [openModal, setOpenModal] = useState(false);//assign
     const [openReport,setOpenReport]=useState(false);//see report
+    const [shifts,setShifts]=useState([]);
 
-    const[week,setWeek]=useState([]);
+    const[week,setWeek]=useState(getCurrentWeek());
     const [selectedMonth, setSelectedMonth] = useState(moment().startOf('month')); 
     const handleMonthChange = (date, dateString) => {
         if(date){
@@ -129,13 +141,21 @@ const Schedule = () => {
             console.error(err);
         }
     }
-    
-
-
-    const fetchSchedule = () => {
+    const fetchShiftSchedule = async ()=>{
+        const response = await instance.get(`/api/shifts?pageIndex=${1}&pageSize=${30}`);
+        setShifts(response.data.data);   
+    }
+    useEffect( ()=>{
+        fetchShiftSchedule();
+    },[])
+    const fetchSchedule =(shifts, week) => {
         try {
-
-            const formattedShifts = shiftData.flatMap((shift) => {
+            if(!week)
+            {
+                console.log("week",week);
+                return;
+            }
+            const formattedShifts = shifts.flatMap((shift) => {
                 const [startHour, startMinute] = shift.startTime.split(":").map(Number);
                 const [endHour, endMinute] = shift.endTime.split(":").map(Number);
             
@@ -181,11 +201,21 @@ const Schedule = () => {
     
 
     if(!schedule1){
-        fetchSchedule();
+        console.log("datasource empty")
+        fetchSchedule(shifts, week)
     }
+
+    const prevShiftsRef = useRef();
+
     useEffect(() => {
-        fetchSchedule(); 
-    }, [shiftData]);
+        console.log("shifts",shifts)
+        console.log("week",week)
+        if (JSON.stringify(prevShiftsRef.current) !== JSON.stringify(shifts)) {
+            prevShiftsRef.current = shifts;
+            fetchSchedule(shifts, week);
+        }
+    
+    }, [shifts]);
 
 
     const handleEditShift = async () => {
@@ -273,6 +303,7 @@ const Schedule = () => {
                 formCreateShift.resetFields();
                 setOpenCreateModal(false);
                 fetchShift(pageIndexMShift,5);
+                fetchShiftSchedule();
             }
             else message.error(response.data.title);
 
@@ -310,11 +341,11 @@ const Schedule = () => {
             checkOut: record.checkOut ? moment(record.checkOut).format("HH:mm:ss") : "Not checkout",
         }));
 
-        setStaffAttendance(attendanceData); // Lưu dữ liệu vào state
+        setStaffAttendance(attendanceData); 
         console.log(attendanceData)
     } catch (error) {
         console.error("Failed to fetch attendance report:", error);
-        message.error("Failed to fetch attendance report. Please try again.");
+        message.error(error.response?.data?.message);
     }
 
 };
@@ -446,6 +477,7 @@ const Schedule = () => {
             ),
         },
     ];
+
 
     const data = [
         { key: 1, name: 'John Doe', EndDate: '2024-12-31' },
@@ -651,9 +683,14 @@ const Schedule = () => {
                     showTimeIndicator={true}
                     readonly={true} 
                     navigating={(args) => {
-                        const selectedWeekStart = args.currentDate; 
+                        const currentDate = args.currentDate; 
+                        const dayOfWeek = currentDate.getDay(); 
+                        
+                        const selectedWeekStart = new Date(currentDate);
+                        selectedWeekStart.setDate(currentDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+                    
                         const selectedWeekEnd = new Date(selectedWeekStart);
-                        selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6); 
+                        selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6);
                         setWeek([selectedWeekStart, selectedWeekEnd]);
                         fetchSchedule();
                     }}

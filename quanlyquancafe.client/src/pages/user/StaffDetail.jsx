@@ -67,7 +67,7 @@ const StaffDetail = ({ staff, visible, onCancel, isFormer }) => {
   };
 
 
-  const fetchMonthlySalaryData = async (pageIndex = 1, pageSize = 10) => {
+  const fetchMonthlySalaryData = async (pageIndex = 1, pageSize = 2) => {
     if (!staff || !staff.staffId) {
         console.error("Invalid staff ID.");
         message.error("Staff information is missing or invalid.");

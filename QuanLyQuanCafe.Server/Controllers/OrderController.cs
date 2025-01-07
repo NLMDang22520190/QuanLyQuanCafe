@@ -181,7 +181,19 @@ namespace QuanLyQuanCafe.Server.Controllers
             {
                 return NotFound($"No orders found for UserId {userId}");
             }
-            return Ok(_mapper.Map<List<OrderWithOrderDetailDTO>>(order));
+			var result = _mapper.Map<List<OrderWithOrderDetailDTO>>(order);
+
+            foreach (var orderDetail in result)
+            {
+                if (orderDetail.VoucherApplied.HasValue)
+                    orderDetail.VoucherCode =
+                        await _voucherDetailRepository.GetVoucherCodeByVoucherDetailId(orderDetail.VoucherApplied
+                            .Value);
+                else
+                    orderDetail.VoucherCode = null;
+            }
+
+            return Ok(result);
         }
 
 
@@ -220,10 +232,49 @@ namespace QuanLyQuanCafe.Server.Controllers
                 }
 
                 var order = _mapper.Map<Order>(request);
-                order.OrderState = "Pending";
+                order.OrderState = "Chờ xác nhận";
                 order.TotalPrice = cart.CartDetails.Sum(cd => cd.Quantity * cd.Item.Price);
                 order.OrderTime = DateTime.Now;
                 order.OrderDetails = _mapper.Map<List<OrderDetail>>(cart.CartDetails);
+
+                foreach (var orderDetail in order.OrderDetails)
+                {
+                    var menuItem = await _menuItemRepository.GetByIdAsync(m => m.ItemId == orderDetail.ItemId);
+
+                    var ingredientInStock = await _menuItemRepository.CheckStockOfItemIngredientAsync(orderDetail.ItemId);
+                    if (!ingredientInStock)
+                    {
+                        return BadRequest($"Không đủ nguyên liệu");
+                    }
+
+                    if (menuItem == null)
+                    {
+                        return BadRequest($"Menu item with ID {orderDetail.ItemId} not found.");
+                    }
+                    order.TotalPrice += menuItem.Price * orderDetail.Quantity;
+                }
+
+                if (request.VoucherApplied.HasValue)
+                {
+                    var voucher = await _voucherDetailRepository.GetByIdAsync(v => v.VoucherId == request.VoucherApplied.Value);
+                    if (voucher == null)
+                    {
+                        return BadRequest($"Voucher with ID {request.VoucherApplied.Value} not found.");
+                    }
+
+                    if (voucher.VoucherEndDate.ToDateTime(TimeOnly.MinValue) < DateTime.Now || voucher.VoucherStartDate.ToDateTime(TimeOnly.MinValue) > DateTime.Now)
+                    {
+                        return BadRequest("Voucher time is not valid.");
+                    }
+
+                    if (voucher.MinOrderAmount > order.TotalPrice)
+                    {
+                        return BadRequest("Total price is not enough to apply this voucher.");
+                    }
+
+                    double discountAmount = order.TotalPrice * voucher.PercentDiscount / 100;
+                    order.TotalPrice -= discountAmount;
+                }
 
                 Debug.WriteLine(order);
                 var newOrder = await _orderRepository.AddAsync(order);

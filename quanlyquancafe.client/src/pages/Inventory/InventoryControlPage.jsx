@@ -6,6 +6,8 @@ import instance from "../../features/AxiosInstance/AxiosInstance";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { StatusBadge } from "../../components/badges/StatusBadge";
+import AddMaterials from "./AddMaterials";
+import IngredientDetail from "./IngredientDetail";
 
 export const InventoryControlPage = () => {
     const navigate = useNavigate();
@@ -18,6 +20,10 @@ export const InventoryControlPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(7);
     const [totalItems, setTotalItems] = useState(0);
+    const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+    const [isIngredientDetailVisible, setIsIngredientDetailVisible] = useState(false);
+    const [selectedIngredient, setSelectedIngredient] = useState(null);
+
 
     const rowMaterialColumns = [
         {
@@ -47,6 +53,27 @@ export const InventoryControlPage = () => {
             key: "status",
             render: (text) => <StatusBadge status={text} label={text} />,
         },
+        {
+            title: '',
+            dataIndex: 'action',
+            key: 'action',
+            render: (text, record) => <Button
+            onClick={() => {
+                console.log("Selected Record:", record);
+              if (record.id) {
+                setSelectedIngredient(record);
+                setIsIngredientDetailVisible(true);
+              } else {
+                message.error("Nguyên liệu không hợp lệ.");
+              }
+            }}
+            type="text"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+          </Button>
+        }
     ];
 
    
@@ -76,6 +103,7 @@ export const InventoryControlPage = () => {
             dataIndex: "importPrice",
             key: "importPrice",
         },
+        
     ];
 
    
@@ -214,7 +242,7 @@ export const InventoryControlPage = () => {
                         label="Export Inventory Report"
                     />
                     <RoundedButton
-                        onClick={() => navigate("/inventory/add")}
+                        onClick={() => setIsAddModalVisible(true)}
                         height="40px"
                         label="Add New Item"
                     />
@@ -237,6 +265,20 @@ export const InventoryControlPage = () => {
                     }}
                 />
             </div>
+            {isAddModalVisible && (
+                <AddMaterials
+                    visible={isAddModalVisible}
+                    onClose={() => setIsAddModalVisible(false)}
+                />
+            )}
+
+            {isIngredientDetailVisible && selectedIngredient && (
+                <IngredientDetail
+                    visible={isIngredientDetailVisible}
+                    ingredientId={selectedIngredient?.id}
+                    onClose={() => setIsIngredientDetailVisible(false)}
+                />
+            )}
         </div>
     );
 };

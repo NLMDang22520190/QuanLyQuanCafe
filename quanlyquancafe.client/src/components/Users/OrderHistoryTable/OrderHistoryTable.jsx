@@ -10,55 +10,31 @@ import {
   Receipt,
 } from "lucide-react";
 import OrderDetailModal from "../OrderDetailModal/OrderDetailModal";
-import { Button, Table, Card } from "flowbite-react";
+import { Button, Table, Card, Dropdown, Pagination } from "flowbite-react";
 import { useSelector } from "react-redux";
 import api from "../../../features/AxiosInstance/AxiosInstance";
-
-// Mock data for demonstration
-const orders = [
-  {
-    id: "ORD-2024-001",
-    status: "completed",
-    total: 299.99,
-    date: "2024-03-15",
-    promoCode: "SPRING20",
-    paymentMethod: "credit_card",
-    products: [
-      { name: "Premium Headphones", quantity: 1 },
-      { name: "Wireless Charger", quantity: 2 },
-    ],
-    notes: "Please handle with care",
-  },
-  {
-    id: "ORD-2024-002",
-    status: "pending",
-    total: 149.99,
-    date: "2024-03-14",
-    promoCode: null,
-    paymentMethod: "wallet",
-    products: [{ name: "Smart Watch", quantity: 1 }],
-    notes: "Gift wrapping requested",
-  },
-  {
-    id: "ORD-2024-003",
-    status: "cancelled",
-    total: 499.99,
-    date: "2024-03-13",
-    promoCode: "SAVE10",
-    paymentMethod: "credit_card",
-    products: [
-      { name: "Laptop Stand", quantity: 1, notes: "Black color" },
-      { name: "Wireless Mouse", quantity: 1 },
-      { name: "Keyboard", quantity: 1 },
-    ],
-    notes: "",
-  },
-];
 
 const OrderHistoryTable = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orders, setOrders] = useState([]);
   const userID = useSelector((state) => state.auth.user);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (items) => {
+    setItemsPerPage(items);
+    setCurrentPage(1);
+  };
+
+  const paginatedOrders = orders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const [showDetailModal, setShowDetailModal] = useState(false);
 
@@ -66,17 +42,19 @@ const OrderHistoryTable = () => {
     async function fetchAndMapOrders() {
       try {
         const response = await api.get(
-          "api/Order/GetOrderDetailsByUserId/33ec8700-d47c-4a45-a11e-48ddb18583a5"
+          `api/Order/GetOrderDetailsByUserId/${userID}`
         );
         const apiData = response.data;
-        console.log("apiData", apiData);
+
+        // Sắp xếp theo thời gian đặt sớm nhất
+        apiData.sort((a, b) => new Date(b.orderTime) - new Date(a.orderTime));
 
         const mappedData = apiData.map((order) => ({
           id: order.orderId,
           status: order.orderState.toLowerCase(),
           total: formatPrice(order.totalPrice),
           date: new Date(order.orderTime).toISOString().split("T")[0],
-          promoCode: order.voucherApplied,
+          promoCode: order.voucherCode ? order.voucherCode : "Không có",
           paymentMethod: order.paymentMethod.toLowerCase().replace(/\s/g, "_"),
           products: order.orderDetails.map((detail) => ({
             name: detail.item.itemName,
@@ -98,9 +76,17 @@ const OrderHistoryTable = () => {
     switch (status) {
       case "completed":
         return <CheckCircle2 className="w-5 h-5 text-green-500" />;
+      case "hoàn tất":
+        return <CheckCircle2 className="w-5 h-5 text-green-500" />;
       case "cancelled":
         return <XCircle className="w-5 h-5 text-red-500" />;
+      case "đã huỷ":
+        return <XCircle className="w-5 h-5 text-red-500" />;
       case "pending":
+        return <AlertCircle className="w-5 h-5 text-yellow-500" />;
+      case "chờ xác nhận":
+        return <AlertCircle className="w-5 h-5 text-yellow-500" />;
+      case "đang xử lý":
         return <AlertCircle className="w-5 h-5 text-yellow-500" />;
       default:
         return null;
@@ -110,6 +96,12 @@ const OrderHistoryTable = () => {
   const getPaymentIcon = (method) => {
     switch (method) {
       case "credit_card":
+        return <CreditCard className="w-5 h-5 text-gray-500" />;
+      case "cash":
+        return <Wallet className="w-5 h-5 text-gray-500" />;
+      case "momo":
+        return <CreditCard className="w-5 h-5 text-gray-500" />;
+      case "banking":
         return <CreditCard className="w-5 h-5 text-gray-500" />;
       case "wallet":
         return <Wallet className="w-5 h-5 text-gray-500" />;
@@ -149,7 +141,7 @@ const OrderHistoryTable = () => {
             <Table.HeadCell>Thao tác</Table.HeadCell>
           </Table.Head>
           <Table.Body>
-            {orders.map((order) => (
+            {paginatedOrders.map((order) => (
               <motion.tr
                 key={order.id}
                 initial={{ opacity: 0 }}
@@ -200,6 +192,29 @@ const OrderHistoryTable = () => {
             ))}
           </Table.Body>
         </Table>
+      </div>
+
+      <div className="flex justify-between items-center mt-4">
+        <Dropdown
+          outline
+          color="teal"
+          label={`Hiển thị ${itemsPerPage} mục`}
+          onSelect={(e) => handleItemsPerPageChange(Number(e.target.value))}
+        >
+          {[5, 10, 20, 50].map((size) => (
+            <Dropdown.Item
+              key={size}
+              onClick={() => handleItemsPerPageChange(size)}
+            >
+              {size} mục/trang
+            </Dropdown.Item>
+          ))}
+        </Dropdown>
+        <Pagination
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          totalPages={Math.ceil(orders.length / itemsPerPage)}
+        />
       </div>
 
       <OrderDetailModal

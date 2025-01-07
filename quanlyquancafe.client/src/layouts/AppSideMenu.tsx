@@ -93,6 +93,7 @@ export const AppSideMenu = () => {
     const handleLogout = () => {
         dispatch(logout());
         dispatch(clearCart());
+        navigate('/auth/login');
     };
 
     const userRole = useSelector((state: any) => state.auth.userRole);

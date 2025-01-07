@@ -55,8 +55,19 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             {
                 throw new Exception("Schedule not found for the given staffId, shiftId, and date.");
             }
-
             var scheduleId = schedule.ScheduleId;
+
+            var shift = await dbContext.Shifts.FirstOrDefaultAsync(s => s.ShiftId == shiftId);
+            if (shift == null)
+            {
+                throw new Exception("Shift not found for the given shiftId.");
+            }
+
+            if (TimeOnly.FromDateTime(checkinTime) < shift.StartTime ||
+                TimeOnly.FromDateTime(checkinTime) > shift.EndTime)
+            {
+                throw new Exception("Check-in time must be within the shift's start and end times.");
+            }
 
             var attendanceDate = DateOnly.FromDateTime(checkinTime);
             var attendance = await _dbSet.FirstOrDefaultAsync(a =>
@@ -105,6 +116,18 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             }
             var scheduleId = schedule.ScheduleId;
 
+            var shift = await dbContext.Shifts.FirstOrDefaultAsync(s => s.ShiftId == shiftId);
+            if (shift == null)
+            {
+                throw new Exception("Shift not found for the given shiftId.");
+            }
+
+            if (TimeOnly.FromDateTime(checkoutTime) < shift.StartTime ||
+                TimeOnly.FromDateTime(checkoutTime) > shift.EndTime)
+            {
+                throw new Exception("Check-out time must be within the shift's start and end times.");
+            }
+
             var attendance = await _dbSet.FirstOrDefaultAsync(a => a.ScheduleId == scheduleId 
                 && a.Date == DateOnly.FromDateTime(checkoutTime)
                 && a.Checkin!= default(DateTime));
@@ -126,49 +149,45 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
 
         public async Task<PagedResult<StaffAttendanceDto>> GetStaffAttendanceForShiftOnDateAsync(
-            int shiftId, DateOnly date, int pageIndex, int pageSize)
+    int shiftId, DateOnly date, int pageIndex, int pageSize)
         {
-            try
-            {
-                Console.WriteLine($"Fetching attendances for ShiftId: {shiftId}, Date: {date}, PageIndex: {pageIndex}, PageSize: {pageSize}");
-
-                var query = dbContext.Attendances
-                    .Include(a => a.Schedule)
-                    .ThenInclude(s => s.Staff)
-                    .Where(a => a.Schedule.ShiftId == shiftId && a.Date == date);
-
-                var totalRecords = await query.CountAsync();
-
-                var attendances = await query
-                    .Skip((pageIndex - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToListAsync();
-
-                var staffAttendanceDtos = attendances.Select(a => new StaffAttendanceDto
+            var query = dbContext.Attendances
+                .Include(a => a.Schedule)
+                .ThenInclude(s => s.Staff)
+                .ThenInclude(staff => staff.User)
+                .Where(a => a.Schedule.ShiftId == shiftId && a.Date == date)
+                .GroupBy(a => a.Schedule.StaffId)
+                .Select(g => new
                 {
-                    
-                    StaffName = a.Schedule?.Staff?.User?.UserName ?? "Unknown", 
-                 
-                    Checkin = a.Checkin != default ? a.Checkin : (DateTime?)null,
-                    Checkout = a.Checkout != default ? a.Checkout : (DateTime?)null
+                    StaffName = g.First().Schedule.Staff.User.UserName,
+                    Checkin = g.First().Checkin,
+                    Checkout = g.First().Checkout
+                });
 
-                }).ToList();
+            var totalRecords = await query.CountAsync();
 
-                return new PagedResult<StaffAttendanceDto>
-                {
-                    TotalRecords = totalRecords,
-                    CurrentPage = pageIndex,
-                    PageSize = pageSize,
-                    TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
-                    Data = staffAttendanceDtos
-                };
-            }
-            catch (Exception ex)
+            var attendances = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var staffAttendanceDtos = attendances.Select(a => new StaffAttendanceDto
             {
-                Console.WriteLine($"Error in repository: {ex.Message}");
-                throw;
-            }
+                StaffName = a.StaffName,
+                Checkin = a.Checkin != default ? a.Checkin : (DateTime?)null,
+                Checkout = a.Checkout != default ? a.Checkout : (DateTime?)null
+            }).ToList();
+
+            return new PagedResult<StaffAttendanceDto>
+            {
+                TotalRecords = totalRecords,
+                CurrentPage = pageIndex,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
+                Data = staffAttendanceDtos
+            };
         }
+
 
 
 
@@ -235,8 +254,8 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 AttendanceId = attendance.AttendanceId,
                 ScheduleId = attendance.ScheduleId,
                 Date = attendance.Date,
-                Checkin = attendance.Checkin,
-                Checkout = attendance.Checkout
+                Checkin = attendance.Checkin == default(DateTime) ? null : attendance.Checkin,
+                Checkout = attendance.Checkout == default(DateTime) ? null : attendance.Checkout
             };
         }
         public async Task<PagedResult<AttendanceShiftDto>> GetAttendancesByUserIdAndMonthAsync(string userId, int month, int year, int pageIndex = 1, int pageSize = 10)
@@ -277,7 +296,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                     a.Date.Month == month &&
                     a.Date.Year == year &&
                     a.Checkin != null &&
-                    a.Checkout != null);
+                    a.Checkout != null&& a.Checkout!= default(DateTime)&& a.Checkin!= default(DateTime));
 
             var totalRecords = await query.CountAsync();
 
@@ -293,7 +312,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 Date = a.Date,
                 Checkin = a.Checkin,
                 Checkout = a.Checkout,
-                ShiftName = a.Schedule.Shift.ShiftName
+                ShiftName = a.Schedule.Shift.ShiftName,
             }).ToList();
 
             return new PagedResult<AttendanceShiftDto>

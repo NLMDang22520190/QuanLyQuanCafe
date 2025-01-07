@@ -6,5 +6,7 @@ namespace QuanLyQuanCafe.Server.Repositories
     {
         Task<VoucherDetail> GetVoucherDetailByVoucherCode(string voucherCode);
         Task<List<VoucherDetail>> GetVoucherDetailByCustomerId(string customerId);
+
+        Task<string> GetVoucherCodeByVoucherDetailId(int voucherDetailId);
     }
 }

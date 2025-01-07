@@ -10,5 +10,6 @@ namespace QuanLyQuanCafe.Server.Repositories
         Task<ShiftDTO> CreateShift(ShiftDTO shiftDto);
         Task<ShiftDTO> UpdateShift(int shiftId, ShiftDTO shiftDto);
         Task<bool> SoftDeleteShift(int shiftId);
+        Task<List<ShiftScheduleDto>> GetShiftsByStaffId(int staffId);
     }
 }
