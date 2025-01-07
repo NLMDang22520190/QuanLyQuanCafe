@@ -1,45 +1,55 @@
-import React, { useState, useEffect } from "react";
-import { Form, Input, InputNumber, Button, Upload, Select, Space } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import axios from "axios";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import api from "../../features/AxiosInstance/AxiosInstance";
+import React, { useState, useEffect } from 'react';
+import { Form, Input, InputNumber, Button, Upload, Select, Space, message } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import axios from 'axios';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import api from '../../features/AxiosInstance/AxiosInstance';
+
 
 const { Option } = Select;
-const CreateProduct = ({ onSubmit }) => {
-  const [typeOfFoods, setTypeOfFoods] = useState([]);
-  const [ingredients, setIngredients] = useState([]);
-  const [fileList, setFileList] = useState([]);
+const CreateProduct = ({ onSubmit, onClose }) => {
+    const [form] = Form.useForm();
+    const [typeOfFoods, setTypeOfFoods] = useState([]);
+    const [ingredients, setIngredients] = useState([]);
+    const [fileList, setFileList] = useState([]);
+    const [isCreatingProduct, setIsCreatingProduct] = useState(false);
 
-  const handleSubmit = async (values) => {
-    await uploadMenuItemImage(fileList[0].originFileObj)
-      .then(async (imageResponse) => {
-        const imageId = imageResponse.imageId.toString();
+    const handleSubmit = async (values) => {
+        setIsCreatingProduct(true);
+        await uploadMenuItemImage(fileList[0].originFileObj).then(
+            async (imageResponse) => {
+                const imageId = imageResponse.imageId.toString();
 
-        const product = {
-          itemName: values.itemName,
-          price: values.price,
-          typeOfFoodId: values.typeOfFoodId,
-          itemRecipes: values.itemRecipes,
-          picture: imageId,
-          description: values.description,
-        };
-        if (product) {
-          console.log(product);
-          await createNewProduct(product);
-        }
-      })
-      .catch((error) => {
-        console.error("There was an error!", error);
-      });
-  };
+                const product = {
+                    itemName: values.itemName,
+                    price: values.price,
+                    typeOfFoodId: values.typeOfFoodId,
+                    itemRecipes: values.itemRecipes,
+                    picture: imageId,   
+                    description: values.description,
+                };
+                if (product) {
+                    await createNewProduct(product);
+                    message.success('Product created successfully!');
+                    form.resetFields();
+                    onClose();
+                }
 
-  const fetchTypeOfFoods = async () => {
-    try {
-      const response = await fetch("https://localhost:7087/api/food-types");
-      if (!response.ok) {
-        throw new Error("Something went wrong!");
-      }
+            }
+        ).catch(error => {
+            message.error('There was an error uploading the image!');
+        }).finally(() => {
+            setIsCreatingProduct(false);
+        });   
+    };
+
+    const fetchTypeOfFoods = async () => {
+        try {
+            const response = await fetch('https://localhost:7087/api/food-types');
+            if (!response.ok) {
+                message.error('Something went wrong!');
+            }
+
 
       const data = await response.json();
       setTypeOfFoods(data);
@@ -241,48 +251,68 @@ const CreateProduct = ({ onSubmit }) => {
                         >
                           {ingredient.ingredientName}
                         </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                  <Form.Item
-                    {...restField}
-                    name={[name, "quantity"]}
-                    rules={[
-                      { required: true, message: "Please enter quantity!" },
-                    ]}
-                  >
-                    <InputNumber placeholder="Quantity" />
-                  </Form.Item>
-                  <MinusCircleOutlined onClick={() => remove(name)} />
-                </Space>
-              ))}
-              <Form.Item>
-                <Button
-                  type="dashed"
-                  onClick={() => add()}
-                  block
-                  icon={<PlusOutlined />}
-                >
-                  Add Ingredient
-                </Button>
-              </Form.Item>
-            </>
-          )}
-        </Form.List>
-      </Form.Item>
-      <Form.Item label="Description" name="description">
-        <Input.TextArea
-          name="description"
-          placeholder="(Optional) Enter descriptions"
-        />
-      </Form.Item>
-      <div className="flex justify-between">
-        <Button type="primary" htmlType="submit">
-          Save Change
-        </Button>
-      </div>
-    </Form>
-  );
+                    ))}
+                </Select>
+            </Form.Item>
+
+            <Form.Item label="Ingredients" name="itemRecipes">
+                <Form.List name="itemRecipes">
+                    {(fields, { add, remove }) => (
+                        <>
+                            {fields.map(({ key, name, ...restField }, index) => (
+                                <Space
+                                    key={key}
+                                    style={{ display: 'flex', marginBottom: 8 }}
+                                    align="baseline"
+                                >
+                                    <Form.Item
+                                        {...restField}
+                                        name={[name, 'ingredientId']}
+                                        rules={[{ required: true, message: 'Please select an ingredient!' }]}
+                                    >
+                                        <Select placeholder="Select an ingredient">
+                                            {ingredients.map((ingredient) => (
+                                                <Option
+                                                    key={ingredient.ingredientId}
+                                                    value={ingredient.ingredientId}
+                                                >
+                                                    {ingredient.ingredientName}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                    <Form.Item
+                                        {...restField}
+                                        name={[name, 'quantity']}
+                                        rules={[{ required: true, message: 'Please enter quantity!' }]}
+                                    >
+                                        <InputNumber placeholder="Quantity" />
+                                    </Form.Item>
+                                    <MinusCircleOutlined onClick={() => remove(name)} />
+                                </Space>
+                            ))}
+                            <Form.Item>
+                                <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                    Add Ingredient
+                                </Button>
+                            </Form.Item>
+                        </>
+                    )}
+                </Form.List>
+            </Form.Item>
+            <Form.Item label="Description" name="description">
+                <Input.TextArea name="description" placeholder="(Optional) Enter descriptions" />
+            </Form.Item>
+            <div className="flex justify-between">
+                
+                    <Button loading={isCreatingProduct} type="primary" htmlType="submit">
+                        Save Change
+                    </Button>
+    
+            </div>
+        </Form>
+    );
+
 };
 
 export default CreateProduct;

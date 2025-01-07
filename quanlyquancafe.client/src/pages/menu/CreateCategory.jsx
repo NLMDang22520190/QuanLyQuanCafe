@@ -6,6 +6,7 @@ import api from '../../features/AxiosInstance/AxiosInstance';
 const { TextArea } = Input;
 
 const CreateCategory = ({ onSubmit, onClose}) => {
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
 
     const handleFinish = (values) => {
         createCategory(values);
@@ -13,13 +14,17 @@ const CreateCategory = ({ onSubmit, onClose}) => {
     }
 
     const createCategory = async (foodType) => {
+      setIsCreatingCategory(true);
       await api.post('api/food-types', foodType)
   .then(response => {
       message.success(response.data);
+      onClose();
   })
   .catch(error => {
     console.log(error);
         message.error(`Error: ${error.response.data}`);
+  }).finally(() => {
+    setIsCreatingCategory(false);
   });
   }
 
@@ -37,7 +42,7 @@ const CreateCategory = ({ onSubmit, onClose}) => {
           </Form.Item>
           
             <Form.Item>
-                <Button type="primary" htmlType="submit">
+                <Button loading={isCreatingCategory} type="primary" htmlType="submit">
                 Save
                 </Button>
                 <Button onClick={onClose} style={{ marginLeft: 10 }}>
