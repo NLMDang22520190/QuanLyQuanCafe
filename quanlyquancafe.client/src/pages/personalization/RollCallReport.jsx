@@ -4,6 +4,8 @@ import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import instance from "../../features/AxiosInstance/AxiosInstance";
 import { use } from "react";
+import dayjs from "dayjs";
+
 const RollCallReport = ({ visible, onClose, monthData }) => {
   const [rollCallData, setRollCallData] = useState([]);
 
@@ -55,18 +57,22 @@ const RollCallReport = ({ visible, onClose, monthData }) => {
       title: "Date",
       dataIndex: "date",
       key: "date",
+      render: (date) => dayjs(date).format("YYYY-MM-DD"), // Định dạng ngày
     },
     {
       title: "Check-in",
       dataIndex: "checkin",
       key: "checkin",
+      render: (checkin) => dayjs(checkin).format("HH:mm:ss"), // Định dạng giờ phút giây
     },
     {
       title: "Check-out",
       dataIndex: "checkout",
       key: "checkout",
+      render: (checkout) => dayjs(checkout).format("HH:mm:ss"), // Định dạng giờ phút giây
     },
   ];
+  
 
   return (
     <Modal

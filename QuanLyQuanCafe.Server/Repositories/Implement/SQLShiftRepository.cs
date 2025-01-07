@@ -118,7 +118,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
 
             var overlappingShift = await _dbContext.Shifts
                 .Where(s =>
-                    (shiftDto.StartTime <= s.EndTime && shiftDto.EndTime >= s.StartTime) 
+                    (s.IsDeleted == false &&shiftDto.StartTime <= s.EndTime && shiftDto.EndTime >= s.StartTime ) 
                 )
                 .FirstOrDefaultAsync();
 
@@ -161,7 +161,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
             var overlappingShift = await _dbContext.Shifts
                 .Where(s => s.ShiftId != shiftId) 
                 .Where(s =>
-                    (shiftDto.StartTime < s.EndTime && shiftDto.EndTime > s.StartTime) 
+                    (s.IsDeleted==false && shiftDto.StartTime < s.EndTime && shiftDto.EndTime > s.StartTime) 
                 )
                 .FirstOrDefaultAsync();
 

@@ -6,14 +6,25 @@ import { Day, WorkWeek, Week, ScheduleComponent, Inject } from "@syncfusion/ej2-
 import axios from "axios";
 import moment from 'moment-timezone';
 import "./schedule.css";
+const getCurrentWeek = () => {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); 
+    
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
 
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+
+    return [weekStart, weekEnd];
+};
 const StaffSchedule = () => {
     const scheduleRef = useRef(null);
     const [openRollCall, setOpenRollCall] = useState(false); 
     const [selectedShift, setSelectedShift] = useState(null);
     const [checkin, setCheckInTime] = useState(null);
     const [checkOutTime, setCheckOutTime] = useState(null);
-    const [schedule, setSchedule] = useState([]); 
+    const [schedule, setSchedule] = useState(getCurrentWeek()); 
     const [week,setWeek]=useState([]);
     const [shiftData, setShiftData] = useState([]);
     const userId = useSelector((state) => state.auth.user);

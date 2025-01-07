@@ -296,7 +296,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                     a.Date.Month == month &&
                     a.Date.Year == year &&
                     a.Checkin != null &&
-                    a.Checkout != null);
+                    a.Checkout != null&& a.Checkout!= default(DateTime)&& a.Checkin!= default(DateTime));
 
             var totalRecords = await query.CountAsync();
 
@@ -312,7 +312,7 @@ namespace QuanLyQuanCafe.Server.Repositories.Implement
                 Date = a.Date,
                 Checkin = a.Checkin,
                 Checkout = a.Checkout,
-                ShiftName = a.Schedule.Shift.ShiftName
+                ShiftName = a.Schedule.Shift.ShiftName,
             }).ToList();
 
             return new PagedResult<AttendanceShiftDto>
