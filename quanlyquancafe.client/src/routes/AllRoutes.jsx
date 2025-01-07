@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import Home from "../pages/Users/Home/Home";
 import Menu from "../pages/Users/Menu/Menu";
@@ -26,8 +27,11 @@ import TableManagementPage from "../pages/table_management/TableManagementPage";
 import { PromotionPage } from "../pages/promotion/PromotionPage";
 import UserRole from "../constant/UserRole";
 
+import AdminLogin from "../pages/Auth/AdminLogin/AdminLogin";
+import AdminStaffSchedule from "../pages/Auth/AdminLogin/AdminStaffSchedule";
+
 const AllRoutes = () => {
-  const userRole = UserRole.ADMIN;
+  const userRole = useSelector((state) => state.auth.userRole);
 
   return (
     <Routes>
@@ -42,13 +46,15 @@ const AllRoutes = () => {
         <Route path="/auth/reset-password" element={<ResetPassword />} />
       </> */}
 
-      {userRole === UserRole.ADMIN && (
+      {userRole === "Admin" && (
         <>
+          <Route path="/auth/login" element={<AdminLogin />} />
+          <Route path="/staff-schedule" element={<AdminStaffSchedule />} />
           <Route path="/dashboard" element={<ManagerDashboard />} />
           <Route path="/schedule" element={<Schedule />} />
-          <Route path="/staff-schedule" element={<StaffSchedule />} />
+
           <Route path="/user" element={<UserPage />} />
-          <Route path="/profile" element={<Profile />} />
+          {/* <Route path="/profile" element={<Profile />} /> */}
           <Route path="/orderAndBilling">
             <Route path="" element={<OrderAndBilling />} />
             <Route path="create" element={<CreateOrder />} />
@@ -66,23 +72,25 @@ const AllRoutes = () => {
           <Route path="/table-management" element={<TableManagementPage />} />
         </>
       )}
-      {userRole === UserRole.STAFF && (
+      {userRole === "Staff" && (
         <>
-          <Route path="/schedule" element={<Schedule />} />
+          <Route path="/auth/login" element={<AdminLogin />} />
+          {/* <Route path="/schedule" element={<Schedule />} /> */}
           <Route path="/staff-schedule" element={<StaffSchedule />} />
+          <Route path="/user" element={<UserPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/orderAndBilling">
             <Route path="" element={<OrderAndBilling />} />
             <Route path="create" element={<CreateOrder />} />
             <Route path="payment" element={<OrderPayment />} />
           </Route>
-          <Route path="/menu">
+          {/* <Route path="/menu">
             <Route path="" element={<MenuPage />} />
           </Route>
           <Route path="/inventory">
             <Route path="" element={<InventoryControlPage />} />
             <Route path="add" element={<AddMaterials />} />
-          </Route>
+          </Route> */}
         </>
       )}
     </Routes>

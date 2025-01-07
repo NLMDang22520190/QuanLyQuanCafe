@@ -90,7 +90,7 @@ export const MenuPage = () => {
       title: "Price",
       dataIndex: "price",
       key: "price",
-      render: (text) => `$${parseFloat(text).toFixed(2)}`,
+      render: (text) => $`${parseFloat(text).toFixed(2)}`,
       sorter: (a, b) => a.price - b.price,
     },
     {
@@ -181,13 +181,25 @@ export const MenuPage = () => {
           <h2 className="text-amber-500 font-medium text-3xl">
             Menu Management
           </h2>
-          {/* <div className="flex gap-x-2">
-                        <Button className="text-black" size="large" type="primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                            </svg> Export Menu Report
-                        </Button>
-                    </div> */}
+          <div className="flex gap-x-2">
+            <Button className="text-black" size="large" type="primary">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+                />
+              </svg>{" "}
+              Export Menu Report
+            </Button>
+          </div>
         </div>
         <div className="flex justify-between">
           <p className="text-2xl items-center">Categories</p>
@@ -258,18 +270,84 @@ export const MenuPage = () => {
                 prefix={" "}
               />
             </div>
-            <Modal title="Add New Category" open={isAddCategoryModalVisible} onCancel={() => setIsAddCategoryModalVisible(false)} footer={null}>
-                <CreateCategory onSubmit={() => setIsAddCategoryModalVisible(false)} />
-            </Modal>
-            <Modal title="Add New Product" open={isAddProductModalVisible}  onCancel={() => setIsAddProductModalVisible(false)} footer={null}>
-                <CreateProduct onSubmit={() => setIsAddProductModalVisible(false)} onClose={()=>setIsAddProductModalVisible(false)} />
-            </Modal>
-            <Modal title="Menu item detail" open={isProductDetailModalVisible} onCancel={() => {setIsProductDetailModalVisible(false), setSelectedProductId(null)}} footer={null}>
-                {
-                    selectedProductId && <ProductDetail id={selectedProductId} onSubmit={() => {setIsProductDetailModalVisible(false), setSelectedProductId(null)}} />
-                }
-            </Modal>
-        </>
-    )
-}
-
+            <Button
+              className="text-black"
+              onClick={setIsAddProductModalVisible}
+              type="primary"
+              icon={
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15"
+                  />
+                </svg>
+              }
+            >
+              Add Menu Item
+            </Button>
+          </div>
+          <Table
+            loading={loading || !currentMenuItems}
+            pagination={false}
+            rowKey={(record) => record.id}
+            dataSource={currentMenuItems}
+            columns={columnData}
+          />
+        </div>
+        {currentMenuItems && (
+          <Pagination
+            current={currentMenuItems.length}
+            total={currentMenuItems.length}
+            pageSize={rowsPerPage}
+            onChange={handlePageChange}
+            showSizeChanger={false}
+          />
+        )}
+      </div>
+      <Modal
+        title="Add New Category"
+        open={isAddCategoryModalVisible}
+        onCancel={() => setIsAddCategoryModalVisible(false)}
+        footer={null}
+      >
+        <CreateCategory onSubmit={() => setIsAddCategoryModalVisible(false)} />
+      </Modal>
+      <Modal
+        title="Add New Product"
+        open={isAddProductModalVisible}
+        onCancel={() => setIsAddProductModalVisible(false)}
+        footer={null}
+      >
+        <CreateProduct
+          onSubmit={() => setIsAddProductModalVisible(false)}
+          onClose={() => setIsAddProductModalVisible(false)}
+        />
+      </Modal>
+      <Modal
+        title="Menu item detail"
+        open={isProductDetailModalVisible}
+        onCancel={() => {
+          setIsProductDetailModalVisible(false), setSelectedProductId(null);
+        }}
+        footer={null}
+      >
+        {selectedProductId && (
+          <ProductDetail
+            id={selectedProductId}
+            onSubmit={() => {
+              setIsProductDetailModalVisible(false), setSelectedProductId(null);
+            }}
+          />
+        )}
+      </Modal>
+    </>
+  );
+};

@@ -75,7 +75,7 @@ const items = [
     { label: 'Promotion', icon: <PromotionIcon />, path: '/promotions', roles: [UserRole.ADMIN] },
     { label: 'Schedule', icon: <ScheduleIcon />, path: '/schedule', roles: [UserRole.ADMIN] },
     { label: 'Schedule', icon: <ScheduleIcon />, path: '/staff-schedule', roles: [UserRole.STAFF] },
-    { label: 'Settings', icon: <SettingsIcon />, path: '/profile', roles: [UserRole.ADMIN, UserRole.STAFF] },
+    { label: 'Settings', icon: <SettingsIcon />, path: '/profile', roles: [UserRole.STAFF] },
 ];
 
 

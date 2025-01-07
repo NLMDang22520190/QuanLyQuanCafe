@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../../features/Auth/Auth";
 import { getAuthCookies } from "../../../features/Cookies/CookiesHelper";
+import { message } from "antd";
 
 const loginBgImage =
   "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&w=800&q=75";
@@ -31,7 +32,7 @@ const Login = () => {
       // console.log(authState.isAuthenticated);
       navigate("/"); // Đường dẫn trang Chủ
     }
-  }, [authState.isAuthenticated, navigate]);
+  }, [authState.isAuthenticated]);
 
   return (
     <div className="min-h-screen flex relative">
