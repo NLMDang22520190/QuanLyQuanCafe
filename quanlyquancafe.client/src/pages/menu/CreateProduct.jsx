@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, InputNumber, Button, Upload, Select, Space } from 'antd';
+import { Form, Input, InputNumber, Button, Upload, Select, Space, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
@@ -7,13 +7,15 @@ import api from '../../features/AxiosInstance/AxiosInstance';
 
 
 const { Option } = Select;
-const CreateProduct = ({ onSubmit }) => {
+const CreateProduct = ({ onSubmit, onClose }) => {
+    const [form] = Form.useForm();
     const [typeOfFoods, setTypeOfFoods] = useState([]);
     const [ingredients, setIngredients] = useState([]);
     const [fileList, setFileList] = useState([]);
+    const [isCreatingProduct, setIsCreatingProduct] = useState(false);
 
     const handleSubmit = async (values) => {
-
+        setIsCreatingProduct(true);
         await uploadMenuItemImage(fileList[0].originFileObj).then(
             async (imageResponse) => {
                 const imageId = imageResponse.imageId.toString();
@@ -27,21 +29,25 @@ const CreateProduct = ({ onSubmit }) => {
                     description: values.description,
                 };
                 if (product) {
-                    console.log(product);
                     await createNewProduct(product);
+                    message.success('Product created successfully!');
+                    form.resetFields();
+                    onClose();
                 }
 
             }
         ).catch(error => {
-            console.error('There was an error!', error);
-        });
+            message.error('There was an error uploading the image!');
+        }).finally(() => {
+            setIsCreatingProduct(false);
+        });   
     };
 
     const fetchTypeOfFoods = async () => {
         try {
             const response = await fetch('https://localhost:7087/api/food-types');
             if (!response.ok) {
-                throw new Error('Something went wrong!');
+                message.error('Something went wrong!');
             }
 
             const data = await response.json();
@@ -259,7 +265,7 @@ const CreateProduct = ({ onSubmit }) => {
             </Form.Item>
             <div className="flex justify-between">
                 
-                    <Button type="primary" htmlType="submit">
+                    <Button loading={isCreatingProduct} type="primary" htmlType="submit">
                         Save Change
                     </Button>
     

@@ -183,8 +183,8 @@ export const MenuPage = () => {
             <Modal title="Add New Category" open={isAddCategoryModalVisible} onCancel={() => setIsAddCategoryModalVisible(false)} footer={null}>
                 <CreateCategory onSubmit={() => setIsAddCategoryModalVisible(false)} />
             </Modal>
-            <Modal title="Add New Product" open={isAddProductModalVisible} onCancel={() => setIsAddProductModalVisible(false)} footer={null}>
-                <CreateProduct onSubmit={() => setIsAddProductModalVisible(false)} />
+            <Modal title="Add New Product" open={isAddProductModalVisible}  onCancel={() => setIsAddProductModalVisible(false)} footer={null}>
+                <CreateProduct onSubmit={() => setIsAddProductModalVisible(false)} onClose={()=>setIsAddProductModalVisible(false)} />
             </Modal>
             <Modal title="Menu item detail" open={isProductDetailModalVisible} onCancel={() => {setIsProductDetailModalVisible(false), setSelectedProductId(null)}} footer={null}>
                 {
