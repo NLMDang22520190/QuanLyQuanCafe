@@ -121,14 +121,27 @@ const Schedule = () => {
       console.error(err);
     }
   };
-
+  useEffect(() => {
+    if (week) {
+      fetchSchedule(shifts, week);
+    }
+  }, [week]);
+  
   const [pageIndexStaffInShift, setPageIndexStaffInShift] = useState(1);
   const [totalStaffInShift, setTotalStaffInShift] = useState(1);
   const [totalMShift, setTotalMShift] = useState(1);
   const [pageIndexMShift, setPageIndexMShift] = useState(1);
   useEffect(() => {
-    fetchShift(pageIndexMShift, 5);
+    fetchShift(pageIndexMShift, 20);
   }, [pageIndexMShift]);
+  useEffect(() => {
+    console.log("Updated schedule1:", schedule1);
+    if (scheduleRef.current) {
+      scheduleRef.current.refresh();
+    }
+  
+  }, [schedule1]);
+  
   useEffect(() => {
     fetchStaffInShift(pageIndexStaffInShift, 5);
   }, [selectedMonth, selectedShiftInTable, pageIndexStaffInShift]);
@@ -238,7 +251,8 @@ const Schedule = () => {
   useEffect(() => {
     console.log("shifts", shifts);
     console.log("week", week);
-    if (JSON.stringify(prevShiftsRef.current) !== JSON.stringify(shifts)) {
+
+    if (!prevShiftsRef.current || prevShiftsRef.current !== shifts) {
       prevShiftsRef.current = shifts;
       fetchSchedule(shifts, week);
     }
@@ -296,9 +310,10 @@ const Schedule = () => {
     try {
       const response = await instance.delete(`/api/shifts/${shiftId}`);
 
-      if (response.status === 200) {
+      if (response.status === 200||response.status===201) {
         message.success("Shift deleted successfully!");
-        fetchShift(pageIndexMShift, 5);
+        fetchShift(pageIndexMShift, 20);
+        fetchShiftSchedule();
       } else {
         throw new Error(response.data.error || "Failed to delete the shift.");
       }
@@ -325,11 +340,11 @@ const Schedule = () => {
       const response = await instance.post("/api/shifts", newShift);
 
       console.log("New Shift Data: ", response);
-      if (response.status === 201) {
+      if (response.status === 200||response.status===201) {
         message.success("Shift created successfully!");
         formCreateShift.resetFields();
         setOpenCreateModal(false);
-        fetchShift(pageIndexMShift, 5);
+        fetchShift(pageIndexMShift, 20);
         fetchShiftSchedule();
       } else message.error(response.data.title);
     } catch (error) {
@@ -675,7 +690,7 @@ const Schedule = () => {
           rowKey="shiftId"
           pagination={{
             current: pageIndexMShift,
-            pageSize: 5,
+            pageSize: 10,
             total: totalMShift,
             onChange: (page) => {
               fetchShift(page, 10);
@@ -715,7 +730,6 @@ const Schedule = () => {
               const selectedWeekEnd = new Date(selectedWeekStart);
               selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6);
               setWeek([selectedWeekStart, selectedWeekEnd]);
-              fetchSchedule();
             }}
           >
             <Inject services={[Day, Week, WorkWeek]} />
