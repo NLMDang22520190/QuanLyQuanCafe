@@ -21,8 +21,10 @@ const CreateProduct = ({ onSubmit, onClose }) => {
   const [ingredients, setIngredients] = useState([]);
   const [fileList, setFileList] = useState([]);
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
+  const [totalIngredientPrice, setTotalIngredientPrice] = useState(0);
 
   const handleSubmit = async (values) => {
+    console.log(values);
     setIsCreatingProduct(true);
     await uploadMenuItemImage(fileList[0].originFileObj)
       .then(async (imageResponse) => {
@@ -40,6 +42,7 @@ const CreateProduct = ({ onSubmit, onClose }) => {
           await createNewProduct(product);
           message.success("Product created successfully!");
           form.resetFields();
+          setTotalIngredientPrice(0);
           onClose();
         }
       })
@@ -112,6 +115,20 @@ const CreateProduct = ({ onSubmit, onClose }) => {
     return response.data;
   };
 
+  const calculateTotalIngredientPrice = () => {
+    let total = 0;
+    const itemRecipes = form.getFieldValue("itemRecipes");
+    if (itemRecipes) {
+      itemRecipes.forEach((recipe) => {
+        const ingredient = ingredients.find(
+          (i) => i.ingredientId === recipe.ingredientId
+        );
+        total += ingredient.importPrice * recipe.quantity;
+      });
+    }
+    setTotalIngredientPrice(total);
+  }
+
   useEffect(() => {
     fetchTypeOfFoods();
     fetchIngredients();
@@ -123,6 +140,7 @@ const CreateProduct = ({ onSubmit, onClose }) => {
       wrapperCol={{ span: 34 }}
       layout="horizontal"
       onFinish={handleSubmit}
+      form={form}
     >
       <Form.Item
         label="Image"
@@ -173,7 +191,17 @@ const CreateProduct = ({ onSubmit, onClose }) => {
       <Form.Item
         label="Price"
         name="price"
-        rules={[{ required: true, message: "Please enter product price!" }]}
+        rules={[
+          { required: true, message: "Please enter product price!" },
+          {
+            validator: async (_, price) => {
+              if (price <= totalIngredientPrice) {
+                return Promise.reject(new Error("Product price must be greater than total ingredient price!"));
+              }
+              return Promise.resolve();
+            },
+          },
+        ]}
       >
         <InputNumber
           name="price"
@@ -230,8 +258,29 @@ const CreateProduct = ({ onSubmit, onClose }) => {
         </Select>
       </Form.Item>
 
-      <Form.Item label="Ingredients" name="itemRecipes">
-        <Form.List name="itemRecipes">
+      <Form.Item label="Ingredients" name="itemRecipes"
+      rules={
+        [
+          {
+            validator: async (_, itemRecipes) => {
+              if (itemRecipes) {
+                for (const recipe of itemRecipes) {
+                  const ingredient = ingredients.find(
+                    (i) => i.ingredientId === recipe.ingredientId
+                  );
+                  if (!ingredient) {
+                    return Promise.reject(new Error("Invalid ingredient selected!"));
+                  }
+                }
+              }
+              return Promise.resolve();
+            },
+          },
+        ]
+      }
+      >
+        <Form.List name="itemRecipes"
+        >
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }, index) => (
@@ -268,15 +317,16 @@ const CreateProduct = ({ onSubmit, onClose }) => {
                       { required: true, message: "Please enter quantity!" },
                     ]}
                   >
-                    <InputNumber placeholder="Quantity" />
+                    <InputNumber placeholder="Quantity" onChange={calculateTotalIngredientPrice} />
                   </Form.Item>
                   <MinusCircleOutlined onClick={() => remove(name)} />
                 </Space>
               ))}
+              
               <Form.Item>
                 <Button
                   type="dashed"
-                  onClick={() => add()}
+                  onClick={() => {add(), calculateTotalIngredientPrice()}}
                   block
                   icon={<PlusOutlined />}
                 >
@@ -291,13 +341,15 @@ const CreateProduct = ({ onSubmit, onClose }) => {
         <Input.TextArea
           name="description"
           placeholder="(Optional) Enter descriptions"
+          rules={[{ required: true, message: "Please enter descriptions!" }]}
         />
       </Form.Item>
-      <div className="flex justify-between">
-        <Button loading={isCreatingProduct} type="primary" htmlType="submit">
-          Save Change
-        </Button>
-      </div>
+      <Form.Item label="Total Ingredient Price">
+        <p>{totalIngredientPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+      </Form.Item>
+      <Button loading={isCreatingProduct} type="primary" htmlType="submit">
+        Save Change
+      </Button>
     </Form>
   );
 };

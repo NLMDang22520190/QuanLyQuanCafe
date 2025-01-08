@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <PackageJsonName Condition="$(PackageJsonName) == ''">quanlyquancafe.client</PackageJsonName>
+    <PackageJsonPrivate Condition="$(PackageJsonPrivate) == ''">true</PackageJsonPrivate>
+    <PackageJsonVersion Condition="$(PackageJsonVersion) == ''">0.0.0</PackageJsonVersion>
+    <PackageJsonType Condition="$(PackageJsonType) == ''">module</PackageJsonType>
+    <PackageJsonScriptsDev Condition="$(PackageJsonScriptsDev) == ''">vite</PackageJsonScriptsDev>
+    <PackageJsonScriptsBuild Condition="$(PackageJsonScriptsBuild) == ''">vite build</PackageJsonScriptsBuild>
+    <PackageJsonScriptsLint Condition="$(PackageJsonScriptsLint) == ''">eslint .</PackageJsonScriptsLint>
+    <PackageJsonScriptsPreview Condition="$(PackageJsonScriptsPreview) == ''">vite preview</PackageJsonScriptsPreview>
+    <PackageJsonDependenciesHeroiconsReact Condition="$(PackageJsonDependenciesHeroiconsReact) == ''">^2.2.0</PackageJsonDependenciesHeroiconsReact>
+    <PackageJsonDependenciesMaterialTailwindReact Condition="$(PackageJsonDependenciesMaterialTailwindReact) == ''">^2.1.10</PackageJsonDependenciesMaterialTailwindReact>
+    <PackageJsonDependenciesRadixUiReactSlot Condition="$(PackageJsonDependenciesRadixUiReactSlot) == ''">^1.1.1</PackageJsonDependenciesRadixUiReactSlot>
+    <PackageJsonDependenciesReduxjsToolkit Condition="$(PackageJsonDependenciesReduxjsToolkit) == ''">^2.5.0</PackageJsonDependenciesReduxjsToolkit>
+    <PackageJsonDependenciesSyncfusionEj2ReactSchedule Condition="$(PackageJsonDependenciesSyncfusionEj2ReactSchedule) == ''">^27.2.3</PackageJsonDependenciesSyncfusionEj2ReactSchedule>
+    <PackageJsonDependenciesAntd Condition="$(PackageJsonDependenciesAntd) == ''">^5.22.1</PackageJsonDependenciesAntd>
+    <PackageJsonDependenciesAntdWeeklyCalendar Condition="$(PackageJsonDependenciesAntdWeeklyCalendar) == ''">^2.0.1</PackageJsonDependenciesAntdWeeklyCalendar>
+    <PackageJsonDependenciesAxios Condition="$(PackageJsonDependenciesAxios) == ''">^1.7.9</PackageJsonDependenciesAxios>
+    <PackageJsonDependenciesChartJs Condition="$(PackageJsonDependenciesChartJs) == ''">^4.4.7</PackageJsonDependenciesChartJs>
+    <PackageJsonDependenciesClassVarianceAuthority Condition="$(PackageJsonDependenciesClassVarianceAuthority) == ''">^0.7.1</PackageJsonDependenciesClassVarianceAuthority>
+    <PackageJsonDependenciesClsx Condition="$(PackageJsonDependenciesClsx) == ''">^2.1.1</PackageJsonDependenciesClsx>
+    <PackageJsonDependenciesDayjs Condition="$(PackageJsonDependenciesDayjs) == ''">^1.11.13</PackageJsonDependenciesDayjs>
+    <PackageJsonDependenciesFlowbiteReact Condition="$(PackageJsonDependenciesFlowbiteReact) == ''">^0.10.2</PackageJsonDependenciesFlowbiteReact>
+    <PackageJsonDependenciesFramerMotion Condition="$(PackageJsonDependenciesFramerMotion) == ''">^11.12.0</PackageJsonDependenciesFramerMotion>
+    <PackageJsonDependenciesJsCookie Condition="$(PackageJsonDependenciesJsCookie) == ''">^3.0.5</PackageJsonDependenciesJsCookie>
+    <PackageJsonDependenciesJwtDecode Condition="$(PackageJsonDependenciesJwtDecode) == ''">^4.0.0</PackageJsonDependenciesJwtDecode>
+    <PackageJsonDependenciesLodash Condition="$(PackageJsonDependenciesLodash) == ''">^4.17.21</PackageJsonDependenciesLodash>
+    <PackageJsonDependenciesLucideReact Condition="$(PackageJsonDependenciesLucideReact) == ''">^0.469.0</PackageJsonDependenciesLucideReact>
+    <PackageJsonDependenciesMoment Condition="$(PackageJsonDependenciesMoment) == ''">^2.30.1</PackageJsonDependenciesMoment>
+    <PackageJsonDependenciesMomentTimezone Condition="$(PackageJsonDependenciesMomentTimezone) == ''">^0.5.46</PackageJsonDependenciesMomentTimezone>
+    <PackageJsonDependenciesReact Condition="$(PackageJsonDependenciesReact) == ''">^18.3.1</PackageJsonDependenciesReact>
+    <PackageJsonDependenciesReactChartjs2 Condition="$(PackageJsonDependenciesReactChartjs2) == ''">^5.2.0</PackageJsonDependenciesReactChartjs2>
+    <PackageJsonDependenciesReactCsv Condition="$(PackageJsonDependenciesReactCsv) == ''">^2.2.2</PackageJsonDependenciesReactCsv>
+    <PackageJsonDependenciesReactDom Condition="$(PackageJsonDependenciesReactDom) == ''">^18.3.1</PackageJsonDependenciesReactDom>
+    <PackageJsonDependenciesReactModal Condition="$(PackageJsonDependenciesReactModal) == ''">^3.16.1</PackageJsonDependenciesReactModal>
+    <PackageJsonDependenciesReactQrCode Condition="$(PackageJsonDependenciesReactQrCode) == ''">^2.0.15</PackageJsonDependenciesReactQrCode>
+    <PackageJsonDependenciesReactRedux Condition="$(PackageJsonDependenciesReactRedux) == ''">^9.2.0</PackageJsonDependenciesReactRedux>
+    <PackageJsonDependenciesReactRouterDom Condition="$(PackageJsonDependenciesReactRouterDom) == ''">^6.26.2</PackageJsonDependenciesReactRouterDom>
+    <PackageJsonDependenciesReactToPrint Condition="$(PackageJsonDependenciesReactToPrint) == ''">^3.0.4</PackageJsonDependenciesReactToPrint>
+    <PackageJsonDependenciesSonner Condition="$(PackageJsonDependenciesSonner) == ''">^1.7.1</PackageJsonDependenciesSonner>
+    <PackageJsonDevdependenciesEslintJs Condition="$(PackageJsonDevdependenciesEslintJs) == ''">^9.9.0</PackageJsonDevdependenciesEslintJs>
+    <PackageJsonDevdependenciesTypesReact Condition="$(PackageJsonDevdependenciesTypesReact) == ''">^18.3.3</PackageJsonDevdependenciesTypesReact>
+    <PackageJsonDevdependenciesTypesReactDom Condition="$(PackageJsonDevdependenciesTypesReactDom) == ''">^18.3.0</PackageJsonDevdependenciesTypesReactDom>
+    <PackageJsonDevdependenciesTypesRedux Condition="$(PackageJsonDevdependenciesTypesRedux) == ''">^3.6.0</PackageJsonDevdependenciesTypesRedux>
+    <PackageJsonDevdependenciesVitejsPluginReact Condition="$(PackageJsonDevdependenciesVitejsPluginReact) == ''">^4.3.1</PackageJsonDevdependenciesVitejsPluginReact>
+    <PackageJsonDevdependenciesAutoprefixer Condition="$(PackageJsonDevdependenciesAutoprefixer) == ''">^10.4.20</PackageJsonDevdependenciesAutoprefixer>
+    <PackageJsonDevdependenciesEslint Condition="$(PackageJsonDevdependenciesEslint) == ''">^9.9.0</PackageJsonDevdependenciesEslint>
+    <PackageJsonDevdependenciesEslintPluginReact Condition="$(PackageJsonDevdependenciesEslintPluginReact) == ''">^7.35.0</PackageJsonDevdependenciesEslintPluginReact>
+    <PackageJsonDevdependenciesEslintPluginReactHooks Condition="$(PackageJsonDevdependenciesEslintPluginReactHooks) == ''">^5.1.0-rc.0</PackageJsonDevdependenciesEslintPluginReactHooks>
+    <PackageJsonDevdependenciesEslintPluginReactRefresh Condition="$(PackageJsonDevdependenciesEslintPluginReactRefresh) == ''">^0.4.9</PackageJsonDevdependenciesEslintPluginReactRefresh>
+    <PackageJsonDevdependenciesFluidTailwind Condition="$(PackageJsonDevdependenciesFluidTailwind) == ''">^1.0.3</PackageJsonDevdependenciesFluidTailwind>
+    <PackageJsonDevdependenciesGlobals Condition="$(PackageJsonDevdependenciesGlobals) == ''">^15.9.0</PackageJsonDevdependenciesGlobals>
+    <PackageJsonDevdependenciesPostcss Condition="$(PackageJsonDevdependenciesPostcss) == ''">^8.4.47</PackageJsonDevdependenciesPostcss>
+    <PackageJsonDevdependenciesTailwindcss Condition="$(PackageJsonDevdependenciesTailwindcss) == ''">^3.4.13</PackageJsonDevdependenciesTailwindcss>
+    <PackageJsonDevdependenciesVite Condition="$(PackageJsonDevdependenciesVite) == ''">^5.4.1</PackageJsonDevdependenciesVite>
+  </PropertyGroup>
+</Project>
