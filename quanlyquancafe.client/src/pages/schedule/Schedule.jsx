@@ -705,7 +705,7 @@ const Schedule = () => {
           <h2 className="text-amber-500 font-medium text-3xl">Schedule</h2>
         </div>
 
-        <div className="max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)] overflow-auto">
+        <div className=" min-h-[calc(100vh-200px)] overflow-auto">
           <ScheduleComponent
             ref={scheduleRef}
             selectedDate={new Date()}

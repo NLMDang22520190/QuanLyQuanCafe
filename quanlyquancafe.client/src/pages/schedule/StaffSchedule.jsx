@@ -24,8 +24,8 @@ const StaffSchedule = () => {
     const [selectedShift, setSelectedShift] = useState(null);
     const [checkin, setCheckInTime] = useState(null);
     const [checkOutTime, setCheckOutTime] = useState(null);
-    const [schedule, setSchedule] = useState(getCurrentWeek()); 
-    const [week,setWeek]=useState([]);
+    const [schedule, setSchedule] = useState([]); 
+    const [week,setWeek]=useState(getCurrentWeek());
     const [shiftData, setShiftData] = useState([]);
     const userId = useSelector((state) => state.auth.user);
     const [isToday,setIsToday]=useState(false);
@@ -37,17 +37,54 @@ const StaffSchedule = () => {
         try {
             const response = await instance.get(`/api/shifts/staff/${userId}`);
             console.log(response.data);
-            setShiftData(response.data.data);   
+            setShiftData(response.data.data);  
+            console.log("shift data",response.data.data) 
 
         } catch (error) {
             message.error("Failed to fetch shifts. Please try again.");
             console.error(error);
         }
     };
+    useEffect(()=>{
+        fetchShifts();
+    },[])
+    // useEffect(() => {
+    //     if (week) {
+    //       fetchSchedule(shiftData, week);
+    //     }
+    //   }, [week]);
+    // const prevShiftsRef = useRef();
 
+    // useEffect(() => {
+    //     if (!prevShiftsRef.current || prevShiftsRef.current !== shiftData) {
+    //         prevShiftsRef.current = shiftData;
+    //         fetchSchedule(shiftData, week);
+    //       }
+    //     fetchSchedule(shiftData,week); 
+    // }, [shiftData]);
+    const eventSettings = {
+        dataSource: schedule, 
+    };
 
-    
-    const fetchSchedule = async () => {
+    useEffect(() => {
+        console.log("shiftdata",shiftData)
+        console.log("week",week)
+        if (shiftData && week) {
+            fetchSchedule(shiftData, week);
+            
+        }
+    }, [shiftData, week]);
+    useEffect(() => {
+        console.log("Updated schedule1:", schedule);
+        console.log("ref",scheduleRef.current)
+        scheduleRef.current.refresh();
+      
+      }, [schedule]);
+    const fetchSchedule =  (shiftData,week) => {
+        if (!shiftData || !week) {
+            console.log("Missing shiftData or week.");
+            return;
+        }
         try {
             const formattedShifts = shiftData.flatMap((shift) => {
                 const [startHour, startMinute] = shift.startTime.split(":").map(Number);
@@ -94,6 +131,7 @@ const StaffSchedule = () => {
             });
     
             setSchedule(formattedShifts);
+            
             console.log("Formatted Schedule:", formattedShifts);
         } catch (error) {
             console.error("Error fetching schedule data:", error);
@@ -101,15 +139,11 @@ const StaffSchedule = () => {
     };
     
     if(!schedule){
-        fetchSchedule();
+        fetchSchedule(shiftData,week);
     }
-    useEffect(() => {
-        fetchSchedule(); 
-    }, [shiftData,week]);
+   
 
-    useEffect(()=>{
-        fetchShifts();
-    },[])
+ 
 
     const handleOpenRollCall = async (shift) => {
         console.log(shift);
@@ -262,9 +296,6 @@ const StaffSchedule = () => {
     };
     
 
-    const eventSettings = {
-        dataSource: schedule, 
-    };
 
     return (
         <ConfigProvider
@@ -281,7 +312,7 @@ const StaffSchedule = () => {
             <div className="flex flex-col gap-y-4 overflow-hidden h-full">
                 <h2 className="text-amber-500 font-medium text-3xl">Staff Schedule</h2>
 
-                <div className="max-h-[calc(100vh-200px)] min-h-[calc(100vh-200px)] overflow-auto">
+                <div className=" min-h-[calc(100vh-200px)] overflow-auto">
                     <ScheduleComponent
                         ref={scheduleRef}
                         selectedDate={new Date()}
@@ -303,7 +334,6 @@ const StaffSchedule = () => {
                             const selectedWeekEnd = new Date(selectedWeekStart);
                             selectedWeekEnd.setDate(selectedWeekStart.getDate() + 6);
                             setWeek([selectedWeekStart, selectedWeekEnd]);
-                            fetchSchedule();
                         }}
                     >
                         <Inject services={[Day, Week, WorkWeek]} />
