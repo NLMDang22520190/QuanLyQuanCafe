@@ -90,7 +90,7 @@ export const MenuPage = () => {
       title: "Price",
       dataIndex: "price",
       key: "price",
-      render: (text) => $`${parseFloat(text).toFixed(2)}`,
+      render: (text) => `${parseFloat(text).toFixed(2)}`,
       sorter: (a, b) => a.price - b.price,
     },
     {
