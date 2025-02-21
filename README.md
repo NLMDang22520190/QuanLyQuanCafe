@@ -53,3 +53,279 @@ A comprehensive web-based application designed to streamline operations for coff
 - **Database**: SQL Server for relational data storage.
 
 ## 6. User Guide
+
+### **Admin - Staff:**
+<details>
+  <summary>Dashboard Page</summary>
+
+| ![](./ReadmeAssets/Admin_Dashboard_1.png) | ![](./ReadmeAssets/Admin_Dashboard_2.png) |
+| :--------------------------------------: | :--------------------------------------: |
+| _Admin Dashboard 1_ | _Admin Dashboard 2_ |
+
+1. Dashboard Page.
+2. Users Page.
+3. Order and Billing Page.
+4. Menu Page.
+5. Inventory Page.
+6. Promotion Page.
+7. Schedule Page.
+8. Settings Page.
+9. Logout.
+
+</details>
+
+<details>
+  <summary>Users Page</summary>
+  
+  <details>
+  <summary>User List</summary>
+
+| ![](./ReadmeAssets/Admin_User_List.png) |
+| :----------------------------------: |
+| _User List Screen_ |
+
+1. Update User Role.
+2. Activate/Deactivate User.
+3. View User Orders.
+
+</details>
+
+
+</details>
+
+
+
+<details>
+  <summary>Ingredient Import History & List</summary>
+
+| ![](./ReadmeAssets/Admin_Ingre_ImportHistory.png) | ![](./ReadmeAssets/Admin_Ingre_List.png) |
+| :----------------------------------------------: | :--------------------------------------: |
+| _Ingredient Import History_ | _Ingredient List_ |
+
+</details>
+
+<details>
+  <summary>Create New Product & Product Details</summary>
+
+| ![](./ReadmeAssets/Admin_Product_CreateNew.png) | ![](./ReadmeAssets/Admin_Product_Details.png) |
+| :--------------------------------------------: | :----------------------------------------: |
+| _Create New Product_ | _Product Details_ |
+
+</details>
+
+<details>
+  <summary>Create New Promotion & Edit Promotion</summary>
+
+| ![](./ReadmeAssets/Admin_Promotion_CreateNew.png) | ![](./ReadmeAssets/Admin_Promotion_Edit.png) |
+| :----------------------------------------------: | :--------------------------------------: |
+| _Create New Promotion_ | _Edit Promotion_ |
+
+</details>
+
+### **Riêng:**
+<details>
+  <summary>Order Details</summary>
+
+| ![](./ReadmeAssets/Admin_Order_Details.png) |
+| :----------------------------------: |
+| _Order Details Screen_ |
+
+</details>
+
+<details>
+  <summary>Create New Order</summary>
+
+| ![](./ReadmeAssets/Admin_Order_CreateNew.png) |
+| :----------------------------------: |
+| _Create New Order Screen_ |
+
+</details>
+
+<details>
+  <summary>Create New Order - Payment</summary>
+
+| ![](./ReadmeAssets/Admin_Order_CreateNew_Payment.png) |
+| :----------------------------------: |
+| _Create New Order Payment Screen_ |
+
+</details>
+
+<details>
+  <summary>Create New Order - Print Invoice</summary>
+
+| ![](./ReadmeAssets/Admin_Order_CreateNew_PrintInvoice.png) |
+| :----------------------------------: |
+| _Print Invoice Screen_ |
+
+</details>
+
+<details>
+  <summary>Order List</summary>
+
+| ![](./ReadmeAssets/Admin_Order_List.png) |
+| :----------------------------------: |
+| _Order List Screen_ |
+
+</details>
+
+<details>
+  <summary>Product List</summary>
+
+| ![](./ReadmeAssets/Admin_Product_List.png) |
+| :----------------------------------: |
+| _Product List Screen_ |
+
+</details>
+
+<details>
+  <summary>Promotion List</summary>
+
+| ![](./ReadmeAssets/Admin_Promotion_List.png) |
+| :----------------------------------: |
+| _Promotion List Screen_ |
+
+</details>
+
+<details>
+  <summary>Shift Assignments</summary>
+
+| ![](./ReadmeAssets/Admin_Shift_Assignments.png) |
+| :----------------------------------: |
+| _Shift Assignments Screen_ |
+
+</details>
+
+<details>
+  <summary>Create New Shift</summary>
+
+| ![](./ReadmeAssets/Admin_Shift_CreateNew.png) |
+| :----------------------------------: |
+| _Create New Shift Screen_ |
+
+</details>
+
+<details>
+  <summary>Shift List</summary>
+
+| ![](./ReadmeAssets/Admin_Shift_List.png) |
+| :----------------------------------: |
+| _Shift List Screen_ |
+
+</details>
+
+<details>
+  <summary>Employee Details</summary>
+
+| ![](./ReadmeAssets/Admin_User_Employee_Details.png) |
+| :----------------------------------: |
+| _Employee Details Screen_ |
+
+</details>
+
+<details>
+  <summary>Employee List</summary>
+
+| ![](./ReadmeAssets/Admin_User_Employee_List.png) |
+| :----------------------------------: |
+| _Employee List Screen_ |
+
+</details>
+
+<details>
+  <summary>User List</summary>
+
+| ![](./ReadmeAssets/Admin_User_List.png) |
+| :----------------------------------: |
+| _User List Screen_ |
+
+</details>
+
+<details>
+  <summary>User Order History</summary>
+
+| ![](./ReadmeAssets/Admin_User_OrderHistory.png) |
+| :----------------------------------: |
+| _User Order History Screen_ |
+
+</details>
+
+<details>
+  <summary>Architecture</summary>
+
+| ![](./ReadmeAssets/Architech.png) |
+| :----------------------------------: |
+| _Architecture Diagram_ |
+
+</details>
+
+<details>
+  <summary>Add to Cart</summary>
+
+| ![](./ReadmeAssets/User_AddToCart.png) |
+| :----------------------------------: |
+| _Add to Cart Screen_ |
+
+</details>
+
+<details>
+  <summary>Cart</summary>
+
+| ![](./ReadmeAssets/User_Cart.png) |
+| :----------------------------------: |
+| _Cart Screen_ |
+
+</details>
+
+<details>
+  <summary>Checkout</summary>
+
+| ![](./ReadmeAssets/User_Checkout.png) |
+| :----------------------------------: |
+| _Checkout Screen_ |
+
+</details>
+
+<details>
+  <summary>Landing Page</summary>
+
+| ![](./ReadmeAssets/User_Landing.png) |
+| :----------------------------------: |
+| _Landing Page Screen_ |
+
+</details>
+
+<details>
+  <summary>Menu</summary>
+
+| ![](./ReadmeAssets/User_Menu.png) |
+| :----------------------------------: |
+| _Menu Screen_ |
+
+</details>
+
+<details>
+  <summary>Order History Details</summary>
+
+| ![](./ReadmeAssets/User_OrderHistory_Details.png) |
+| :----------------------------------: |
+| _Order History Details Screen_ |
+
+</details>
+
+<details>
+  <summary>Order History List</summary>
+
+| ![](./ReadmeAssets/User_OrderHistory_List.png) |
+| :----------------------------------: |
+| _Order History List Screen_ |
+
+</details>
+
+<details>
+  <summary>Personal Information</summary>
+
+| ![](./ReadmeAssets/User_PersonalInfo.png) |
+| :----------------------------------: |
+| _Personal Information Screen_ |
+
+</details>
