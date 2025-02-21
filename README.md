@@ -44,6 +44,9 @@ A comprehensive web-based application designed to streamline operations for coff
 - **Libraries**: AutoMapper
 
 ## 5. System Architecture
+| ![](./ReadmeAssets/Architech.png) |
+| :---------------------------: |
+| _Overall Architecture_ |
 
 - **Frontend**: Responsive UI built with ReactJS.
 - **Backend**: Modular ASP.NET Core API handling business logic.
