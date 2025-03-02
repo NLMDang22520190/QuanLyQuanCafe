@@ -164,11 +164,11 @@ A comprehensive web-based application designed to streamline operations for coff
 | :----------------------------------: |
 | _Create New Order Screen_ |
 
-1. Search Food Name.
-2. Select Food Type.
-3. Select Food.
-4. Change Food Quantity.
-5. Remove Food From Order.
+1. Search Product Name.
+2. Select Product Type.
+3. Select Product.
+4. Change Product Quantity.
+5. Remove Product From Order.
 6. Enter Promotion For Order.
 7. Apply Selected Promotion For Order.
 8. Place Order.
@@ -203,12 +203,28 @@ A comprehensive web-based application designed to streamline operations for coff
 
 </details>
 
-<details>
-  <summary>Ingredient Import History & List</summary>
 
-| ![](./ReadmeAssets/Admin_Ingre_ImportHistory.png) | ![](./ReadmeAssets/Admin_Ingre_List.png) |
-| :----------------------------------------------: | :--------------------------------------: |
-| _Ingredient Import History_ | _Ingredient List_ |
+
+
+
+
+
+<details>
+  <summary>Menu Page</summary>
+
+<details>
+  <summary>Product List</summary>
+
+| ![](./ReadmeAssets/Admin_Product_List.png) |
+| :----------------------------------: |
+| _Product List Screen_ |
+
+1. Select Product Type.
+2. Search Product Type.
+3. Export Menu.
+4. Add New Product Type.
+5. Add New Product.
+6. View Product Details.
 
 </details>
 
@@ -219,6 +235,44 @@ A comprehensive web-based application designed to streamline operations for coff
 | :--------------------------------------------: | :----------------------------------------: |
 | _Create New Product_ | _Product Details_ |
 
+1. Enter/Edit Product Information.
+2. Save Product.
+
+</details>
+
+
+</details>
+
+<details>
+  <summary>Inventory Page</summary>
+
+| ![](./ReadmeAssets/Admin_Ingre_ImportHistory.png) | ![](./ReadmeAssets/Admin_Ingre_List.png) |
+| :----------------------------------------------: | :--------------------------------------: |
+| _Ingredient Import History_ | _Ingredient List_ |
+
+1. View Current Ingredient List.
+2. View Import Records.
+3. Search Ingredient.
+4. Export Ingredient Report.
+5. Add New Ingredient.
+
+</details>
+
+<details>
+  <summary>Promotion Page</summary>
+
+<details>
+  <summary>Promotion List</summary>
+
+| ![](./ReadmeAssets/Admin_Promotion_List.png) |
+| :----------------------------------: |
+| _Promotion List Screen_ |
+
+1. Search Promotion.
+2. Export Promotion Report.
+3. Create New Promotion.
+4. View Promotion Details.
+
 </details>
 
 <details>
@@ -228,37 +282,27 @@ A comprehensive web-based application designed to streamline operations for coff
 | :----------------------------------------------: | :--------------------------------------: |
 | _Create New Promotion_ | _Edit Promotion_ |
 
+1. Enter Promotion Information.
+2. Save Promotion.
+
 </details>
-
-### **Riêng:**
-
-
-
-
-<details>
-  <summary>Product List</summary>
-
-| ![](./ReadmeAssets/Admin_Product_List.png) |
-| :----------------------------------: |
-| _Product List Screen_ |
 
 </details>
 
 <details>
-  <summary>Promotion List</summary>
-
-| ![](./ReadmeAssets/Admin_Promotion_List.png) |
-| :----------------------------------: |
-| _Promotion List Screen_ |
-
-</details>
+  <summary>Schedule Page </summary>
 
 <details>
-  <summary>Shift Assignments</summary>
+  <summary>Shift List</summary>
 
-| ![](./ReadmeAssets/Admin_Shift_Assignments.png) |
+| ![](./ReadmeAssets/Admin_Shift_List.png) |
 | :----------------------------------: |
-| _Shift Assignments Screen_ |
+| _Shift List Screen_ |
+
+1. Create New Shift.
+2. Edit Selected Shift.
+3. Assign Selected Shift.
+4. Remove Selected Shift.
 
 </details>
 
@@ -269,49 +313,31 @@ A comprehensive web-based application designed to streamline operations for coff
 | :----------------------------------: |
 | _Create New Shift Screen_ |
 
-</details>
-
-<details>
-  <summary>Shift List</summary>
-
-| ![](./ReadmeAssets/Admin_Shift_List.png) |
-| :----------------------------------: |
-| _Shift List Screen_ |
-
-</details>
-
-
-
-
-
-
-
-<details>
-  <summary>Add to Cart</summary>
-
-| ![](./ReadmeAssets/User_AddToCart.png) |
-| :----------------------------------: |
-| _Add to Cart Screen_ |
+1. Enter Shift Information.
+2. Save Shift.
+3. Cancel
 
 </details>
 
 <details>
-  <summary>Cart</summary>
+  <summary>Shift Assignments</summary>
 
-| ![](./ReadmeAssets/User_Cart.png) |
+| ![](./ReadmeAssets/Admin_Shift_Assignments.png) |
 | :----------------------------------: |
-| _Cart Screen_ |
+| _Shift Assignments Screen_ |
+
+1. Select Staff To Assign Shift.
+2. Select Start Date.
+3. Select End Date.
+4. Add Assignment To Staff.
+5. View Month Assignment.
+6. Update End Date For Staff.
 
 </details>
 
-<details>
-  <summary>Checkout</summary>
-
-| ![](./ReadmeAssets/User_Checkout.png) |
-| :----------------------------------: |
-| _Checkout Screen_ |
-
 </details>
+
+### **Customer:**
 
 <details>
   <summary>Landing Page</summary>
@@ -329,6 +355,32 @@ A comprehensive web-based application designed to streamline operations for coff
 | :----------------------------------: |
 | _Menu Screen_ |
 
+1. Select Product Type.
+2. Select Product.
+
+</details>
+
+<details>
+  <summary>Add to Cart</summary>
+
+| ![](./ReadmeAssets/User_AddToCart.png) |
+| :----------------------------------: |
+| _Add to Cart Screen_ |
+
+1. Update Product Quantity.
+2. Add Product To Cart.
+
+</details>
+
+<details>
+  <summary>Order History List</summary>
+
+| ![](./ReadmeAssets/User_OrderHistory_List.png) |
+| :----------------------------------: |
+| _Order History List Screen_ |
+
+1. View Order Details.
+
 </details>
 
 <details>
@@ -341,19 +393,53 @@ A comprehensive web-based application designed to streamline operations for coff
 </details>
 
 <details>
-  <summary>Order History List</summary>
-
-| ![](./ReadmeAssets/User_OrderHistory_List.png) |
-| :----------------------------------: |
-| _Order History List Screen_ |
-
-</details>
-
-<details>
   <summary>Personal Information</summary>
 
 | ![](./ReadmeAssets/User_PersonalInfo.png) |
 | :----------------------------------: |
 | _Personal Information Screen_ |
 
+1. Enter Personal Information.
+2. Update Information.
+3. Logout.
+4. Enter Password Information.
+5. Update Password.
+
 </details>
+
+<details>
+  <summary>Cart</summary>
+
+| ![](./ReadmeAssets/User_Cart.png) |
+| :----------------------------------: |
+| _Cart Screen_ |
+
+1. Update Product Quantity.
+2. Remove Product From Cart.
+3. Proceed To Checkout Page.
+
+</details>
+
+<details>
+  <summary>Checkout</summary>
+
+| ![](./ReadmeAssets/User_Checkout.png) |
+| :----------------------------------: |
+| _Checkout Screen_ |
+
+1. Enter Checkout Information.
+2. Select Payment Method.
+3. Apply Promotion To Order.
+4. Order.
+
+</details>
+
+
+
+
+
+
+
+
+
+
