@@ -54,6 +54,103 @@ A comprehensive web-based application designed to streamline operations for coff
 
 ## 6. User Guide
 
+### **Customer:**
+
+<details>
+  <summary>Landing Page</summary>
+
+| ![](./ReadmeAssets/User_Landing.png) |
+| :----------------------------------: |
+| _Landing Page Screen_ |
+
+</details>
+
+<details>
+  <summary>Menu Page</summary>
+
+| ![](./ReadmeAssets/User_Menu.png) |
+| :----------------------------------: |
+| _Menu Screen_ |
+
+1. Select Product Type.
+2. Select Product.
+
+</details>
+
+<details>
+  <summary>Add to Cart Modal</summary>
+
+| ![](./ReadmeAssets/User_AddToCart.png) |
+| :----------------------------------: |
+| _Add to Cart Screen_ |
+
+1. Update Product Quantity.
+2. Add Product To Cart.
+
+</details>
+
+<details>
+  <summary>Order History Page</summary>
+
+| ![](./ReadmeAssets/User_OrderHistory_List.png) |
+| :----------------------------------: |
+| _Order History List Screen_ |
+
+1. View Order Details.
+
+</details>
+
+<details>
+  <summary>Order Details Modal</summary>
+
+| ![](./ReadmeAssets/User_OrderHistory_Details.png) |
+| :----------------------------------: |
+| _Order History Details Screen_ |
+
+</details>
+
+<details>
+  <summary>Personal Information Page</summary>
+
+| ![](./ReadmeAssets/User_PersonalInfo.png) |
+| :----------------------------------: |
+| _Personal Information Screen_ |
+
+1. Enter Personal Information.
+2. Update Information.
+3. Logout.
+4. Enter Password Information.
+5. Update Password.
+
+</details>
+
+<details>
+  <summary>Cart Page</summary>
+
+| ![](./ReadmeAssets/User_Cart.png) |
+| :----------------------------------: |
+| _Cart Screen_ |
+
+1. Update Product Quantity.
+2. Remove Product From Cart.
+3. Proceed To Checkout Page.
+
+</details>
+
+<details>
+  <summary>Checkout Page</summary>
+
+| ![](./ReadmeAssets/User_Checkout.png) |
+| :----------------------------------: |
+| _Checkout Screen_ |
+
+1. Enter Checkout Information.
+2. Select Payment Method.
+3. Apply Promotion To Order.
+4. Order.
+
+</details>
+
 ### **Admin - Staff:**
 <details>
   <summary>Dashboard Page</summary>
@@ -203,12 +300,6 @@ A comprehensive web-based application designed to streamline operations for coff
 
 </details>
 
-
-
-
-
-
-
 <details>
   <summary>Menu Page</summary>
 
@@ -337,102 +428,7 @@ A comprehensive web-based application designed to streamline operations for coff
 
 </details>
 
-### **Customer:**
 
-<details>
-  <summary>Landing Page</summary>
-
-| ![](./ReadmeAssets/User_Landing.png) |
-| :----------------------------------: |
-| _Landing Page Screen_ |
-
-</details>
-
-<details>
-  <summary>Menu</summary>
-
-| ![](./ReadmeAssets/User_Menu.png) |
-| :----------------------------------: |
-| _Menu Screen_ |
-
-1. Select Product Type.
-2. Select Product.
-
-</details>
-
-<details>
-  <summary>Add to Cart</summary>
-
-| ![](./ReadmeAssets/User_AddToCart.png) |
-| :----------------------------------: |
-| _Add to Cart Screen_ |
-
-1. Update Product Quantity.
-2. Add Product To Cart.
-
-</details>
-
-<details>
-  <summary>Order History List</summary>
-
-| ![](./ReadmeAssets/User_OrderHistory_List.png) |
-| :----------------------------------: |
-| _Order History List Screen_ |
-
-1. View Order Details.
-
-</details>
-
-<details>
-  <summary>Order History Details</summary>
-
-| ![](./ReadmeAssets/User_OrderHistory_Details.png) |
-| :----------------------------------: |
-| _Order History Details Screen_ |
-
-</details>
-
-<details>
-  <summary>Personal Information</summary>
-
-| ![](./ReadmeAssets/User_PersonalInfo.png) |
-| :----------------------------------: |
-| _Personal Information Screen_ |
-
-1. Enter Personal Information.
-2. Update Information.
-3. Logout.
-4. Enter Password Information.
-5. Update Password.
-
-</details>
-
-<details>
-  <summary>Cart</summary>
-
-| ![](./ReadmeAssets/User_Cart.png) |
-| :----------------------------------: |
-| _Cart Screen_ |
-
-1. Update Product Quantity.
-2. Remove Product From Cart.
-3. Proceed To Checkout Page.
-
-</details>
-
-<details>
-  <summary>Checkout</summary>
-
-| ![](./ReadmeAssets/User_Checkout.png) |
-| :----------------------------------: |
-| _Checkout Screen_ |
-
-1. Enter Checkout Information.
-2. Select Payment Method.
-3. Apply Promotion To Order.
-4. Order.
-
-</details>
 
 
 
