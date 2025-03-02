@@ -64,7 +64,7 @@ A comprehensive web-based application designed to streamline operations for coff
 
 1. Dashboard Page.
 2. Users Page.
-3. Order and Billing Page.
+3. Order & Billing Page.
 4. Menu Page.
 5. Inventory Page.
 6. Promotion Page.
@@ -76,7 +76,8 @@ A comprehensive web-based application designed to streamline operations for coff
 
 <details>
   <summary>Users Page</summary>
-  
+   
+
   <details>
   <summary>User List</summary>
 
@@ -88,12 +89,119 @@ A comprehensive web-based application designed to streamline operations for coff
 2. Activate/Deactivate User.
 3. View User Orders.
 
+  </details>
+
+  <details>
+  <summary>User Order History</summary>
+
+| ![](./ReadmeAssets/Admin_User_OrderHistory.png) |
+| :----------------------------------: |
+| _User Order History Screen_ |
+
+  </details>
+
+
+  <details>
+  <summary>Employee List</summary>
+
+| ![](./ReadmeAssets/Admin_User_Employee_List.png) |
+| :----------------------------------: |
+| _Employee List Screen_ |
+
+1. View Employee Details.
+2. Remove Staff Role.
+3. View Former Employee Details.
+
+  </details>
+
+
+  <details>
+  <summary>Employee Details</summary>
+
+| ![](./ReadmeAssets/Admin_User_Employee_Details.png) |
+| :----------------------------------: |
+| _Employee Details Screen_ |
+
+1. Enter Hourly Wage Information.
+2. Add New Hourly Wage.
+
+  </details>
+
+</details>
+
+<details>
+  <summary>Order & Billing Page</summary>
+
+  <details>
+  <summary>Order List</summary>
+
+| ![](./ReadmeAssets/Admin_Order_List.png) |
+| :----------------------------------: |
+| _Order List Screen_ |
+
+1. Search Order.
+2. Export Order List To CSV.
+3. Create New Order.
+4. View Order Details.
+
+</details>
+
+<details>
+  <summary>Order Details</summary>
+
+| ![](./ReadmeAssets/Admin_Order_Details.png) |
+| :----------------------------------: |
+| _Order Details Screen_ |
+
+1. Update Order Status.
+
+</details>
+
+<details>
+  <summary>Create New Order</summary>
+
+| ![](./ReadmeAssets/Admin_Order_CreateNew.png) |
+| :----------------------------------: |
+| _Create New Order Screen_ |
+
+1. Search Food Name.
+2. Select Food Type.
+3. Select Food.
+4. Change Food Quantity.
+5. Remove Food From Order.
+6. Enter Promotion For Order.
+7. Apply Selected Promotion For Order.
+8. Place Order.
+
+</details>
+
+<details>
+  <summary>Create New Order - Payment</summary>
+
+| ![](./ReadmeAssets/Admin_Order_CreateNew_Payment.png) |
+| :----------------------------------: |
+| _Create New Order Payment Screen_ |
+
+1. Select Payment Method.
+2. Money Customer Has Already Given.
+3. Submit Payment.
+
+</details>
+
+<details>
+  <summary>Create New Order - Print Invoice</summary>
+
+| ![](./ReadmeAssets/Admin_Order_CreateNew_PrintInvoice.png) |
+| :----------------------------------: |
+| _Print Invoice Screen_ |
+
+1. Print Order.
+2. Done
+
 </details>
 
 
 </details>
-
-
 
 <details>
   <summary>Ingredient Import History & List</summary>
@@ -123,50 +231,9 @@ A comprehensive web-based application designed to streamline operations for coff
 </details>
 
 ### **Riêng:**
-<details>
-  <summary>Order Details</summary>
 
-| ![](./ReadmeAssets/Admin_Order_Details.png) |
-| :----------------------------------: |
-| _Order Details Screen_ |
 
-</details>
 
-<details>
-  <summary>Create New Order</summary>
-
-| ![](./ReadmeAssets/Admin_Order_CreateNew.png) |
-| :----------------------------------: |
-| _Create New Order Screen_ |
-
-</details>
-
-<details>
-  <summary>Create New Order - Payment</summary>
-
-| ![](./ReadmeAssets/Admin_Order_CreateNew_Payment.png) |
-| :----------------------------------: |
-| _Create New Order Payment Screen_ |
-
-</details>
-
-<details>
-  <summary>Create New Order - Print Invoice</summary>
-
-| ![](./ReadmeAssets/Admin_Order_CreateNew_PrintInvoice.png) |
-| :----------------------------------: |
-| _Print Invoice Screen_ |
-
-</details>
-
-<details>
-  <summary>Order List</summary>
-
-| ![](./ReadmeAssets/Admin_Order_List.png) |
-| :----------------------------------: |
-| _Order List Screen_ |
-
-</details>
 
 <details>
   <summary>Product List</summary>
@@ -213,50 +280,11 @@ A comprehensive web-based application designed to streamline operations for coff
 
 </details>
 
-<details>
-  <summary>Employee Details</summary>
 
-| ![](./ReadmeAssets/Admin_User_Employee_Details.png) |
-| :----------------------------------: |
-| _Employee Details Screen_ |
 
-</details>
 
-<details>
-  <summary>Employee List</summary>
 
-| ![](./ReadmeAssets/Admin_User_Employee_List.png) |
-| :----------------------------------: |
-| _Employee List Screen_ |
 
-</details>
-
-<details>
-  <summary>User List</summary>
-
-| ![](./ReadmeAssets/Admin_User_List.png) |
-| :----------------------------------: |
-| _User List Screen_ |
-
-</details>
-
-<details>
-  <summary>User Order History</summary>
-
-| ![](./ReadmeAssets/Admin_User_OrderHistory.png) |
-| :----------------------------------: |
-| _User Order History Screen_ |
-
-</details>
-
-<details>
-  <summary>Architecture</summary>
-
-| ![](./ReadmeAssets/Architech.png) |
-| :----------------------------------: |
-| _Architecture Diagram_ |
-
-</details>
 
 <details>
   <summary>Add to Cart</summary>
